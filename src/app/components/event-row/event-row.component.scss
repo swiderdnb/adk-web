@@ -38,11 +38,11 @@ app-content-bubble + app-content-bubble {
   border: 2px solid transparent;
   border-radius: 4px;
 
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 
   // Hover effect for all rows
   &.selectable:hover {
-    background-color: var(--mat-sys-surface-variant, rgba(0, 0, 0, 0.04));
+    border-color: var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
   }
 
   // Selected row (stays highlighted when side drawer is open)
