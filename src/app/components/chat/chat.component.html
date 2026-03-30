@@ -210,6 +210,8 @@
     position="start"
     [opened]="showAppSelectorDrawer || showSessionSelectorDrawer"
     (closedStart)="onSelectorDrawerClosed()"
+    [autoFocus]="false"
+    (opened)="onSelectorDrawerOpened()"
   >
     @if (showAppSelectorDrawer) {
     <div class="selector-drawer-header">
@@ -226,10 +228,10 @@
     <div class="app-selector-search">
       <mat-form-field class="app-selector-search-field" subscriptSizing="dynamic" appearance="outline">
         <mat-icon matPrefix>search</mat-icon>
-        <input matInput placeholder="Search apps..." [formControl]="appDrawerSearchControl" />
+        <input matInput #appSearchInput placeholder="Search apps..." [formControl]="appDrawerSearchControl" (keydown)="handleAppSearchKeydown($event)" />
       </mat-form-field>
     </div>
-    <div class="app-selector-list">
+    <div class="app-selector-list" (keydown)="handleAppListKeydown($event)">
       @if (isLoadingApps()) {
         <div class="app-selector-loading"><mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner></div>
       } @else if (filteredDrawerApps$ | async; as apps) {

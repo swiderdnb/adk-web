@@ -207,6 +207,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sidePanel = viewChild.required(SidePanelComponent);
   drawerSessionTab = viewChild<SessionTabComponent>('drawerSessionTab');
   evalTab = viewChild(EvalTabComponent);
+  appSearchInput = viewChild<ElementRef<HTMLInputElement>>('appSearchInput');
 
   isChatMode = signal(true);
   isEvalCaseEditing = signal(false);
@@ -1614,6 +1615,51 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showAppSelectorDrawer = !this.showAppSelectorDrawer;
     if (this.showAppSelectorDrawer) {
       this.appDrawerSearchControl.setValue('');
+    }
+  }
+
+  onSelectorDrawerOpened() {
+    if (this.showAppSelectorDrawer) {
+      this.appSearchInput()?.nativeElement.focus();
+    }
+  }
+
+  handleAppSearchKeydown(event: KeyboardEvent) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      event.stopPropagation();
+      const firstItem = this.document.querySelector('.app-selector-list .app-selector-item') as HTMLElement;
+      if (firstItem) {
+        firstItem.focus();
+      }
+    }
+  }
+
+  handleAppListKeydown(event: KeyboardEvent) {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+      return;
+    }
+    
+    event.stopPropagation();
+    
+    const items = Array.from(this.document.querySelectorAll('.app-selector-list .app-selector-item')) as HTMLElement[];
+    const currentIndex = items.indexOf(this.document.activeElement as HTMLElement);
+    
+    if (currentIndex > -1) {
+      event.preventDefault();
+      if (event.key === 'ArrowDown') {
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < items.length) {
+          items[nextIndex].focus();
+        }
+      } else if (event.key === 'ArrowUp') {
+        const prevIndex = currentIndex - 1;
+        if (prevIndex >= 0) {
+          items[prevIndex].focus();
+        } else {
+          this.appSearchInput()?.nativeElement.focus();
+        }
+      }
     }
   }
 

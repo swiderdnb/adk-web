@@ -137,6 +137,11 @@ export class TraceTabComponent {
   handleKeyboardNavigation(event: KeyboardEvent) {
     if (this.selectedSpanIndex === undefined) return;
 
+    const activeElement = document.activeElement as HTMLElement | null;
+    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable)) {
+      return;
+    }
+
     // Only handle arrow keys
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
 
