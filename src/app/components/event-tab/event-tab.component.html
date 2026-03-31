@@ -81,6 +81,32 @@
             </table>
           }
 
+          @if (functionCalls().length > 0) {
+            <table app-info-table title="Function Calls">
+                @for (fc of functionCalls(); track $index) {
+                  <tr>
+                    <td>{{ fc?.name }}</td>
+                    <td>
+                      <ngx-json-viewer [json]="fc"></ngx-json-viewer>
+                    </td>
+                  </tr>
+                }
+            </table>
+          }
+
+          @if (functionResponses().length > 0) {
+            <table app-info-table title="Function Responses">
+                @for (fr of functionResponses(); track $index) {
+                  <tr>
+                    <td>{{ fr?.name }}</td>
+                    <td>
+                      <ngx-json-viewer [json]="fr"></ngx-json-viewer>
+                    </td>
+                  </tr>
+                }
+            </table>
+          }
+
           @if (associatedSpans().length > 0) {
             <table app-info-table title="Associated Spans">
                 @for (span of associatedSpans(); track span.span_id) {

@@ -58,6 +58,16 @@ export class EventTabComponent {
     return path.split('/').filter(s => s);
   });
 
+  readonly functionCalls = computed(() => {
+    const parts = this.selectedEvent()?.content?.parts || [];
+    return parts.filter(p => !!p.functionCall).map(p => p.functionCall);
+  });
+
+  readonly functionResponses = computed(() => {
+    const parts = this.selectedEvent()?.content?.parts || [];
+    return parts.filter(p => !!p.functionResponse).map(p => p.functionResponse);
+  });
+
   readonly page = output<PageEvent>();
   readonly closeSelectedEvent = output<void>();
   readonly openImageDialog = output<string | null>();
