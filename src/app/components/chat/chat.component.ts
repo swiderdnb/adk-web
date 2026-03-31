@@ -2585,15 +2585,15 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         nodeElement.classList.add('unvisited-node');
         const shape = nodeElement.querySelector('ellipse, polygon, path, rect');
         if (shape) {
-          shape.setAttribute('stroke', theme === 'dark' ? '#555555' : '#cccccc');
-          shape.setAttribute('fill', theme === 'dark' ? '#333333' : '#f5f5f5');
+          shape.setAttribute('stroke', theme === 'dark' ? '#666666' : '#b0b0b0');
+          shape.setAttribute('fill', theme === 'dark' ? '#424242' : '#e0e0e0');
           const shapeTitle = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
           shapeTitle.textContent = 'Not run in this invocation';
           shape.appendChild(shapeTitle);
         }
         const textElements = nodeElement.querySelectorAll('text');
         textElements.forEach((t) => {
-          t.setAttribute('fill', theme === 'dark' ? '#777777' : '#999999');
+          t.setAttribute('fill', theme === 'dark' ? '#888888' : '#757575');
           const textTitle = doc.createElementNS('http://www.w3.org/2000/svg', 'title');
           textTitle.textContent = 'Not run in this invocation';
           t.appendChild(textTitle);
