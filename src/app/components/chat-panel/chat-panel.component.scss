@@ -239,17 +239,9 @@ button.send-message-btn {
   width: 240px;
 }
 
-.readme-container {
-  max-width: 900px;
-  margin: 0 auto;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(138, 180, 248, 0.2);
-  overflow: hidden;
-}
 
 .readme-content {
-  padding: 20px 40px 40px 40px;
+  padding: 0 20px;
   font-size: 14px;
   line-height: 1.8;
   color: var(--mat-sys-on-surface);

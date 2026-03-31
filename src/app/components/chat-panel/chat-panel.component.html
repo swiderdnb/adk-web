@@ -52,10 +52,8 @@
   </div>
 <div #autoScroll class="chat-messages" (scroll)="onScroll.next($event)">
   @if (uiEvents.length === 0 && agentReadme) {
-    <div class="readme-container">
-      <div class="readme-content">
-        <ng-container [ngComponentOutlet]="markdownComponent" [ngComponentOutletInputs]="{text: agentReadme, thought: false}"></ng-container>
-      </div>
+    <div class="readme-content">
+      <ng-container [ngComponentOutlet]="markdownComponent" [ngComponentOutletInputs]="{text: agentReadme, thought: false}"></ng-container>
     </div>
   }
   @for (uiEvent of uiEvents; track uiEvent; let i = $index) {
