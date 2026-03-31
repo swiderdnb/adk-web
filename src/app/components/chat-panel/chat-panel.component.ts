@@ -31,6 +31,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatSelectModule} from '@angular/material/select';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {EMPTY, merge, NEVER, of, Subject} from 'rxjs';
 import {catchError, filter, first, switchMap, tap} from 'rxjs/operators';
@@ -88,6 +89,7 @@ import {TraceTreeComponent} from '../trace-tab/trace-tree/trace-tree.component';
     NgxJsonViewerModule,
     MatTooltipModule,
     MatButtonToggleModule,
+    MatSelectModule,
     EventRowComponent,
     CallControlsComponent,
     TraceTreeComponent,
@@ -189,6 +191,10 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   hideIntermediateEvents = input<boolean>(false);
   
   viewMode = signal<'events' | 'traces'>('events');
+  invocationIdFilter = signal<string>('');
+  nodePathFilter = signal<string>('');
+  invocationIdOptions: string[] = [];
+  nodePathOptions: string[] = [];
   spansByInvocationId = new Map<string, any[]>();
 
   eventsScrollTop = -1;
@@ -225,6 +231,22 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   }
 
   shouldShowEvent(uiEvent: UiEvent): boolean {
+    const invFilter = this.invocationIdFilter();
+    if (invFilter) {
+      const eventInvId = uiEvent.event?.invocationId || '';
+      if (!eventInvId.includes(invFilter)) {
+        return false;
+      }
+    }
+
+    const pathFilter = this.nodePathFilter();
+    if (pathFilter) {
+      const eventPath = uiEvent.event?.nodeInfo?.path || '';
+      if (!eventPath.includes(pathFilter)) {
+        return false;
+      }
+    }
+
     if (!this.hideIntermediateEvents()) {
       return true;
     }
@@ -371,6 +393,15 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
     }
 
     if (changes['uiEvents']) {
+      const ids = new Set<string>();
+      const paths = new Set<string>();
+      for (const e of this.uiEvents) {
+        if (e.event?.invocationId) ids.add(e.event.invocationId);
+        if (e.event?.nodeInfo?.path) paths.add(e.event.nodeInfo.path);
+      }
+      this.invocationIdOptions = Array.from(ids);
+      this.nodePathOptions = Array.from(paths);
+
       const currentLastMessage = this.uiEvents[this.uiEvents.length - 1];
       const isNewMessageAppended = currentLastMessage !== this.lastMessageRef;
 

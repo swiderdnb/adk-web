@@ -23,6 +23,21 @@
     </mat-button-toggle-group>
     
     @if (viewMode() === 'events') {
+      <div class="filter-bar" style="display: flex; gap: 8px; margin-left: 16px; align-items: center;">
+        <mat-select class="filter-input" [ngModel]="invocationIdFilter()" (ngModelChange)="invocationIdFilter.set($event)" panelClass="filter-panel" [style.width]="'max-content'">
+          <mat-option value="">All Invocations</mat-option>
+          @for (id of invocationIdOptions; track id) {
+            <mat-option [value]="id">{{ id }}</mat-option>
+          }
+        </mat-select>
+        <mat-select class="filter-input" [ngModel]="nodePathFilter()" (ngModelChange)="nodePathFilter.set($event)" panelClass="filter-panel" [style.width]="'max-content'">
+          <mat-option value="">All Nodes</mat-option>
+          @for (path of nodePathOptions; track path) {
+            <mat-option [value]="path">{{ path }}</mat-option>
+          }
+        </mat-select>
+      </div>
+
       <button
         style="margin-left: 8px; transform: scale(0.85);"
         mat-icon-button
