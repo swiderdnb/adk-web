@@ -31,7 +31,7 @@ interface WorkflowNodeData {
   input?: any;
   triggeredBy?: string;
   retryCount?: number;
-  executionId?: string;
+  runId?: string;
   hasNestedStructure?: boolean;
   nodeData?: any;
 }
@@ -137,7 +137,7 @@ export class WorkflowGraphTooltipComponent implements OnInit {
             input: nodeState?.input,
             triggeredBy: nodeState?.triggered_by,
             retryCount: nodeState?.retry_count,
-            executionId: nodeState?.execution_id,
+            runId: nodeState?.run_id,
             hasNestedStructure: hasNested,
             nodeData: node,
           }),
@@ -311,7 +311,7 @@ export class WorkflowGraphTooltipComponent implements OnInit {
           input: nodeState.input,
           triggeredBy: nodeState.triggered_by,
           retryCount: nodeState.retry_count,
-          executionId: nodeState.execution_id,
+          runId: nodeState.run_id,
         }),
       });
     });

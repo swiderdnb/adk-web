@@ -95,8 +95,8 @@ export declare interface NodeState {
   retry_count?: number;
   interrupts?: string[];
   resume_inputs?: {[key: string]: any};
-  execution_id?: string;
-  parent_execution_id?: string;
+  run_id?: string;
+  parent_run_id?: string;
   source_node_name?: string;
 }
 
