@@ -53,6 +53,7 @@ export class EventTabComponent {
   readonly appName = input<string>('');
   readonly selectedEventGraphPath = input<string>('');
   readonly hasSubWorkflows = input<boolean>(false);
+  readonly graphsAvailable = input<boolean>(true);
   readonly invocationDisplayMap = input<Map<string, string>>(new Map());
 
   readonly invocationDisplayEntries = computed(() => {

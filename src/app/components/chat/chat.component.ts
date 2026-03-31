@@ -297,6 +297,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionGraphSvgLight: Record<string, string> = {};
   sessionGraphSvgDark: Record<string, string> = {};
   agentReadme: string = '';
+  graphsAvailable: boolean = true;
 
   get hasSubWorkflows(): boolean {
     return Object.keys(this.sessionGraphSvgLight).length > 1;
@@ -2825,8 +2826,16 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         })
         this.sessionGraphSvgLight = {};
         this.sessionGraphSvgDark = {};
+        this.graphsAvailable = true;
 
-        this.agentService.getAppGraphImage(app, false).subscribe(async (res) => {
+        this.agentService.getAppGraphImage(app, false).pipe(
+          catchError((error: HttpErrorResponse) => {
+            if (error.status === 404) {
+              this.graphsAvailable = false;
+            }
+            return of(null);
+          })
+        ).subscribe(async (res) => {
           if (res) {
             this.sessionGraphSvgLight = {};
             for (const [path, graph] of Object.entries(res)) {
@@ -2839,7 +2848,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         });
-        this.agentService.getAppGraphImage(app, true).subscribe(async (res) => {
+        this.agentService.getAppGraphImage(app, true).pipe(
+          catchError((error: HttpErrorResponse) => {
+            if (error.status === 404) {
+              this.graphsAvailable = false;
+            }
+            return of(null);
+          })
+        ).subscribe(async (res) => {
           if (res) {
             this.sessionGraphSvgDark = {};
             for (const [path, graph] of Object.entries(res)) {

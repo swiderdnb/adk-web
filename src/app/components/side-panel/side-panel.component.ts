@@ -83,6 +83,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly isBuilderMode = input<boolean>(false);
   readonly disableBuilderIcon = input<boolean>(false);
   readonly hasSubWorkflows = input<boolean>(false);
+  readonly graphsAvailable = input<boolean>(true);
   readonly invocationDisplayMap = input<Map<string, string>>(new Map());
 
   readonly closePanel = output<void>();
