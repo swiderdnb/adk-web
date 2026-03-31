@@ -37,9 +37,14 @@
       </button>
       @if (!isBuilderMode()) {
         <div class="selector-group-divider"></div>
-        <button mat-icon-button class="toolbar-icon-button" (click)="openAgentStructureGraphDialog()" matTooltip="View Agent Structure Graph" matTooltipPosition="below">
-          <mat-icon>account_tree</mat-icon>
-        </button>
+        <span [matTooltip]="!graphsAvailable ? 'Agent structure graph is not available for this agent' : 'View Agent Structure Graph'" matTooltipPosition="below">
+          <button mat-icon-button class="toolbar-icon-button"
+            [disabled]="!graphsAvailable"
+            (click)="openAgentStructureGraphDialog()"
+            matTooltipPosition="below">
+            <mat-icon>account_tree</mat-icon>
+          </button>
+        </span>
         <span [matTooltip]="disableBuilderSwitch ? 'Editing is not available for this agent because it was not built by the builder' : 'Edit in Builder Mode'" matTooltipPosition="below">
           <button mat-icon-button class="toolbar-icon-button"
             [disabled]="disableBuilderSwitch"

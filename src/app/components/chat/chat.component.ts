@@ -2868,7 +2868,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           }
         });
-        this.agentService.getAgentBuilder(app).subscribe((res: any) => {
+        this.agentService.getAgentBuilder(app).pipe(
+          catchError((error: HttpErrorResponse) => {
+            this.disableBuilderSwitch = true;
+            this.agentBuilderService.setLoadedAgentData(undefined);
+            return of('');
+          })
+        ).subscribe((res: any) => {
           if (!res || res == '') {
             this.disableBuilderSwitch = true;
             this.agentBuilderService.setLoadedAgentData(undefined);
