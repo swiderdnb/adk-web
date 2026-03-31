@@ -128,4 +128,8 @@ export class FeatureFlagService implements FeatureFlagServiceInterface {
   isInfinityMessageScrollingEnabled(): Observable<boolean> {
     return of(false);
   }
+
+  isMoreOptionsButtonHidden(): Observable<boolean> {
+    return of(false);
+  }
 }

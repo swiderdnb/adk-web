@@ -15,57 +15,57 @@
  * limitations under the License.
  */
 
-import {TextFieldModule} from '@angular/cdk/text-field';
-import {CommonModule} from '@angular/common';
-import {AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, EventEmitter, HostListener, inject, input, Input, OnChanges, Output, signal, SimpleChanges, Type, ViewChild} from '@angular/core';
-import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
-import {FormsModule} from '@angular/forms';
-import {MatButtonModule} from '@angular/material/button';
-import {MatCardModule} from '@angular/material/card';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatIconModule} from '@angular/material/icon';
-import {MatInputModule} from '@angular/material/input';
-import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import {MatSelectModule} from '@angular/material/select';
-import {NgxJsonViewerModule} from 'ngx-json-viewer';
-import {EMPTY, merge, NEVER, of, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, tap} from 'rxjs/operators';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, EventEmitter, HostListener, inject, InjectionToken, input, Input, OnChanges, Output, signal, SimpleChanges, Type, ViewChild } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
+import { EMPTY, merge, NEVER, of, Subject } from 'rxjs';
+import { catchError, filter, first, switchMap, tap } from 'rxjs/operators';
 
-import {AgentRunRequest} from '../../core/models/AgentRunRequest';
-import {isComputerUseResponse, isVisibleComputerUseClick} from '../../core/models/ComputerUse';
-import type {EvalCase} from '../../core/models/Eval';
-import {FunctionCall, FunctionResponse} from '../../core/models/types';
-import {UiEvent} from '../../core/models/UiEvent';
-import {AGENT_SERVICE} from '../../core/services/interfaces/agent';
-import {FEATURE_FLAG_SERVICE} from '../../core/services/interfaces/feature-flag';
-import {SAFE_VALUES_SERVICE} from '../../core/services/interfaces/safevalues';
-import {SESSION_SERVICE} from '../../core/services/interfaces/session';
-import {STRING_TO_COLOR_SERVICE} from '../../core/services/interfaces/string-to-color';
-import {ListResponse} from '../../core/services/interfaces/types';
-import {UI_STATE_SERVICE} from '../../core/services/interfaces/ui-state';
-import {THEME_SERVICE} from '../../core/services/interfaces/theme';
-import {JsonTooltipDirective} from '../../directives/html-tooltip.directive';
-import {WorkflowGraphTooltipDirective} from '../../directives/workflow-graph-tooltip.directive';
-import {A2uiCanvasComponent} from '../a2ui-canvas/a2ui-canvas.component';
-import {MediaType,} from '../artifact-tab/artifact-tab.component';
-import {AudioPlayerComponent} from '../audio-player/audio-player.component';
-import {ComputerActionComponent} from '../computer-action/computer-action.component';
-import {LongRunningResponseComponent} from '../long-running-response/long-running-response';
-import {MARKDOWN_COMPONENT, MarkdownComponentInterface} from '../markdown/markdown.component.interface';
-import {MessageFeedbackComponent} from '../message-feedback/message-feedback.component';
+import { AgentRunRequest } from '../../core/models/AgentRunRequest';
+import { isComputerUseResponse, isVisibleComputerUseClick } from '../../core/models/ComputerUse';
+import type { EvalCase } from '../../core/models/Eval';
+import { FunctionCall, FunctionResponse } from '../../core/models/types';
+import { UiEvent } from '../../core/models/UiEvent';
+import { AGENT_SERVICE } from '../../core/services/interfaces/agent';
+import { FEATURE_FLAG_SERVICE } from '../../core/services/interfaces/feature-flag';
+import { SAFE_VALUES_SERVICE } from '../../core/services/interfaces/safevalues';
+import { SESSION_SERVICE } from '../../core/services/interfaces/session';
+import { STRING_TO_COLOR_SERVICE } from '../../core/services/interfaces/string-to-color';
+import { ListResponse } from '../../core/services/interfaces/types';
+import { UI_STATE_SERVICE } from '../../core/services/interfaces/ui-state';
+import { THEME_SERVICE } from '../../core/services/interfaces/theme';
+import { JsonTooltipDirective } from '../../directives/html-tooltip.directive';
+import { WorkflowGraphTooltipDirective } from '../../directives/workflow-graph-tooltip.directive';
+import { A2uiCanvasComponent } from '../a2ui-canvas/a2ui-canvas.component';
+import { MediaType, } from '../artifact-tab/artifact-tab.component';
+import { AudioPlayerComponent } from '../audio-player/audio-player.component';
+import { ComputerActionComponent } from '../computer-action/computer-action.component';
+import { LongRunningResponseComponent } from '../long-running-response/long-running-response';
+import { MARKDOWN_COMPONENT, MarkdownComponentInterface } from '../markdown/markdown.component.interface';
+import { MessageFeedbackComponent } from '../message-feedback/message-feedback.component';
 
-import {ChatPanelMessagesInjectionToken} from './chat-panel.component.i18n';
+import { ChatPanelMessagesInjectionToken } from './chat-panel.component.i18n';
 
-import {HoverInfoButtonComponent} from '../hover-info-button/hover-info-button.component';
-import {ChatAvatarComponent} from '../chat-avatar/chat-avatar.component';
-import {EventRowComponent} from '../event-row/event-row.component';
-import {CallControlsComponent} from '../call-controls/call-controls.component';
-import {TraceTreeComponent} from '../trace-tab/trace-tree/trace-tree.component';
+import { HoverInfoButtonComponent } from '../hover-info-button/hover-info-button.component';
+import { ChatAvatarComponent } from '../chat-avatar/chat-avatar.component';
+import { EventRowComponent } from '../event-row/event-row.component';
+import { CallControlsComponent } from '../call-controls/call-controls.component';
+import { TraceTreeComponent } from '../trace-tab/trace-tree/trace-tree.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
@@ -102,7 +102,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Input() uiEvents: UiEvent[] = [];
   @Input() traceData: any[] = [];
   @Input() isChatMode: boolean = true;
-  @Input() evalCase: EvalCase|null = null;
+  @Input() evalCase: EvalCase | null = null;
   @Input() isEvalEditMode: boolean = false;
   @Input() isEvalCaseEditing: boolean = false;
   @Input() agentGraphData: any = null;
@@ -111,8 +111,8 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Input() useSse: boolean = false;
   @Input() userInput: string = '';
   @Input() userEditEvalCaseMessage: string = '';
-  @Input() selectedFiles: {file: File; url: string}[] = [];
-  @Input() updatedSessionState: any|null = null;
+  @Input() selectedFiles: { file: File; url: string }[] = [];
+  @Input() updatedSessionState: any | null = null;
   @Input() selectedMessageIndex: number | undefined = undefined;
   @Input() isAudioRecording: boolean = false;
   @Input() micVolume: number = 0;
@@ -125,17 +125,17 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Output() readonly clickEvent = new EventEmitter<number>();
   @Output()
   readonly handleKeydown =
-      new EventEmitter<{event: KeyboardEvent, message: any}>();
+    new EventEmitter<{ event: KeyboardEvent, message: any }>();
   @Output() readonly cancelEditMessage = new EventEmitter<any>();
   @Output() readonly saveEditMessage = new EventEmitter<any>();
   @Output() readonly openViewImageDialog = new EventEmitter<string>();
   @Output()
   readonly openBase64InNewTab =
-      new EventEmitter<{data: string, mimeType: string}>();
+    new EventEmitter<{ data: string, mimeType: string }>();
   @Output() readonly editEvalCaseMessage = new EventEmitter<any>();
   @Output()
   readonly deleteEvalCaseMessage =
-      new EventEmitter<{message: any, index: number}>();
+    new EventEmitter<{ message: any, index: number }>();
   @Output() readonly editFunctionArgs = new EventEmitter<any>();
   @Output() readonly fileSelect = new EventEmitter<Event>();
   @Output() readonly removeFile = new EventEmitter<number>();
@@ -148,9 +148,9 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Output() readonly toggleHideIntermediateEvents = new EventEmitter<void>();
   @Output() readonly toggleSse = new EventEmitter<void>();
 
-  @ViewChild('videoContainer', {read: ElementRef}) videoContainer!: ElementRef;
+  @ViewChild('videoContainer', { read: ElementRef }) videoContainer!: ElementRef;
   @ViewChild('autoScroll') scrollContainer!: ElementRef;
-  @ViewChild('messageTextarea') public textarea: ElementRef|undefined;
+  @ViewChild('messageTextarea') public textarea: ElementRef | undefined;
   scrollInterrupted = false;
   private scrollHeight = 0;
   private lastMessageRef: any = null;
@@ -162,7 +162,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   protected readonly themeService = inject(THEME_SERVICE);
   private readonly stringToColorService = inject(STRING_TO_COLOR_SERVICE);
   readonly markdownComponent: Type<MarkdownComponentInterface> = inject(
-      MARKDOWN_COMPONENT,
+    MARKDOWN_COMPONENT,
   );
   protected readonly featureFlagService = inject(FEATURE_FLAG_SERVICE);
   private readonly agentService = inject(AGENT_SERVICE);
@@ -174,23 +174,25 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   readonly String = String;
 
   readonly isMessageFileUploadEnabledObs =
-      this.featureFlagService.isMessageFileUploadEnabled();
+    this.featureFlagService.isMessageFileUploadEnabled();
   readonly isManualStateUpdateEnabledObs =
-      this.featureFlagService.isManualStateUpdateEnabled();
+    this.featureFlagService.isManualStateUpdateEnabled();
   readonly isBidiStreamingEnabledObs =
-      this.featureFlagService.isBidiStreamingEnabled();
+    this.featureFlagService.isBidiStreamingEnabled();
   readonly canEditSession = signal(true);
   readonly isUserFeedbackEnabled =
-      toSignal(this.featureFlagService.isFeedbackServiceEnabled());
+    toSignal(this.featureFlagService.isFeedbackServiceEnabled());
   readonly isLoadingAgentResponse =
-      toSignal(this.agentService.getLoadingState());
+    toSignal(this.agentService.getLoadingState());
+  readonly hideMoreOptionsButton =
+    toSignal(this.featureFlagService.isMoreOptionsButtonHidden());
 
   protected readonly onScroll = new Subject<Event>();
   protected readonly sanitizer = inject(SAFE_VALUES_SERVICE);
 
   hideIntermediateEvents = input<boolean>(false);
   invocationDisplayMap = input<Map<string, string>>(new Map());
-  
+
   viewMode = signal<'events' | 'traces'>('events');
   invocationIdFilterActive = signal<boolean>(false);
   nodePathFilterActive = signal<boolean>(false);
@@ -374,16 +376,16 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
       if (sessionName) {
         this.nextPageToken = '';
         this.featureFlagService.isInfinityMessageScrollingEnabled()
-            .pipe(first(), filter((enabled) => enabled))
-            .subscribe(() => {
-              this.uiStateService
-                  .lazyLoadMessages(sessionName, {
-                    pageSize: 100,
-                    pageToken: this.nextPageToken,
-                  })
-                  .pipe(first())
-                  .subscribe();
-            });
+          .pipe(first(), filter((enabled) => enabled))
+          .subscribe(() => {
+            this.uiStateService
+              .lazyLoadMessages(sessionName, {
+                pageSize: 100,
+                pageToken: this.nextPageToken,
+              })
+              .pipe(first())
+              .subscribe();
+          });
       }
     });
   }
@@ -407,46 +409,46 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
     }
 
     this.featureFlagService.isInfinityMessageScrollingEnabled()
-        .pipe(
-            first(),
-            filter((enabled) => enabled),
-            switchMap(
-                () => merge(
-                    this.uiStateService.onNewMessagesLoaded().pipe(
-                        tap((response: ListResponse<any>&
-                             {isBackground?: boolean}) => {
-                          this.nextPageToken = response.nextPageToken ?? '';
-                          if (!response.isBackground) {
-                            this.restoreScrollPosition();
-                          }
-                        })),
-                    this.onScroll.pipe(switchMap((event: Event) => {
-                      const element = event.target as HTMLElement;
-                      if (element.scrollTop !== 0) {
-                        return EMPTY;
-                      }
+      .pipe(
+        first(),
+        filter((enabled) => enabled),
+        switchMap(
+          () => merge(
+            this.uiStateService.onNewMessagesLoaded().pipe(
+              tap((response: ListResponse<any> &
+              { isBackground?: boolean }) => {
+                this.nextPageToken = response.nextPageToken ?? '';
+                if (!response.isBackground) {
+                  this.restoreScrollPosition();
+                }
+              })),
+            this.onScroll.pipe(switchMap((event: Event) => {
+              const element = event.target as HTMLElement;
+              if (element.scrollTop !== 0) {
+                return EMPTY;
+              }
 
-                      if (!this.nextPageToken) {
-                        return EMPTY;
-                      }
+              if (!this.nextPageToken) {
+                return EMPTY;
+              }
 
-                      this.scrollHeight = element.scrollHeight;
-                      return this.uiStateService
-                          .lazyLoadMessages(this.sessionName(), {
-                            pageSize: 100,
-                            pageToken: this.nextPageToken,
-                          })
-                          .pipe(first(), catchError(() => NEVER));
-                    })))),
-            takeUntilDestroyed(this.destroyRef),
-            )
-        .subscribe();
+              this.scrollHeight = element.scrollHeight;
+              return this.uiStateService
+                .lazyLoadMessages(this.sessionName(), {
+                  pageSize: 100,
+                  pageToken: this.nextPageToken,
+                })
+                .pipe(first(), catchError(() => NEVER));
+            })))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   ngAfterViewInit() {
     if (this.scrollContainer?.nativeElement) {
       const el = this.scrollContainer.nativeElement;
-      
+
       el.addEventListener('scroll', () => {
         const isAtBottom = Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 50;
         this.scrollInterrupted = !isAtBottom;
@@ -462,7 +464,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
         subtree: true,
         characterData: true
       });
-      
+
       this.destroyRef.onDestroy(() => {
         this.mutationObserver?.disconnect();
       });
@@ -494,7 +496,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
 
       if (isNewMessageAppended) {
         if (currentLastMessage?.role === 'user' ||
-            currentLastMessage?.isLoading === true) {
+          currentLastMessage?.isLoading === true) {
           this.scrollInterrupted = false;
         }
         this.scrollToBottom();
@@ -534,7 +536,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
 
   isFirstEventForInvocation(uiEvent: UiEvent, index: number): boolean {
     if (!uiEvent.event?.invocationId) return false;
-    
+
     // Check if any previous bot event in uiEvents has the same invocationId
     for (let i = index - 1; i >= 0; i--) {
       const priorEvent = this.uiEvents[i];
@@ -542,7 +544,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -592,7 +594,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
     const scrollContainer = this.scrollContainer?.nativeElement;
     if (scrollContainer) {
       scrollContainer.scrollTop =
-          scrollContainer.scrollHeight - this.scrollHeight;
+        scrollContainer.scrollHeight - this.scrollHeight;
       this.scrollHeight = 0;
     }
   }
@@ -672,7 +674,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
       newIndex = this.selectedMessageIndex + 1 >= this.uiEvents.length ? 0 : this.selectedMessageIndex + 1;
     } else {
       newIndex =
-          this.selectedMessageIndex - 1 < 0 ? this.uiEvents.length - 1 : this.selectedMessageIndex - 1;
+        this.selectedMessageIndex - 1 < 0 ? this.uiEvents.length - 1 : this.selectedMessageIndex - 1;
     }
 
     // Emit click event for the new index
@@ -689,11 +691,11 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
       if (!this.scrollContainer?.nativeElement) return;
 
       const messageElements =
-          this.scrollContainer.nativeElement.querySelectorAll(
-              '.message-row-container');
+        this.scrollContainer.nativeElement.querySelectorAll(
+          '.message-row-container');
       if (messageElements && messageElements[targetIndex]) {
         messageElements[targetIndex].scrollIntoView(
-            {behavior: 'smooth', block: 'nearest', inline: 'nearest'});
+          { behavior: 'smooth', block: 'nearest', inline: 'nearest' });
       }
     }, 50);
   }
