@@ -249,6 +249,21 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   eventsScrollTop = -1;
   tracesScrollTop = -1;
 
+  clearAllFilters(event: Event) {
+    event.stopPropagation();
+    if (this.invocationIdFilterActive()) {
+      this.invocationIdFilterActive.set(false);
+      this.invocationIdFilter.set('');
+    }
+    if (this.nodePathFilterActive()) {
+      this.nodePathFilterActive.set(false);
+      this.nodePathFilter.set('');
+    }
+    if (this.hideIntermediateEvents()) {
+      this.toggleHideIntermediateEvents.emit();
+    }
+  }
+
   onViewModeChange(mode: 'events' | 'traces') {
     if (this.scrollContainer?.nativeElement) {
       if (this.viewMode() === 'events') {
