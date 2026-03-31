@@ -17,7 +17,7 @@
 
 import { AsyncPipe, DOCUMENT, NgClass, NgComponentOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, effect, HostListener, inject, Injectable, OnDestroy, OnInit, Renderer2, signal, Type, viewChild, WritableSignal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, effect, HostListener, inject, Injectable, OnDestroy, OnInit, Renderer2, signal, Type, viewChild, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatIconButton, MatFabButton } from '@angular/material/button';
@@ -217,6 +217,40 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   videoElement!: HTMLVideoElement;
   currentMessage = '';
   uiEvents = signal<UiEvent[]>([]);
+
+  invocationDisplayMap = computed(() => {
+    const map = new Map<string, string>();
+    let invIndex = 1;
+    let lastUserMessage = '';
+
+    for (const e of this.uiEvents()) {
+      if (e.role === 'user') {
+        if (e.text) {
+          lastUserMessage = e.text;
+        } else if (e.event?.content?.parts?.length) {
+          const hasText = e.event.content.parts.find((p: any) => p.text);
+          if (hasText && hasText.text) {
+            lastUserMessage = hasText.text;
+          }
+        } else {
+          lastUserMessage = 'User Message';
+        }
+      }
+
+      if (e.event?.invocationId) {
+        const invId = e.event.invocationId;
+        if (!map.has(invId)) {
+          let shortMsg = lastUserMessage || 'User Message';
+          if (shortMsg.length > 50) {
+             shortMsg = shortMsg.substring(0, 47) + '...';
+          }
+          map.set(invId, `#${invIndex} (${shortMsg})`);
+          invIndex++;
+        }
+      }
+    }
+    return map;
+  });
 
   artifacts: any[] = [];
   userInput: string = '';
@@ -1480,6 +1514,31 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showSidePanel = true;
     window.localStorage.setItem('adk-side-panel-visible', 'true');
     this.selectEvent(key, i);
+  }
+
+  handleJumpToInvocation(invocationId: string) {
+    const events = this.uiEvents();
+    let targetIndex = -1;
+    let lastUserIndex = -1;
+    for (let i = 0; i < events.length; i++) {
+      const e = events[i];
+      if (e.role === 'user') {
+        lastUserIndex = i;
+      }
+      if (e.event?.invocationId === invocationId) {
+        if (lastUserIndex !== -1) {
+          targetIndex = lastUserIndex;
+        }
+        break;
+      }
+    }
+
+    if (targetIndex !== -1) {
+      this.clickEvent(targetIndex);
+      setTimeout(() => {
+           this.chatPanel()?.scrollToSelectedMessage(targetIndex);
+      }, 100);
+    }
   }
 
   ngOnDestroy(): void {

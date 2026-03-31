@@ -246,3 +246,15 @@
   gap: 24px;
 }
 
+.invocation-selector-button {
+  ::ng-deep .mdc-button__label {
+    width: 100%;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+

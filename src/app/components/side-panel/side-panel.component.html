@@ -35,6 +35,7 @@
           [llmRequest]="llmRequest()"
           [llmResponse]="llmResponse()"
           [hasSubWorkflows]="hasSubWorkflows()"
+          [invocationDisplayMap]="invocationDisplayMap()"
           (page)="page.emit($event)"
           (closeSelectedEvent)="closeSelectedEvent.emit()"
           (openImageDialog)="openImageDialog.emit($event)"
@@ -42,6 +43,7 @@
           (showAgentStructureGraph)="showAgentStructureGraph.emit($event)"
           (drillDownNodePath)="drillDownNodePath.emit($event)"
           (selectEventById)="selectEventById.emit($event)"
+          (jumpToInvocation)="jumpToInvocation.emit($event)"
         ></app-event-tab>
       } @else {
         <div class="empty-state">Select an event or trace span to view details</div>

@@ -83,6 +83,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly isBuilderMode = input<boolean>(false);
   readonly disableBuilderIcon = input<boolean>(false);
   readonly hasSubWorkflows = input<boolean>(false);
+  readonly invocationDisplayMap = input<Map<string, string>>(new Map());
 
   readonly closePanel = output<void>();
   readonly tabChange = output<MatTabChangeEvent>();
@@ -102,6 +103,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly switchToTraceView = output<void>();
   readonly drillDownNodePath = output<string>();
   readonly selectEventById = output<string>();
+  readonly jumpToInvocation = output<string>();
 
   readonly sessionTabComponent = undefined;
   readonly evalTabComponent = viewChild(EvalTabComponent);

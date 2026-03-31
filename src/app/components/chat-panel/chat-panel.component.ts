@@ -189,6 +189,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   protected readonly sanitizer = inject(SAFE_VALUES_SERVICE);
 
   hideIntermediateEvents = input<boolean>(false);
+  invocationDisplayMap = input<Map<string, string>>(new Map());
   
   viewMode = signal<'events' | 'traces'>('events');
   invocationIdFilterActive = signal<boolean>(false);

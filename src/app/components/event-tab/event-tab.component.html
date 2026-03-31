@@ -157,9 +157,28 @@
       @if (selectedDetailTab === 'graph') {
         <div class="event-graph-wrapper">
           <div class="graph-header" style="justify-content: space-between;">
-            <div>
-              <span>Invocation ID:</span>
-              <span class="id-text" style="font-weight: normal;">{{ selectedEvent()?.invocationId || 'N/A' }}</span>
+            <div style="display: flex; align-items: center; min-width: 0; flex: 1; width: 100%;">
+              <span style="white-space: nowrap; flex-shrink: 0;">Invocation:</span>
+              @if (invocationDisplayMap().size > 0 && selectedEvent()?.invocationId) {
+                <button mat-button [matMenuTriggerFor]="invocationSelectorMenu" class="invocation-selector-button" style="margin-left: 8px; padding: 0 8px; min-width: 0; flex: 1; height: 24px; line-height: 24px; width: 100%;">
+                  <div style="display: flex; align-items: center; width: 100%; min-width: 0; justify-content: space-between;">
+                    <span style="font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; text-align: left;" [matTooltip]="selectedEvent()?.invocationId || ''">
+                      {{ invocationDisplayMap().get(selectedEvent()!.invocationId!) || selectedEvent()!.invocationId }}
+                    </span>
+                    <mat-icon style="margin-left: 4px; font-size: 18px; width: 18px; height: 18px; flex-shrink: 0;">arrow_drop_down</mat-icon>
+                  </div>
+                </button>
+                <mat-menu #invocationSelectorMenu="matMenu">
+                  @for (inv of invocationDisplayMap() | keyvalue; track inv.key) {
+                    <button mat-menu-item (click)="onInvocationSelected(inv.key)" [matTooltip]="inv.key" matTooltipPosition="right">
+                      <mat-icon [style.visibility]="selectedEvent()?.invocationId === inv.key ? 'visible' : 'hidden'" style="font-size: 16px; width: 16px; height: 16px; margin-right: 8px; color: var(--mat-sys-primary);">check</mat-icon>
+                      {{ inv.value }}
+                    </button>
+                  }
+                </mat-menu>
+              } @else {
+                <span style="margin-left: 8px; font-weight: normal;" [matTooltip]="selectedEvent()?.invocationId || ''">{{ selectedEvent()?.invocationId ? (invocationDisplayMap().get(selectedEvent()!.invocationId!) || selectedEvent()!.invocationId) : 'N/A' }}</span>
+              }
             </div>
           </div>
           @if (hasSubWorkflows() && (breadcrumbs().length > 0 || appName())) {

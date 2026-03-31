@@ -24,8 +24,8 @@
     
     <div class="filter-bar-container" (click)="openAddFilterMenu($event)">
       @if (invocationIdFilterActive()) {
-        <div class="filter-chip" [matMenuTriggerFor]="invocationMenu" #invChipMenuTrigger="matMenuTrigger" (click)="$event.stopPropagation()" [matTooltip]="invocationIdFilter() ? 'Invocation: ' + invocationIdFilter() : 'Filter events by a specific invocation'">
-          <span class="chip-label">Invocation</span>
+        <div class="filter-chip" [matMenuTriggerFor]="invocationMenu" #invChipMenuTrigger="matMenuTrigger" (click)="$event.stopPropagation()" [matTooltip]="invocationIdFilter() ? 'Invocation: ' + (invocationDisplayMap().get(invocationIdFilter()) || invocationIdFilter()) : 'Filter events by a specific invocation'">
+          <span class="chip-label" [title]="invocationIdFilter() ? (invocationDisplayMap().get(invocationIdFilter()) || invocationIdFilter()) : 'Invocation'">{{ invocationIdFilter() ? (invocationDisplayMap().get(invocationIdFilter()) || invocationIdFilter()) : 'Invocation' }}</span>
           <button class="chip-remove" (click)="removeInvocationIdFilter($event)"><mat-icon>close</mat-icon></button>
         </div>
       }
@@ -69,9 +69,9 @@
 
     <mat-menu #invocationMenu="matMenu" class="filter-panel" (closed)="onInvocationMenuClosed()">
       @for (id of invocationIdOptions; track id) {
-        <button mat-menu-item (click)="invocationIdFilter.set(id)">
+        <button mat-menu-item (click)="invocationIdFilter.set(id)" [matTooltip]="id" matTooltipPosition="right">
           <mat-icon [style.visibility]="invocationIdFilter() === id ? 'visible' : 'hidden'" style="font-size: 16px; width: 16px; height: 16px; margin-right: 8px; color: var(--mat-sys-primary);">check</mat-icon>
-          {{ id }}
+          {{ invocationDisplayMap().get(id) || id }}
         </button>
       }
     </mat-menu>

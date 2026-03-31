@@ -1,7 +1,7 @@
-import {AsyncPipe, DatePipe} from '@angular/common';
+import {AsyncPipe, DatePipe, KeyValuePipe} from '@angular/common';
 import {ChangeDetectionStrategy, Component, computed, effect, inject, input, output, ViewChild, ElementRef} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {MatIconButton} from '@angular/material/button';
+import {MatIconButton, MatButtonModule} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
@@ -27,6 +27,8 @@ import {addSvgNodeHoverEffects} from '../../utils/svg-interaction.utils';
   imports: [
     AsyncPipe,
     DatePipe,
+    KeyValuePipe,
+    MatButtonModule,
     MatIconButton,
     MatIcon,
     MatPaginator,
@@ -51,6 +53,7 @@ export class EventTabComponent {
   readonly appName = input<string>('');
   readonly selectedEventGraphPath = input<string>('');
   readonly hasSubWorkflows = input<boolean>(false);
+  readonly invocationDisplayMap = input<Map<string, string>>(new Map());
 
   readonly breadcrumbs = computed(() => {
     const path = this.selectedEventGraphPath();
@@ -75,6 +78,11 @@ export class EventTabComponent {
   readonly showAgentStructureGraph = output<boolean>();
   readonly drillDownNodePath = output<string>();
   readonly selectEventById = output<string>();
+  readonly jumpToInvocation = output<string>();
+
+  onInvocationSelected(invocationId: string) {
+    this.jumpToInvocation.emit(invocationId);
+  }
 
   @ViewChild('eventMenuTrigger') eventMenuTrigger!: MatMenuTrigger;
   @ViewChild('graphContainer') graphContainer!: ElementRef;
