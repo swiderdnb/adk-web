@@ -57,4 +57,8 @@ export class MockAgentService implements Partial<AgentService> {
   getAppInfoResponse = new ReplaySubject<string>(1);
   getAppInfo =
       jasmine.createSpy('getAppInfo').and.returnValue(this.getAppInfoResponse);
+
+  getAppGraphImageResponse = new ReplaySubject<any>(1);
+  getAppGraphImage = jasmine.createSpy('getAppGraphImage')
+                         .and.returnValue(this.getAppGraphImageResponse);
 }

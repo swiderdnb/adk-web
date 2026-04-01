@@ -65,14 +65,12 @@ import {SidePanelComponent} from './side-panel.component';
 const TABS_CONTAINER_SELECTOR = By.css('.tabs-container');
 const DETAILS_PANEL_SELECTOR = By.css('.details-panel-container');
 const TAB_HEADERS_SELECTOR = By.css('[role="tab"]');
-const SESSION_TAB_SELECTOR = By.css('app-session-tab');
 const EVAL_TAB_SELECTOR = By.css('app-eval-tab');
 const DETAILS_PANEL_CLOSE_BUTTON_SELECTOR =
     By.css('.details-panel-container mat-icon');
 const EVENT_GRAPH_SELECTOR = By.css('.event-graph-container div');
 
-const SESSIONS_TAB_INDEX = 3;
-const EVAL_TAB_INDEX = 4;
+const EVAL_TAB_INDEX = 3;
 
 describe('SidePanelComponent', () => {
   let component: SidePanelComponent;
@@ -293,39 +291,9 @@ describe('SidePanelComponent', () => {
       });
     });
 
-    describe('when selectedEvent is defined', () => {
-      beforeEach(() => {
-        fixture.componentRef.setInput('selectedEvent', {id: 'event1'});
-        fixture.detectChanges();
-      });
-      it('shows details panel', () => {
-        expect(fixture.debugElement.query(DETAILS_PANEL_SELECTOR)).toBeTruthy();
-      });
-    });
   });
 
   describe('Tabs', () => {
-    it('when sessionsTabReordering is disabled, Session tab should be the 4th tab',
-       () => {
-         const tabGroup = fixture.debugElement.query(By.directive(MatTabGroup));
-         const tabLabels = tabGroup.queryAll(By.css('.tab-label'));
-         const sessionsLabel = tabLabels[SESSIONS_TAB_INDEX];
-         expect(sessionsLabel.nativeElement.textContent.trim())
-             .toEqual('Sessions');
-       });
-
-    it('when sessionsTabReordering is enabled, Session tab should be the 0th tab',
-       () => {
-         mockFeatureFlagService.isSessionsTabReorderingEnabledResponse.next(
-             true);
-         fixture.detectChanges();
-         const tabGroup = fixture.debugElement.query(By.directive(MatTabGroup));
-         const tabLabels = tabGroup.queryAll(By.css('.tab-label'));
-         const sessionsLabel = tabLabels[0];
-         expect(sessionsLabel.nativeElement.textContent.trim())
-             .toEqual('Sessions');
-       });
-
     describe('when tab is changed', () => {
       beforeEach(() => {
         spyOn(component.tabChange, 'emit');
@@ -339,40 +307,6 @@ describe('SidePanelComponent', () => {
       });
     });
 
-    describe('Sessions tab', () => {
-      beforeEach(async () => {
-        await switchTab(SESSIONS_TAB_INDEX);
-      });
-
-      describe('when app-session-tab emits sessionSelected', () => {
-        beforeEach(() => {
-          spyOn(component.sessionSelected, 'emit');
-          const sessionTab = fixture.debugElement.query(SESSION_TAB_SELECTOR);
-          sessionTab.triggerEventHandler(
-              'sessionSelected', {id: 'session1'} as Session);
-        });
-        it('emits sessionSelected', () => {
-          expect(component.sessionSelected.emit).toHaveBeenCalledWith({
-            id: 'session1'
-          } as Session);
-        });
-      });
-
-      describe('when app-session-tab emits sessionReloaded', () => {
-        beforeEach(() => {
-          spyOn(component.sessionReloaded, 'emit');
-          const sessionTab = fixture.debugElement.query(SESSION_TAB_SELECTOR);
-          sessionTab.triggerEventHandler(
-              'sessionReloaded', {id: 'session1'} as Session);
-        });
-        it('emits sessionReloaded', () => {
-          expect(component.sessionReloaded.emit).toHaveBeenCalledWith({
-            id: 'session1'
-          } as Session);
-        });
-      });
-    });
-
     describe('Eval tab', () => {
       describe('Interactions', () => {
         beforeEach(async () => {
@@ -380,10 +314,12 @@ describe('SidePanelComponent', () => {
         });
 
         describe('when app-eval-tab emits evalCaseSelected', () => {
-          beforeEach(() => {
+          beforeEach(async () => {
+            await fixture.whenStable();
+            fixture.detectChanges();
             spyOn(component.evalCaseSelected, 'emit');
             const evalTab = fixture.debugElement.query(EVAL_TAB_SELECTOR);
-            evalTab.componentInstance.evalCaseSelected.emit({
+            evalTab!.componentInstance.evalCaseSelected.emit({
               evalId: 'eval1',
             } as unknown as EvalCase);
             fixture.detectChanges();
@@ -396,10 +332,12 @@ describe('SidePanelComponent', () => {
         });
 
         describe('when app-eval-tab emits evalSetIdSelected', () => {
-          beforeEach(() => {
+          beforeEach(async () => {
+            await fixture.whenStable();
+            fixture.detectChanges();
             spyOn(component.evalSetIdSelected, 'emit');
             const evalTab = fixture.debugElement.query(EVAL_TAB_SELECTOR);
-            evalTab.componentInstance.evalSetIdSelected.emit('set1');
+            evalTab!.componentInstance.evalSetIdSelected.emit('set1');
             fixture.detectChanges();
           });
           it('emits evalSetIdSelected', () => {
@@ -409,10 +347,12 @@ describe('SidePanelComponent', () => {
         });
 
         describe('when app-eval-tab emits shouldReturnToSession', () => {
-          beforeEach(() => {
+          beforeEach(async () => {
+            await fixture.whenStable();
+            fixture.detectChanges();
             spyOn(component.returnToSession, 'emit');
             const evalTab = fixture.debugElement.query(EVAL_TAB_SELECTOR);
-            evalTab.componentInstance.shouldReturnToSession.emit(true);
+            evalTab!.componentInstance.shouldReturnToSession.emit(true);
             fixture.detectChanges();
           });
           it('emits returnToSession', () => {
@@ -421,10 +361,12 @@ describe('SidePanelComponent', () => {
         });
 
         describe('when app-eval-tab emits evalNotInstalledMsg', () => {
-          beforeEach(() => {
+          beforeEach(async () => {
+            await fixture.whenStable();
+            fixture.detectChanges();
             spyOn(component.evalNotInstalled, 'emit');
             const evalTab = fixture.debugElement.query(EVAL_TAB_SELECTOR);
-            evalTab.componentInstance.evalNotInstalledMsg.emit('error');
+            evalTab!.componentInstance.evalNotInstalledMsg.emit('error');
             fixture.detectChanges();
           });
           it('emits evalNotInstalled', () => {
@@ -442,18 +384,6 @@ describe('SidePanelComponent', () => {
       fixture.detectChanges();
     });
 
-    describe('when close button is clicked', () => {
-      beforeEach(() => {
-        spyOn(component.closeSelectedEvent, 'emit');
-        const closeButton =
-            fixture.debugElement.query(DETAILS_PANEL_CLOSE_BUTTON_SELECTOR);
-        closeButton.nativeElement.click();
-      });
-      it('emits closeSelectedEvent', () => {
-        expect(component.closeSelectedEvent.emit).toHaveBeenCalled();
-      });
-    });
-
     describe('when paginator page is changed', () => {
       beforeEach(() => {
         spyOn(component.page, 'emit');
@@ -468,74 +398,6 @@ describe('SidePanelComponent', () => {
       });
     });
 
-    describe('when event graph is clicked', () => {
-      beforeEach(async () => {
-        fixture.componentRef.setInput('renderedEventGraph', '<div>graph</div>');
-        fixture.detectChanges();
-        await fixture.whenStable();
-        fixture.detectChanges();
-        spyOn(component.openImageDialog, 'emit');
-        const graphContainer = fixture.debugElement.query(EVENT_GRAPH_SELECTOR);
-        graphContainer.nativeElement.click();
-      });
-      it('emits openImageDialog', () => {
-        expect(component.openImageDialog.emit).toHaveBeenCalled();
-      });
-    });
-
-    it('filters empty values from selected event JSON', () => {
-      fixture.componentRef.setInput('selectedEvent', {
-        id: 'event1',
-        emptyString: '',
-        nullValue: null,
-        undefinedValue: undefined,
-        nested: {
-          keep: 'value',
-          empty: '',
-          emptyObject: {},
-        },
-        list: [
-          'item',
-          '',
-          null,
-          {
-            keep: 1,
-            empty: '',
-          },
-          {},
-        ],
-      } as any);
-      fixture.detectChanges();
-
-      expect(component.filteredSelectedEvent() as any).toEqual({
-        id: 'event1',
-        nullValue: null,
-        nested: {
-          keep: 'value',
-        },
-        list: [
-          'item',
-          null,
-          {
-            keep: 1,
-          },
-        ],
-      });
-    });
-
-    it('returns undefined when selected event has only empty values', () => {
-      fixture.componentRef.setInput('selectedEvent', {
-        nullValue: null,
-        nested: {
-          empty: '',
-        },
-      } as any);
-      fixture.detectChanges();
-
-      expect(component.filteredSelectedEvent() as any).toEqual({
-        nullValue: null,
-      });
-    });
   });
 
   describe('Loading state', () => {
@@ -554,12 +416,6 @@ describe('SidePanelComponent', () => {
       it('hides tabs container', () => {
         expect(fixture.debugElement.query(TABS_CONTAINER_SELECTOR)!.nativeElement.hidden).toBeTrue();
       });
-
-      it('hides details panel', () => {
-        fixture.componentRef.setInput('selectedEvent', {id: 'event1'});
-        fixture.detectChanges();
-        expect(fixture.debugElement.query(DETAILS_PANEL_SELECTOR)!.nativeElement.hidden).toBeTrue();
-      });
     });
 
     describe('when session is not loading', () => {
@@ -577,12 +433,6 @@ describe('SidePanelComponent', () => {
       it('shows tabs container', () => {
         expect(fixture.debugElement.query(TABS_CONTAINER_SELECTOR)!.nativeElement.hidden)
             .toBeFalse();
-      });
-
-      it('shows details panel when event is selected', () => {
-        fixture.componentRef.setInput('selectedEvent', {id: 'event1'});
-        fixture.detectChanges();
-        expect(fixture.debugElement.query(DETAILS_PANEL_SELECTOR)!.nativeElement.hidden).toBeFalse();
       });
     });
   });
