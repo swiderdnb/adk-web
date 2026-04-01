@@ -97,6 +97,12 @@
               }
             </td>
           </tr>
+          @if (selectedEvent()!.nodeInfo!['messageAsOutput'] !== undefined) {
+          <tr>
+            <td>Message As Output</td>
+            <td>{{ selectedEvent()!.nodeInfo!['messageAsOutput'] }}</td>
+          </tr>
+          }
         </table>
         }
 

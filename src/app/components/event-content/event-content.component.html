@@ -100,14 +100,6 @@
       [tooltipTitle]="'Route'"
     ></app-hover-info-button>
     }
-    @if (uiEvent.event.usageMetadata) {
-    <app-hover-info-button
-      [icon]="'analytics'"
-      [text]="'tokens: ' + (uiEvent.event.usageMetadata.totalTokenCount || 0)"
-      [tooltipContent]="uiEvent.event.usageMetadata"
-      [tooltipTitle]="'Usage Metadata'"
-    ></app-hover-info-button>
-    }
     @if (hasWorkflowNodes()) {
     <button
       mat-stroked-button
