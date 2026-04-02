@@ -197,7 +197,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly uiStateService = inject(UI_STATE_SERVICE);
   protected readonly agentBuilderService = inject(AGENT_BUILDER_SERVICE);
   protected readonly themeService = inject(THEME_SERVICE);
-  protected readonly logoComponent: Type<Component>|null = inject(LOGO_COMPONENT, {
+  protected readonly logoComponent: Type<Component> | null = inject(LOGO_COMPONENT, {
     optional: true,
   });
 
@@ -242,7 +242,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!map.has(invId)) {
           let shortMsg = lastUserMessage || 'User Message';
           if (shortMsg.length > 50) {
-             shortMsg = shortMsg.substring(0, 47) + '...';
+            shortMsg = shortMsg.substring(0, 47) + '...';
           }
           map.set(invId, `#${invIndex} (${shortMsg})`);
           invIndex++;
@@ -488,17 +488,17 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.traceService.selectedTraceRow$.subscribe((span) => {
       if (span) {
-         this.selectedEvent = undefined;
-         this.selectedEventIndex = undefined;
-         this.selectedMessageIndex = undefined;
-         
-         if (!this.showSidePanel) {
-           this.showSidePanel = true;
-           window.localStorage.setItem('adk-side-panel-visible', 'true');
-           this.sideDrawer()?.open();
-         }
-         
-         this.changeDetectorRef.detectChanges();
+        this.selectedEvent = undefined;
+        this.selectedEventIndex = undefined;
+        this.selectedMessageIndex = undefined;
+
+        if (!this.showSidePanel) {
+          this.showSidePanel = true;
+          window.localStorage.setItem('adk-side-panel-visible', 'true');
+          this.sideDrawer()?.open();
+        }
+
+        this.changeDetectorRef.detectChanges();
       }
     });
 
@@ -600,12 +600,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       if (session) {
         if (isInfinityScrollingEnabled && session.id) {
           this.uiStateService
-              .lazyLoadMessages(session.id, {
-                pageSize: 100,
-                pageToken: '',
-              })
-              .pipe(first())
-              .subscribe();
+            .lazyLoadMessages(session.id, {
+              pageSize: 100,
+              pageToken: '',
+            })
+            .pipe(first())
+            .subscribe();
         }
         this.updateWithSelectedSession(session);
       }
@@ -704,10 +704,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       let displayName = '';
       if (content?.parts && content.parts[0]?.text) {
-         displayName = content.parts[0].text;
-         if (displayName.length > 50) {
-           displayName = displayName.substring(0, 47) + '...';
-         }
+        displayName = content.parts[0].text;
+        if (displayName.length > 50) {
+          displayName = displayName.substring(0, 47) + '...';
+        }
       }
       const initialState = displayName ? { __session_metadata__: { displayName: displayName } } : undefined;
       const res = await firstValueFrom(
@@ -744,9 +744,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const userEventId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const apiEvent = {
-        id: userEventId,
-        author: content.role || 'user',
-        content: content
+      id: userEventId,
+      author: content.role || 'user',
+      content: content
     };
 
     const userUiEvent = this.buildUiEventFromEvent(apiEvent);
@@ -836,9 +836,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           const isLastTranscription = !!((lastEvent.event as any)?.inputTranscription || (lastEvent.event as any)?.outputTranscription);
           const isCurrentTranscription = !!(apiEvent.inputTranscription || apiEvent.outputTranscription);
 
-          if ((lastEvent.event as any)?.partial && 
-              lastEvent.role === (apiEvent.author === 'user' ? 'user' : 'bot') &&
-              isLastTranscription === isCurrentTranscription) {
+          if ((lastEvent.event as any)?.partial &&
+            lastEvent.role === (apiEvent.author === 'user' ? 'user' : 'bot') &&
+            isLastTranscription === isCurrentTranscription) {
             const updatedEvent = this.mergePartialEvent(lastEvent, apiEvent);
 
             const newEvents = [...events];
@@ -1281,10 +1281,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!uiEvent.functionCalls) {
         uiEvent.functionCalls = [];
       }
-      
+
       const isLongRunning = event?.longRunningToolIds?.includes(part.functionCall.id);
       let enrichedFunctionCall = part.functionCall;
-      
+
       if (isLongRunning) {
         enrichedFunctionCall = {
           ...part.functionCall,
@@ -1296,14 +1296,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           userResponse: part.functionCall.userResponse || '',
         };
       }
-      
+
       const existingIndex = uiEvent.functionCalls.findIndex(fc => fc.id === part.functionCall.id);
       if (existingIndex >= 0) {
         uiEvent.functionCalls[existingIndex] = { ...uiEvent.functionCalls[existingIndex], ...enrichedFunctionCall };
       } else {
         uiEvent.functionCalls.push(enrichedFunctionCall);
       }
-      
+
       if (event?.id) {
         uiEvent.event = event as any;
       }
@@ -1537,7 +1537,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if (targetIndex !== -1) {
       this.clickEvent(targetIndex);
       setTimeout(() => {
-           this.chatPanel()?.scrollToSelectedMessage(targetIndex);
+        this.chatPanel()?.scrollToSelectedMessage(targetIndex);
       }, 100);
     }
   }
@@ -1699,12 +1699,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
       return;
     }
-    
+
     event.stopPropagation();
-    
+
     const items = Array.from(this.document.querySelectorAll('.app-selector-list .app-selector-item')) as HTMLElement[];
     const currentIndex = items.indexOf(this.document.activeElement as HTMLElement);
-    
+
     if (currentIndex > -1) {
       event.preventDefault();
       if (event.key === 'ArrowDown') {
@@ -2167,7 +2167,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.sessionId) {
       return 'NEW SESSION';
     }
-    
+
     const meta = this.currentSessionState?.['__session_metadata__'] as any;
     return meta?.displayName || this.sessionId;
   }
@@ -2187,19 +2187,19 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   saveSessionName(newName: string) {
     if (!this.sessionId) return;
-    
+
     const metadataDelta = {
       __session_metadata__: {
         ...(this.currentSessionState?.['__session_metadata__'] as any || {}),
         displayName: newName
       }
     };
-    
+
     this.currentSessionState = {
       ...this.currentSessionState,
       ...metadataDelta
     };
-    
+
     this.updatedSessionState.set({
       ...this.updatedSessionState(),
       ...metadataDelta
@@ -2344,6 +2344,29 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Check if we're using v1 backend (only root graph, no workflow paths)
+    const isV1Backend = Object.keys(sessionGraphSvgLight).length === 1 && '' in sessionGraphSvgLight;
+
+    if (isV1Backend && this.selectedEvent) {
+      // V1 backend: Simple edge/node highlighting for single event only
+      const graphPath = '';
+      let highlightedSvgLight = sessionGraphSvgLight[graphPath];
+      let highlightedSvgDark = sessionGraphSvgDark[graphPath];
+
+      const highlightPairs = this.getV1HighlightPairs(this.selectedEvent);
+      highlightedSvgLight = this.applyV1Highlighting(highlightedSvgLight, highlightPairs, false);
+      highlightedSvgDark = this.applyV1Highlighting(highlightedSvgDark, highlightPairs, true);
+
+      this.selectedEventGraphPath = graphPath;
+      this.eventGraphSvgLight = { ...sessionGraphSvgLight, [graphPath]: highlightedSvgLight };
+      this.eventGraphSvgDark = { ...sessionGraphSvgDark, [graphPath]: highlightedSvgDark };
+      const highlightedSvg = this.themeService.currentTheme() === 'dark' ? highlightedSvgDark : highlightedSvgLight;
+      this.rawSvgString = highlightedSvg;
+      this.renderedEventGraph = this.safeValuesService.bypassSecurityTrustHtml(highlightedSvg);
+      return;
+    }
+
+    // V2 backend: Calculate workflow paths and node names
     let nodePath = overrideNodePath || this.selectedEvent?.nodeInfo?.path;
     if (!overrideNodePath && this.selectedEvent?.author === 'user') {
       nodePath = '__START__';
@@ -2355,7 +2378,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if (nodePath && overrideGraphPath === undefined) {
       const segments = nodePath.split('/');
       nodeName = segments[segments.length - 1];
-      
+
       if (segments.length >= 2 && segments[segments.length - 1] === 'call_llm' && segments[segments.length - 2] === this.selectedEvent?.author) {
         nodeName = segments[segments.length - 2];
         graphPath = segments.slice(1, -2).join('/');
@@ -2374,6 +2397,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     const runNodeNames: string[] = [];
     const allRunNodeNames: string[] = [];
     if (this.selectedEventIndex !== undefined) {
+      // V2 backend: use existing workflow path logic
       const eventArray = Array.from(this.eventData.values());
       const selectedEvent: any = eventArray[this.selectedEventIndex];
       const targetInvocationId = selectedEvent?.invocationId;
@@ -2420,7 +2444,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       highlightedSvgLight = this.highlightExecutionPathInSvg(highlightedSvgLight, runNodeNames, allRunNodeNames, 'light');
       highlightedSvgDark = this.highlightExecutionPathInSvg(highlightedSvgDark, runNodeNames, allRunNodeNames, 'dark');
     }
-    
+
     this.selectedEventGraphPath = graphPath;
     this.eventGraphSvgLight = { ...sessionGraphSvgLight, [graphPath]: highlightedSvgLight };
     this.eventGraphSvgDark = { ...sessionGraphSvgDark, [graphPath]: highlightedSvgDark };
@@ -2440,7 +2464,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     const reverseAdjacencyList = new Map<string, string[]>();
     const forwardAdjacencyList = new Map<string, string[]>();
     const edgeElements = doc.querySelectorAll('g.edge');
-    
+
     edgeElements.forEach((edgeElement) => {
       const titleElement = edgeElement.querySelector('title');
       let title = titleElement?.textContent?.trim() || '';
@@ -2448,7 +2472,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         const parts = title.split('->');
         const from = parts[0].trim().replace(/^"|"$/g, '');
         const to = parts[1].trim().replace(/^"|"$/g, '');
-        
+
         if (!reverseAdjacencyList.has(to)) reverseAdjacencyList.set(to, []);
         reverseAdjacencyList.get(to)!.push(from);
         if (!forwardAdjacencyList.has(from)) forwardAdjacencyList.set(from, []);
@@ -2461,33 +2485,33 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     nodeElements.forEach((nodeElement) => {
       const textElements = Array.from(nodeElement.querySelectorAll('text'));
       const textContent = textElements.map(t => t.textContent?.trim() || '').join('');
-      
+
       const titleElement = nodeElement.querySelector('title');
       const titleName = titleElement?.textContent?.trim() || '';
       const cleanTitleName = titleName.replace(/^"|"$/g, '');
-      
+
       nodeNameToId.set(textContent, cleanTitleName);
       if (titleName) {
-         nodeNameToId.set(titleName, cleanTitleName);
+        nodeNameToId.set(titleName, cleanTitleName);
       }
     });
 
     const targetNodeIds = runNodeNames.map(name => {
-       for (const [text, id] of nodeNameToId.entries()) {
-         if (text === name || text.includes(name) || text === `"${name}"`) {
-           return id;
-         }
-       }
-       return null;
+      for (const [text, id] of nodeNameToId.entries()) {
+        if (text === name || text.includes(name) || text === `"${name}"`) {
+          return id;
+        }
+      }
+      return null;
     }).filter(id => id) as string[];
 
     const allTargetNodeIds = allRunNodeNames.map(name => {
-       for (const [text, id] of nodeNameToId.entries()) {
-         if (text === name || text.includes(name) || text === `"${name}"`) {
-           return id;
-         }
-       }
-       return null;
+      for (const [text, id] of nodeNameToId.entries()) {
+        if (text === name || text.includes(name) || text === `"${name}"`) {
+          return id;
+        }
+      }
+      return null;
     }).filter(id => id) as string[];
 
     const { visitedNodes, visitedEdges } = this.calculateVisitedPath(targetNodeIds, reverseAdjacencyList);
@@ -2508,58 +2532,58 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         const from = parts[0].trim().replace(/^"|"$/g, '');
         const to = parts[1].trim().replace(/^"|"$/g, '');
         const edgeKey = `${from}->${to}`;
-        
+
         if (visitedEdges.has(edgeKey)) {
           const shape = edgeElement.querySelector('path');
           if (shape) {
-             shape.setAttribute('stroke', visitedEdgeColor);
-             shape.setAttribute('stroke-width', '2');
+            shape.setAttribute('stroke', visitedEdgeColor);
+            shape.setAttribute('stroke-width', '2');
           }
           const polygon = edgeElement.querySelector('polygon');
           if (polygon) {
-             polygon.setAttribute('fill', visitedEdgeColor);
-             polygon.setAttribute('stroke', visitedEdgeColor);
+            polygon.setAttribute('fill', visitedEdgeColor);
+            polygon.setAttribute('stroke', visitedEdgeColor);
           }
 
           const count = edgeCounts.get(edgeKey) || 0;
           if (count > 1) {
             const existingText = edgeElement.querySelector('text');
             if (existingText) {
-               existingText.textContent = `${existingText.textContent} (${count}x)`;
-               existingText.setAttribute('fill', theme === 'dark' ? '#ffffff' : '#000000');
-               existingText.setAttribute('font-weight', 'bold');
+              existingText.textContent = `${existingText.textContent} (${count}x)`;
+              existingText.setAttribute('fill', theme === 'dark' ? '#ffffff' : '#000000');
+              existingText.setAttribute('font-weight', 'bold');
             } else if (shape) {
-               const d = shape.getAttribute('d') || '';
-               const matches = [...d.matchAll(/[-+]?[0-9]*\.?[0-9]+/g)];
-               if (matches.length >= 4) {
-                 const nums = matches.map(m => parseFloat(m[0]));
-                 const mx = (nums[0] + nums[nums.length - 2]) / 2;
-                 const my = (nums[1] + nums[nums.length - 1]) / 2;
-                 
-                 const badgeGroup = doc.createElementNS("http://www.w3.org/2000/svg", "g");
-                 const badge = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
-                 badge.setAttribute('x', (mx - 14).toString());
-                 badge.setAttribute('y', (my - 10).toString());
-                 badge.setAttribute('width', '28');
-                 badge.setAttribute('height', '20');
-                 badge.setAttribute('rx', '4');
-                 badge.setAttribute('fill', theme === 'dark' ? '#0d652d' : '#e6f4ea');
-                 badge.setAttribute('stroke', visitedEdgeColor);
-                 badge.setAttribute('stroke-width', '1');
-                 badgeGroup.appendChild(badge);
-      
-                 const txt = doc.createElementNS("http://www.w3.org/2000/svg", "text");
-                 txt.setAttribute('x', mx.toString());
-                 txt.setAttribute('y', (my + 4).toString());
-                 txt.setAttribute('text-anchor', 'middle');
-                 txt.setAttribute('fill', theme === 'dark' ? '#ffffff' : '#000000');
-                 txt.setAttribute('font-size', '12px');
-                 txt.setAttribute('font-weight', 'bold');
-                 txt.textContent = count.toString() + 'x';
-                 badgeGroup.appendChild(txt);
-                 
-                 edgeElement.appendChild(badgeGroup);
-               }
+              const d = shape.getAttribute('d') || '';
+              const matches = [...d.matchAll(/[-+]?[0-9]*\.?[0-9]+/g)];
+              if (matches.length >= 4) {
+                const nums = matches.map(m => parseFloat(m[0]));
+                const mx = (nums[0] + nums[nums.length - 2]) / 2;
+                const my = (nums[1] + nums[nums.length - 1]) / 2;
+
+                const badgeGroup = doc.createElementNS("http://www.w3.org/2000/svg", "g");
+                const badge = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
+                badge.setAttribute('x', (mx - 14).toString());
+                badge.setAttribute('y', (my - 10).toString());
+                badge.setAttribute('width', '28');
+                badge.setAttribute('height', '20');
+                badge.setAttribute('rx', '4');
+                badge.setAttribute('fill', theme === 'dark' ? '#0d652d' : '#e6f4ea');
+                badge.setAttribute('stroke', visitedEdgeColor);
+                badge.setAttribute('stroke-width', '1');
+                badgeGroup.appendChild(badge);
+
+                const txt = doc.createElementNS("http://www.w3.org/2000/svg", "text");
+                txt.setAttribute('x', mx.toString());
+                txt.setAttribute('y', (my + 4).toString());
+                txt.setAttribute('text-anchor', 'middle');
+                txt.setAttribute('fill', theme === 'dark' ? '#ffffff' : '#000000');
+                txt.setAttribute('font-size', '12px');
+                txt.setAttribute('font-weight', 'bold');
+                txt.textContent = count.toString() + 'x';
+                badgeGroup.appendChild(txt);
+
+                edgeElement.appendChild(badgeGroup);
+              }
             }
           }
         }
@@ -2571,7 +2595,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     nodeElements.forEach((nodeElement) => {
       const titleElement = nodeElement.querySelector('title');
       const titleName = titleElement?.textContent?.trim().replace(/^"|"$/g, '') || '';
-      
+
       if (visitedNodes.has(titleName)) {
         const shape = nodeElement.querySelector('ellipse, polygon, path, rect');
         if (shape) {
@@ -2581,7 +2605,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           shape.setAttribute('stroke-width', isActive ? '4' : '2');
         }
       }
-      
+
       if (!allVisitedNodes.has(titleName)) {
         nodeElement.classList.add('unvisited-node');
         const shape = nodeElement.querySelector('ellipse, polygon, path, rect');
@@ -2611,6 +2635,114 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           aElem.setAttribute('title', 'Not run in this invocation');
           aElem.setAttributeNS('http://www.w3.org/1999/xlink', 'title', 'Not run in this invocation');
         });
+      }
+    });
+
+    return new XMLSerializer().serializeToString(doc);
+  }
+
+  /**
+   * Extract highlight pairs (edge tuples) for v1 backend.
+   * Mimics v1 backend logic from adk_web_server.py:1960-1983
+   */
+  private getV1HighlightPairs(event: any): [string, string][] {
+    const pairs: [string, string][] = [];
+
+    const functionCalls = event.content?.parts?.filter((p: any) => p.functionCall) || [];
+    const functionResponses = event.content?.parts?.filter((p: any) => p.functionResponse) || [];
+
+    if (functionCalls.length > 0) {
+      // If event has function calls: highlight edges from author -> function_call.name
+      for (const part of functionCalls) {
+        if (part.functionCall?.name && event.author) {
+          pairs.push([event.author, part.functionCall.name]);
+        }
+      }
+    } else if (functionResponses.length > 0) {
+      // If event has function responses: highlight edges from function_response.name -> author
+      for (const part of functionResponses) {
+        if (part.functionResponse?.name && event.author) {
+          pairs.push([part.functionResponse.name, event.author]);
+        }
+      }
+    } else {
+      // Otherwise: just highlight the author node (edge to empty string)
+      if (event.author) {
+        pairs.push([event.author, '']);
+      }
+    }
+
+    return pairs;
+  }
+
+  /**
+   * Apply v1-style highlighting to SVG.
+   */
+  private applyV1Highlighting(svgString: string, highlightPairs: [string, string][], isDarkMode: boolean): string {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgString, 'image/svg+xml');
+
+    const darkGreen = '#0F5223';
+    const lightGreen = '#69CB87';
+    const textColor = isDarkMode ? '#cccccc' : '#000000';
+
+    // Get all node names that appear in highlight pairs
+    const highlightedNodeNames = new Set<string>();
+    for (const [from, to] of highlightPairs) {
+      if (from) highlightedNodeNames.add(from);
+      if (to) highlightedNodeNames.add(to);
+    }
+
+    // Highlight nodes
+    const nodeElements = doc.querySelectorAll('g.node');
+    nodeElements.forEach((nodeElement) => {
+      const titleElement = nodeElement.querySelector('title');
+      const nodeName = titleElement?.textContent?.trim().replace(/^"|"$/g, '') || '';
+
+      const textElements = nodeElement.querySelectorAll('text');
+
+      if (highlightedNodeNames.has(nodeName)) {
+        // Highlight this node with dark green
+        const ellipse = nodeElement.querySelector('ellipse, polygon, path');
+        if (ellipse) {
+          ellipse.setAttribute('fill', darkGreen);
+          ellipse.setAttribute('stroke', darkGreen);
+        }
+        textElements.forEach(t => t.setAttribute('fill', textColor));
+      } else {
+        // Unhighlighted nodes: set text color based on theme
+        textElements.forEach(t => t.setAttribute('fill', textColor));
+      }
+    });
+
+    // Highlight edges
+    const edgeElements = doc.querySelectorAll('g.edge');
+    edgeElements.forEach((edgeElement) => {
+      const titleElement = edgeElement.querySelector('title');
+      const title = titleElement?.textContent?.trim() || '';
+
+      if (title.includes('->')) {
+        const [fromRaw, toRaw] = title.split('->');
+        const from = fromRaw.trim().replace(/^"|"$/g, '');
+        const to = toRaw.trim().replace(/^"|"$/g, '');
+
+        // Check if this edge matches any highlight pair
+        for (const [highlightFrom, highlightTo] of highlightPairs) {
+          if ((from === highlightFrom && to === highlightTo) ||
+            (from === highlightTo && to === highlightFrom)) {
+            // Highlight this edge with light green
+            const pathElement = edgeElement.querySelector('path');
+            if (pathElement) {
+              pathElement.setAttribute('stroke', lightGreen);
+            }
+            const polygonElement = edgeElement.querySelector('polygon');
+            if (polygonElement) {
+              polygonElement.setAttribute('stroke', lightGreen);
+              polygonElement.setAttribute('fill', lightGreen);
+            }
+            break;
+          }
+        }
       }
     });
 
@@ -2649,7 +2781,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const visitedEdges = new Set<string>();
-    
+
     for (const node of visitedNodes) {
       if (node === '__start__') continue;
 
@@ -2670,9 +2802,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private calculateEdgeCounts(
-    sequence: string[], 
-    visitedNodes: Set<string>, 
-    visitedEdges: Set<string>, 
+    sequence: string[],
+    visitedNodes: Set<string>,
+    visitedEdges: Set<string>,
     adjacencyList: Map<string, string[]>
   ): Map<string, number> {
     const edgeCounts = new Map<string, number>();
@@ -2682,29 +2814,29 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     const endNode = Array.from(visitedNodes).find(n => n.toLowerCase() === '__end__');
 
     if (fullSeq.length > 0 && fullSeq[0].toLowerCase() !== '__start__' && startNode) {
-       fullSeq.unshift(startNode);
+      fullSeq.unshift(startNode);
     }
     if (fullSeq.length > 0 && endNode) {
-       if (fullSeq[fullSeq.length - 1].toLowerCase() !== '__end__') {
-          fullSeq.push(endNode);
-       }
+      if (fullSeq[fullSeq.length - 1].toLowerCase() !== '__end__') {
+        fullSeq.push(endNode);
+      }
     }
 
     for (let i = 0; i < fullSeq.length - 1; i++) {
       const src = fullSeq[i];
-      const dst = fullSeq[i+1];
-      
+      const dst = fullSeq[i + 1];
+
       let foundPath: string[] | null = null;
-      const queue: {node: string, path: string[]}[] = [];
+      const queue: { node: string, path: string[] }[] = [];
       const visited = new Set<string>();
 
       const initialChildren = adjacencyList.get(src) || [];
       for (const child of initialChildren) {
-         const edgeKey = `${src}->${child}`;
-         if (visitedEdges.has(edgeKey)) {
-           queue.push({node: child, path: [edgeKey]});
-           visited.add(child);
-         }
+        const edgeKey = `${src}->${child}`;
+        if (visitedEdges.has(edgeKey)) {
+          queue.push({ node: child, path: [edgeKey] });
+          visited.add(child);
+        }
       }
 
       while (queue.length > 0) {
@@ -2713,24 +2845,24 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           foundPath = current.path;
           break;
         }
-        
+
         const children = adjacencyList.get(current.node) || [];
         for (const child of children) {
-           const edgeKey = `${current.node}->${child}`;
-           if (visitedEdges.has(edgeKey) && !visited.has(child)) {
-             visited.add(child);
-             queue.push({node: child, path: [...current.path, edgeKey]});
-           }
+          const edgeKey = `${current.node}->${child}`;
+          if (visitedEdges.has(edgeKey) && !visited.has(child)) {
+            visited.add(child);
+            queue.push({ node: child, path: [...current.path, edgeKey] });
+          }
         }
       }
-      
+
       if (foundPath) {
         for (const edge of foundPath) {
-           edgeCounts.set(edge, (edgeCounts.get(edge) || 0) + 1);
+          edgeCounts.set(edge, (edgeCounts.get(edge) || 0) + 1);
         }
       }
     }
-    
+
     return edgeCounts;
   }
 
@@ -2743,7 +2875,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.chatPanel()?.viewMode() !== 'events') {
       this.chatPanel()?.onViewModeChange('events');
     }
-    
+
     // Auto-scroll to the selected event row in the chat panel
     this.chatPanel()?.scrollToSelectedMessage(this.selectedMessageIndex);
 
@@ -2774,7 +2906,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     }
-    
+
     this.updateRenderedGraph();
   }
 
@@ -2828,44 +2960,106 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.sessionGraphSvgDark = {};
         this.graphsAvailable = true;
 
+        // Try v2 approach first (getAppGraphImage for light mode)
         this.agentService.getAppGraphImage(app, false).pipe(
           catchError((error: HttpErrorResponse) => {
             if (error.status === 404) {
-              this.graphsAvailable = false;
+              // V2 endpoint not available, try v1 fallback with light theme
+              return this.agentService.getAppGraphDot(app, false).pipe(
+                catchError(() => {
+                  this.graphsAvailable = false;
+                  return of(null);
+                })
+              );
             }
             return of(null);
           })
-        ).subscribe(async (res) => {
-          if (res) {
-            this.sessionGraphSvgLight = {};
-            for (const [path, graph] of Object.entries(res)) {
-              if ((graph as any)?.dotSrc) {
-                this.sessionGraphSvgLight[path] = await this.graphService.render((graph as any).dotSrc);
+        ).subscribe({
+          next: async (res) => {
+            try {
+              if (res) {
+                console.log('Light mode graph response:', res);
+                // Check if this is v1 response (single dotSrc) or v2 response (path->graph map)
+                if (res.dotSrc && typeof res.dotSrc === 'string') {
+                  // V1 response - render light theme graph
+                  this.sessionGraphSvgLight = {};
+                  this.sessionGraphSvgLight[''] = await this.graphService.render(res.dotSrc);
+                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
+                    this.updateRenderedGraph();
+                  }
+                } else {
+                  // V2 response - render each path's graph
+                  this.sessionGraphSvgLight = {};
+                  for (const [path, graph] of Object.entries(res)) {
+                    if ((graph as any)?.dotSrc) {
+                      // Normalize path: map "root_agent" to "" for consistency with dialog expectations
+                      const normalizedPath = path === 'root_agent' ? '' : path;
+                      this.sessionGraphSvgLight[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
+                    }
+                  }
+                  console.log('sessionGraphSvgLight after rendering:', Object.keys(this.sessionGraphSvgLight));
+                  console.log('graphsAvailable:', this.graphsAvailable);
+                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
+                    this.updateRenderedGraph();
+                  }
+                }
               }
+            } catch (error) {
+              console.error('Error rendering light mode graphs:', error);
+              this.graphsAvailable = false;
             }
-            if (this.selectedEvent && this.selectedEventIndex !== undefined) {
-               this.updateRenderedGraph();
-            }
+          },
+          error: (error) => {
+            console.error('Error fetching light mode graphs:', error);
+            this.graphsAvailable = false;
           }
         });
+
+        // For dark mode, try v2 first, then v1 fallback with dark theme
         this.agentService.getAppGraphImage(app, true).pipe(
           catchError((error: HttpErrorResponse) => {
             if (error.status === 404) {
-              this.graphsAvailable = false;
+              // V1 fallback - fetch dark theme graph
+              return this.agentService.getAppGraphDot(app, true).pipe(
+                catchError(() => of(null))
+              );
             }
             return of(null);
           })
-        ).subscribe(async (res) => {
-          if (res) {
-            this.sessionGraphSvgDark = {};
-            for (const [path, graph] of Object.entries(res)) {
-              if ((graph as any)?.dotSrc) {
-                this.sessionGraphSvgDark[path] = await this.graphService.render((graph as any).dotSrc);
+        ).subscribe({
+          next: async (res) => {
+            try {
+              if (res) {
+                if (res.dotSrc && typeof res.dotSrc === 'string') {
+                  // V1 response
+                  this.sessionGraphSvgDark = {};
+                  this.sessionGraphSvgDark[''] = await this.graphService.render(res.dotSrc);
+                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
+                    this.updateRenderedGraph();
+                  }
+                } else {
+                  // V2 response
+                  this.sessionGraphSvgDark = {};
+                  for (const [path, graph] of Object.entries(res)) {
+                    if ((graph as any)?.dotSrc) {
+                      // Normalize path: map "root_agent" to "" for consistency with dialog expectations
+                      const normalizedPath = path === 'root_agent' ? '' : path;
+                      this.sessionGraphSvgDark[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
+                    }
+                  }
+                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
+                    this.updateRenderedGraph();
+                  }
+                }
               }
+            } catch (error) {
+              console.error('Error rendering dark mode graphs:', error);
+              this.graphsAvailable = false;
             }
-            if (this.selectedEvent && this.selectedEventIndex !== undefined) {
-               this.updateRenderedGraph();
-            }
+          },
+          error: (error) => {
+            console.error('Error fetching dark mode graphs:', error);
+            this.graphsAvailable = false;
           }
         });
         this.agentService.getAgentBuilder(app).pipe(
@@ -3079,7 +3273,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updatedSessionState.set(null);
   }
 
-  
+
 
   protected importSession() {
     const input = document.createElement('input');
