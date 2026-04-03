@@ -162,10 +162,19 @@ export class TraceTabComponent {
 
   copiedId: string | null = null;
 
-  copyToClipboard(value: string | undefined | null) {
+  copyToClipboard(value: string | undefined | null, key?: string) {
     if (!value) return;
     navigator.clipboard.writeText(value).then(() => {
-      this.copiedId = value;
+      this.copiedId = key || value;
+      setTimeout(() => this.copiedId = null, 2000);
+    });
+  }
+
+  copyJsonToClipboard(json: any, key: string) {
+    if (!json) return;
+    const value = JSON.stringify(json, null, 2);
+    navigator.clipboard.writeText(value).then(() => {
+      this.copiedId = key;
       setTimeout(() => this.copiedId = null, 2000);
     });
   }

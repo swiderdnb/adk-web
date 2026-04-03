@@ -51,7 +51,7 @@
       @if (selectedDetailTab() === 'info') {
         <div class="info-tables-container">
           <table app-info-table>
-              <tr><td>Name</td><td>{{ selectedSpan()?.name }}</td></tr>
+              <tr><td>Name</td><td><span class="value-cell"><span>{{ selectedSpan()?.name }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedSpan()?.name)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedSpan()?.name ? 'check' : 'content_copy' }}</mat-icon></button></span></td></tr>
               <tr><td>Span ID</td><td class="id-text"><span class="id-cell"><span>{{ selectedSpan()?.span_id }}</span><button mat-icon-button class="copy-id-button" (click)="copyToClipboard(selectedSpan()?.span_id)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedSpan()?.span_id ? 'check' : 'content_copy' }}</mat-icon></button></span></td></tr>
               <tr>
                 <td>Parent ID</td>
@@ -64,8 +64,8 @@
                 </td>
               </tr>
               <tr><td>Trace ID</td><td class="id-text"><span class="id-cell"><span>{{ selectedSpan()?.trace_id }}</span><button mat-icon-button class="copy-id-button" (click)="copyToClipboard(selectedSpan()?.trace_id)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedSpan()?.trace_id ? 'check' : 'content_copy' }}</mat-icon></button></span></td></tr>
-              <tr><td>Start Time</td><td>{{ formatTime(selectedSpan()?.start_time) }}</td></tr>
-              <tr><td>End Time</td><td>{{ formatTime(selectedSpan()?.end_time) }}</td></tr>
+              <tr><td>Start Time</td><td><span class="value-cell"><span>{{ formatTime(selectedSpan()?.start_time) }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(formatTime(selectedSpan()?.start_time), 'startTime')" matTooltip="Copy"><mat-icon>{{ copiedId === 'startTime' ? 'check' : 'content_copy' }}</mat-icon></button></span></td></tr>
+              <tr><td>End Time</td><td><span class="value-cell"><span>{{ formatTime(selectedSpan()?.end_time) }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(formatTime(selectedSpan()?.end_time), 'endTime')" matTooltip="Copy"><mat-icon>{{ copiedId === 'endTime' ? 'check' : 'content_copy' }}</mat-icon></button></span></td></tr>
           </table>
           @if (selectedSpanChildren.length > 0) {
             <table app-info-table title="Children">
@@ -94,7 +94,7 @@
           @if (selectedSpan()?.attributes && Object.keys(selectedSpan()!.attributes).length > 0) {
             <table app-info-table>
                 @for (key of Object.keys(selectedSpan()!.attributes); track key) {
-                  <tr><td>{{ key }}</td><td>{{ selectedSpan()!.attributes[key] }}</td></tr>
+                  <tr><td>{{ key }}</td><td><span class="value-cell"><span>{{ selectedSpan()!.attributes[key] }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedSpan()!.attributes[key]?.toString())" matTooltip="Copy"><mat-icon>{{ copiedId === selectedSpan()!.attributes[key]?.toString() ? 'check' : 'content_copy' }}</mat-icon></button></span></td></tr>
                 }
             </table>
           } @else {
@@ -103,8 +103,11 @@
         </div>
       }
       @if (selectedDetailTab() === 'raw') {
-        <div class="json-viewer-container">
+        <div class="json-viewer-container json-viewer-wrapper">
           <ngx-json-viewer [json]="selectedSpan()!"></ngx-json-viewer>
+          <button mat-icon-button class="floating-copy-button" (click)="copyJsonToClipboard(selectedSpan()!, 'raw')" matTooltip="Copy JSON">
+            <mat-icon>{{ copiedId === 'raw' ? 'check' : 'content_copy' }}</mat-icon>
+          </button>
         </div>
       }
     </div>

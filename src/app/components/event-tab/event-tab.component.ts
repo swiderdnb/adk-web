@@ -11,7 +11,7 @@ import {type SafeHtml} from '@angular/platform-browser';
 import {NgxJsonViewerModule} from 'ngx-json-viewer';
 import {InfoTable} from '../info-table/info-table';
 
-import {Event} from '../../core/models/types';
+import {Event, Part} from '../../core/models/types';
 import {UI_STATE_SERVICE} from '../../core/services/interfaces/ui-state';
 import {SidePanelMessagesInjectionToken} from '../side-panel/side-panel.component.i18n';
 import {SpanNode} from '../../core/models/Trace';
@@ -27,7 +27,6 @@ import {addSvgNodeHoverEffects} from '../../utils/svg-interaction.utils';
   imports: [
     AsyncPipe,
     DatePipe,
-    KeyValuePipe,
     MatButtonModule,
     MatIconButton,
     MatIcon,
@@ -74,6 +73,42 @@ export class EventTabComponent {
   readonly functionResponses = computed(() => {
     const parts = this.selectedEvent()?.content?.parts || [];
     return parts.filter(p => !!p.functionResponse).map(p => p.functionResponse);
+  });
+
+  readonly processedFunctionResponses = computed(() => {
+    const responses = this.functionResponses();
+    return responses.map(fr => {
+      if (!fr) return null;
+      if (fr && Array.isArray((fr as any)['parts'])) {
+        const parts = (fr as any)['parts'] as Part[];
+        const mediaParts = parts.filter(p => !!p.inlineData).map(p => {
+          if (p.inlineData && p.inlineData.data) {
+            return {
+              ...p,
+              inlineData: {
+                ...p.inlineData,
+                data: p.inlineData.data.replace(/-/g, '+').replace(/_/g, '/')
+              }
+            };
+          }
+          return p;
+        });
+        const cleanedFr = { ...fr };
+        delete (cleanedFr as any)['parts'];
+        return {
+          name: fr.name,
+          cleanedFr,
+          mediaParts,
+          hasMedia: mediaParts.length > 0
+        };
+      }
+      return {
+        name: fr.name,
+        cleanedFr: fr,
+        mediaParts: [],
+        hasMedia: false
+      };
+    }).filter((r): r is any => r !== null);
   });
 
   readonly page = output<PageEvent>();
@@ -145,10 +180,19 @@ export class EventTabComponent {
 
   copiedId: string | null = null;
 
-  copyToClipboard(value: string | undefined | null) {
+  copyToClipboard(value: string | undefined | null, key?: string) {
     if (!value) return;
     navigator.clipboard.writeText(value).then(() => {
-      this.copiedId = value;
+      this.copiedId = key || value;
+      setTimeout(() => this.copiedId = null, 2000);
+    });
+  }
+
+  copyJsonToClipboard(json: any, key: string) {
+    if (!json) return;
+    const value = JSON.stringify(json, null, 2);
+    navigator.clipboard.writeText(value).then(() => {
+      this.copiedId = key;
       setTimeout(() => this.copiedId = null, 2000);
     });
   }
