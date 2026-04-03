@@ -274,7 +274,12 @@ export class EventTabComponent {
       }
       if (!np) return;
 
-      const segments = np.split('/');
+      let bareNp = np;
+      if (np !== '__START__') {
+        bareNp = np.split('/').map((s: string) => s.split('@')[0]).join('/');
+      }
+
+      const segments = bareNp.split('/');
       let evNodeName = segments[segments.length - 1];
       let evGraphPath = '';
 

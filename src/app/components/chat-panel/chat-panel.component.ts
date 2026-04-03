@@ -308,7 +308,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
 
     const pathFilter = this.nodePathFilter();
     if (pathFilter) {
-      const eventPath = uiEvent.event?.nodeInfo?.path || '';
+      const eventPath = uiEvent.bareNodePath || '';
       if (!eventPath.includes(pathFilter)) {
         return false;
       }
@@ -486,7 +486,8 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
       const paths = new Set<string>();
       for (const e of this.uiEvents) {
         if (e.event?.invocationId) ids.add(e.event.invocationId);
-        if (e.event?.nodeInfo?.path) paths.add(e.event.nodeInfo.path);
+        const barePath = e.bareNodePath;
+        if (barePath) paths.add(barePath);
       }
       this.invocationIdOptions = Array.from(ids);
       this.nodePathOptions = Array.from(paths);

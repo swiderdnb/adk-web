@@ -298,6 +298,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionGraphSvgDark: Record<string, string> = {};
   agentReadme: string = '';
   graphsAvailable: boolean = true;
+  graphsAreV2: boolean = false;
 
   get hasSubWorkflows(): boolean {
     return Object.keys(this.sessionGraphSvgLight).length > 1;
@@ -2345,7 +2346,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Check if we're using v1 backend (only root graph, no workflow paths)
-    const isV1Backend = Object.keys(sessionGraphSvgLight).length === 1 && '' in sessionGraphSvgLight;
+    const isV1Backend = !this.graphsAreV2;
 
     if (isV1Backend && this.selectedEvent) {
       // V1 backend: Simple edge/node highlighting for single event only
@@ -2372,11 +2373,16 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       nodePath = '__START__';
     }
 
+    let bareNodePath = nodePath;
+    if (nodePath && nodePath !== '__START__') {
+      bareNodePath = nodePath.split('/').map((s: string) => s.split('@')[0]).join('/');
+    }
+
     let graphPath = overrideGraphPath !== undefined ? overrideGraphPath : '';
     let nodeName = '';
 
-    if (nodePath && overrideGraphPath === undefined) {
-      const segments = nodePath.split('/');
+    if (bareNodePath && overrideGraphPath === undefined) {
+      const segments = bareNodePath.split('/');
       nodeName = segments[segments.length - 1];
 
       if (segments.length >= 2 && segments[segments.length - 1] === 'call_llm' && segments[segments.length - 2] === this.selectedEvent?.author) {
@@ -2414,8 +2420,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           np = '__START__';
         }
 
-        if (np) {
-          const segments = np.split('/');
+        let bareNp = np;
+        if (np && np !== '__START__') {
+          bareNp = np.split('/').map((s: string) => s.split('@')[0]).join('/');
+        }
+
+        if (bareNp) {
+          const segments = bareNp.split('/');
           let evNodeName = segments[segments.length - 1];
           let evGraphPath = '';
 
@@ -2496,23 +2507,29 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    const targetNodeIds = runNodeNames.map(name => {
+    const findNodeId = (name: string) => {
+      const cleanName = name.toLowerCase();
+      
+      // First pass: exact match (case insensitive, space normalized)
       for (const [text, id] of nodeNameToId.entries()) {
-        if (text === name || text.includes(name) || text === `"${name}"`) {
+        const cleanText = text.toLowerCase().replace(/\s+/g, '_');
+        if (cleanText === cleanName || cleanText === `"${cleanName}"`) {
+          return id;
+        }
+      }
+      
+      // Second pass: includes
+      for (const [text, id] of nodeNameToId.entries()) {
+        const cleanText = text.toLowerCase().replace(/\s+/g, '_');
+        if (cleanText.includes(cleanName)) {
           return id;
         }
       }
       return null;
-    }).filter(id => id) as string[];
+    };
 
-    const allTargetNodeIds = allRunNodeNames.map(name => {
-      for (const [text, id] of nodeNameToId.entries()) {
-        if (text === name || text.includes(name) || text === `"${name}"`) {
-          return id;
-        }
-      }
-      return null;
-    }).filter(id => id) as string[];
+    const targetNodeIds = runNodeNames.map(name => findNodeId(name)).filter(id => id) as string[];
+    const allTargetNodeIds = allRunNodeNames.map(name => findNodeId(name)).filter(id => id) as string[];
 
     const { visitedNodes, visitedEdges } = this.calculateVisitedPath(targetNodeIds, reverseAdjacencyList);
     const { visitedNodes: allVisitedNodes } = this.calculateVisitedPath(allTargetNodeIds, reverseAdjacencyList);
@@ -2982,6 +2999,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                 // Check if this is v1 response (single dotSrc) or v2 response (path->graph map)
                 if (res.dotSrc && typeof res.dotSrc === 'string') {
                   // V1 response - render light theme graph
+                  this.graphsAreV2 = false;
                   this.sessionGraphSvgLight = {};
                   this.sessionGraphSvgLight[''] = await this.graphService.render(res.dotSrc);
                   if (this.selectedEvent && this.selectedEventIndex !== undefined) {
@@ -2989,11 +3007,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                   }
                 } else {
                   // V2 response - render each path's graph
+                  this.graphsAreV2 = true;
                   this.sessionGraphSvgLight = {};
                   for (const [path, graph] of Object.entries(res)) {
                     if ((graph as any)?.dotSrc) {
-                      // Normalize path: map "root_agent" to "" for consistency with dialog expectations
-                      const normalizedPath = path === 'root_agent' ? '' : path;
+                      // Normalize path: strip @run_id and skip first segment (root_agent)
+                      const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
+                      const segments = barePath.split('/');
+                      const normalizedPath = segments.slice(1).join('/');
                       this.sessionGraphSvgLight[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
                     }
                   }
@@ -3032,6 +3053,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               if (res) {
                 if (res.dotSrc && typeof res.dotSrc === 'string') {
                   // V1 response
+                  this.graphsAreV2 = false;
                   this.sessionGraphSvgDark = {};
                   this.sessionGraphSvgDark[''] = await this.graphService.render(res.dotSrc);
                   if (this.selectedEvent && this.selectedEventIndex !== undefined) {
@@ -3039,11 +3061,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                   }
                 } else {
                   // V2 response
+                  this.graphsAreV2 = true;
                   this.sessionGraphSvgDark = {};
                   for (const [path, graph] of Object.entries(res)) {
                     if ((graph as any)?.dotSrc) {
-                      // Normalize path: map "root_agent" to "" for consistency with dialog expectations
-                      const normalizedPath = path === 'root_agent' ? '' : path;
+                      // Normalize path: strip @run_id and skip first segment (root_agent)
+                      const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
+                      const segments = barePath.split('/');
+                      const normalizedPath = segments.slice(1).join('/');
                       this.sessionGraphSvgDark[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
                     }
                   }

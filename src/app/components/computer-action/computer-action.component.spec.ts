@@ -174,7 +174,7 @@ describe('ComputerActionComponent', () => {
       
       const fallbackText = fixture.debugElement.query(By.css('.fallback-text'));
       expect(fallbackText).toBeTruthy();
-      expect(fallbackText.nativeElement.textContent).toContain('Screenshot missing');
+      expect(fallbackText.nativeElement.textContent).toContain('No screenshot');
     });
   });
 });

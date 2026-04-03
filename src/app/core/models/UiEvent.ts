@@ -66,6 +66,12 @@ export class UiEvent {
     return this.event?.nodeInfo?.path || null;
   }
 
+  get bareNodePath(): string | null {
+    const path = this.nodePath;
+    if (!path) return null;
+    return path.split('/').map(segment => segment.split('@')[0]).join('/');
+  }
+
   get author(): string {
     return this.event?.author ?? 'root_agent';
   }
