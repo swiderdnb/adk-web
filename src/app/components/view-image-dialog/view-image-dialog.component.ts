@@ -19,19 +19,23 @@ import {SAFE_VALUES_SERVICE} from '../../core/services/interfaces/safevalues';
 import {Component, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {SafeHtml, SafeUrl} from '@angular/platform-browser';
+import { NgStyle } from '@angular/common';
 
 export interface ViewImageDialogData {
   imageData: string|null;
   images?: string[];
   currentIndex?: number;
   urls?: string[];
+  coordinates?: ({x: number, y: number} | null)[];
 }
 
 @Component({
+    standalone: true,
     changeDetection: ChangeDetectionStrategy.Default,
     selector: 'app-view-image-dialog',
     templateUrl: './view-image-dialog.component.html',
     styleUrls: ['./view-image-dialog.component.scss'],
+    imports: [NgStyle]
 })
 export class ViewImageDialogComponent implements OnInit {
   // Property to hold the sanitized image URL or SVG HTML
@@ -43,19 +47,17 @@ export class ViewImageDialogComponent implements OnInit {
   currentIndex: number = 0;
   currentUrl: string | null = null;
   urls: string[] = [];
+  coordinates: ({x: number, y: number} | null)[] = [];
 
   readonly dialogRef = inject(MatDialogRef<ViewImageDialogComponent>);
   readonly data = inject<ViewImageDialogData>(MAT_DIALOG_DATA);
   private readonly safeValuesService = inject(SAFE_VALUES_SERVICE);
 
-  /**
-   * Lifecycle hook to initialize the component.
-   * This is used to process the image data when the dialog opens.
-   */
   ngOnInit(): void {
     this.images = this.data.images || [];
     this.currentIndex = this.data.currentIndex || 0;
     this.urls = this.data.urls || [];
+    this.coordinates = this.data.coordinates || [];
     this.updateImage();
   }
 
@@ -71,6 +73,19 @@ export class ViewImageDialogComponent implements OnInit {
     }
     this.currentUrl = url;
     this.processImageData(imageData);
+  }
+
+  getHighlightStyle(): {[key: string]: string} {
+    const coord = this.coordinates[this.currentIndex];
+    if (!coord) return {};
+    return {
+      left: `${(coord.x / 1000) * 100}%`,
+      top: `${(coord.y / 1000) * 100}%`,
+    };
+  }
+
+  shouldShowHighlight(): boolean {
+    return !!this.coordinates[this.currentIndex];
   }
 
   /**

@@ -37,10 +37,10 @@ import type {FunctionCall, FunctionResponse} from '../../core/models/types';
 export class ComputerActionComponent {
   @Input() functionCall?: FunctionCall;
   @Input() functionResponse?: FunctionResponse;
-  @Input() allMessages: Array<{functionResponses?: FunctionResponse[]}> = [];
+  @Input() allMessages: Array<{functionResponses?: FunctionResponse[], functionCalls?: FunctionCall[]}> = [];
   @Input() index: number = 0;
   @Output() readonly clickEvent = new EventEmitter<number>();
-  @Output() readonly openImage = new EventEmitter<{images: string[], currentIndex: number, urls?: string[]}>();
+  @Output() readonly openImage = new EventEmitter<{images: string[], currentIndex: number, urls?: string[], coordinates?: ({x: number, y: number} | null)[]}>();
   imageDimensions = new Map < number, {
     width: number;
     height: number
@@ -142,9 +142,9 @@ export class ComputerActionComponent {
     return name;
   }
 
-  getClickCoordinates(): {x: number; y: number}|null {
-    if (!this.isComputerUseClick()) return null;
-    const args = this.functionCall!.args;
+  getClickCoordinates(call: FunctionCall | undefined = this.functionCall): {x: number; y: number}|null {
+    if (!call || !isVisibleComputerUseClick(call)) return null;
+    const args = call.args;
     if (!args) return null;
     if (args['coordinate']) {
       return {
@@ -279,10 +279,58 @@ export class ComputerActionComponent {
     return urls;
   }
 
+  getAllComputerUseCoordinates(): ({x: number, y: number} | null)[] {
+    const coords: ({x: number, y: number} | null)[] = [];
+    let lastCall: any = null;
+    
+    for (const msg of this.allMessages) {
+      const functionCalls = (msg as any)['functionCalls'];
+      if (Array.isArray(functionCalls)) {
+        for (const call of functionCalls) {
+          if (isVisibleComputerUseClick(call)) {
+            lastCall = call;
+          } else if (call.name === 'computer') {
+            lastCall = null;
+          }
+        }
+      }
+      
+      if (this.isMsgComputerUseResponse(msg)) {
+        if (msg.functionResponses) {
+          for (const resp of msg.functionResponses) {
+            let foundImage = false;
+            
+            if (isComputerUseResponse(resp)) {
+              foundImage = true;
+            }
+            
+            const parts = (resp as any)['parts'];
+            if (Array.isArray(parts)) {
+              for (const p of parts) {
+                if (p.inlineData?.mimeType?.startsWith('image/') && p.inlineData.data) {
+                  foundImage = true;
+                }
+              }
+            }
+            
+            if (foundImage) {
+              if (lastCall && coords.length > 0) {
+                coords[coords.length - 1] = this.getClickCoordinates(lastCall);
+              }
+              coords.push(null);
+            }
+          }
+        }
+      }
+    }
+    return coords;
+  }
+
   openImageViewer(currentScreenshot: string): void {
     const images = this.getAllComputerUseScreenshots();
     const urls = this.getAllComputerUseUrls();
+    const coordinates = this.getAllComputerUseCoordinates();
     const currentIndex = images.indexOf(currentScreenshot);
-    this.openImage.emit({images, currentIndex, urls});
+    this.openImage.emit({images, currentIndex, urls, coordinates});
   }
 }

@@ -49,7 +49,12 @@
   @if (!isSvgContent) {
     <div class="image-wrapper">
       @if (displayContent) {
-        <img [src]="displayContent" alt="Viewed Image">
+        <div class="image-container" style="position: relative; display: inline-block;">
+          <img [src]="displayContent" alt="Viewed Image">
+          @if (shouldShowHighlight()) {
+            <div class="highlight-circle" [ngStyle]="getHighlightStyle()"></div>
+          }
+        </div>
       }
       @if (!displayContent) {
         <div class="no-image-placeholder">

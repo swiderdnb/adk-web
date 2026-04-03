@@ -177,4 +177,31 @@ describe('ComputerActionComponent', () => {
       expect(fallbackText.nativeElement.textContent).toContain('No screenshot');
     });
   });
+
+  describe('getAllComputerUseCoordinates', () => {
+    it('should associate coordinates with the previous image', () => {
+      component.allMessages = [
+        {
+          functionResponses: [
+            {name: 'computer', response: {image: {data: 'img1'}}}
+          ]
+        },
+        {
+          functionCalls: [
+            {name: 'computer', args: {action: 'left_click', coordinate: [500, 500]}}
+          ]
+        },
+        {
+          functionResponses: [
+            {name: 'computer', response: {image: {data: 'img2'}}}
+          ]
+        }
+      ];
+
+      const coords = component.getAllComputerUseCoordinates();
+      expect(coords.length).toBe(2);
+      expect(coords[0]).toEqual({x: 500, y: 500});
+      expect(coords[1]).toBeNull();
+    });
+  });
 });

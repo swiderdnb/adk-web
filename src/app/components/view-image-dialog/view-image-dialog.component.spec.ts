@@ -113,4 +113,21 @@ describe('ViewImageDialogComponent', () => {
     expect(titleElement).not.toBeNull();
     expect(titleElement.nativeElement.textContent).toContain(testUrl);
   });
+  it('should display highlight circle if coordinate is provided', () => {
+    const testData = 'data:image/png;base64,xyz';
+    mockDialogData.imageData = testData;
+    mockDialogData.images = [testData];
+    mockDialogData.coordinates = [{x: 500, y: 500}];
+    mockSafeValuesService.bypassSecurityTrustUrl.and.returnValue(testData);
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    const highlightElement = fixture.debugElement.query(By.css('.highlight-circle'));
+    expect(highlightElement).not.toBeNull();
+    
+    const style = highlightElement.nativeElement.style;
+    expect(style.left).toBe('50%');
+    expect(style.top).toBe('50%');
+  });
 });

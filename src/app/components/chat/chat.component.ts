@@ -3301,11 +3301,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.safeValuesService.windowOpen(window, url, '_blank');
   }
 
-  openViewImageDialog(data: string | null | {images: string[], currentIndex: number, urls?: string[]}) {
+  openViewImageDialog(data: string | null | {images: string[], currentIndex: number, urls?: string[], coordinates?: ({x: number, y: number} | null)[]}) {
     let imageData: string | null = null;
     let images: string[] | undefined = undefined;
     let currentIndex: number | undefined = undefined;
     let urls: string[] | undefined = undefined;
+    let coordinates: ({x: number, y: number} | null)[] | undefined = undefined;
 
     if (typeof data === 'string' || data === null) {
       imageData = data;
@@ -3313,6 +3314,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       images = data.images;
       currentIndex = data.currentIndex;
       urls = data.urls;
+      coordinates = data.coordinates;
       if (images && currentIndex !== undefined) {
         imageData = images[currentIndex];
       }
@@ -3326,6 +3328,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         images,
         currentIndex,
         urls,
+        coordinates,
       },
     });
   }
