@@ -167,6 +167,7 @@ export class EventTabComponent {
   
   set selectedDetailTab(tab: 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata') {
     this._selectedDetailTab = tab;
+    localStorage.setItem('adk-event-tab-selected-tab', tab);
     if (tab === 'graph') {
       setTimeout(() => {
         if (this.graphContainer?.nativeElement) {
@@ -203,6 +204,11 @@ export class EventTabComponent {
   }
 
   constructor() {
+    const savedTab = localStorage.getItem('adk-event-tab-selected-tab');
+    if (savedTab && ['event', 'raw', 'request', 'response', 'graph', 'metadata'].includes(savedTab)) {
+      this._selectedDetailTab = savedTab as 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata';
+    }
+
     effect(() => {
       const svgTree = this.renderedEventGraph();
       const currentTab = this._selectedDetailTab;
