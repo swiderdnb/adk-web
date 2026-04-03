@@ -58,7 +58,7 @@ export class EventRowComponent {
   @Output() readonly saveEditMessage = new EventEmitter<any>();
   @Output() readonly userEditEvalCaseMessageChange = new EventEmitter<string>();
   
-  @Output() readonly openViewImageDialog = new EventEmitter<{images: string[], currentIndex: number}>();
+  @Output() readonly openViewImageDialog = new EventEmitter<{images: string[], currentIndex: number, urls?: string[]}>();
   @Output() readonly openBase64InNewTab = new EventEmitter<{data: string, mimeType: string}>();
   
   @Output() readonly editEvalCaseMessage = new EventEmitter<any>();

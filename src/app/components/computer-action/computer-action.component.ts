@@ -40,7 +40,7 @@ export class ComputerActionComponent {
   @Input() allMessages: Array<{functionResponses?: FunctionResponse[]}> = [];
   @Input() index: number = 0;
   @Output() readonly clickEvent = new EventEmitter<number>();
-  @Output() readonly openImage = new EventEmitter<{images: string[], currentIndex: number}>();
+  @Output() readonly openImage = new EventEmitter<{images: string[], currentIndex: number, urls?: string[]}>();
   imageDimensions = new Map < number, {
     width: number;
     height: number
@@ -248,9 +248,41 @@ export class ComputerActionComponent {
     return screenshots;
   }
 
+  getAllComputerUseUrls(): string[] {
+    const urls: string[] = [];
+    let lastKnownUrl = '';
+    for (const msg of this.allMessages) {
+      if (this.isMsgComputerUseResponse(msg)) {
+        if (msg.functionResponses) {
+          for (const resp of msg.functionResponses) {
+            const url = (resp.response as any)?.url;
+            if (url) {
+              lastKnownUrl = url;
+            }
+
+            if (isComputerUseResponse(resp)) {
+              urls.push(lastKnownUrl);
+            }
+            
+            const parts = (resp as any)['parts'];
+            if (Array.isArray(parts)) {
+              for (const p of parts) {
+                if (p.inlineData?.mimeType?.startsWith('image/') && p.inlineData.data) {
+                  urls.push(lastKnownUrl);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return urls;
+  }
+
   openImageViewer(currentScreenshot: string): void {
     const images = this.getAllComputerUseScreenshots();
+    const urls = this.getAllComputerUseUrls();
     const currentIndex = images.indexOf(currentScreenshot);
-    this.openImage.emit({images, currentIndex});
+    this.openImage.emit({images, currentIndex, urls});
   }
 }

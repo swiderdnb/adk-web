@@ -24,6 +24,7 @@ export interface ViewImageDialogData {
   imageData: string|null;
   images?: string[];
   currentIndex?: number;
+  urls?: string[];
 }
 
 @Component({
@@ -40,6 +41,8 @@ export class ViewImageDialogComponent implements OnInit {
   
   images: string[] = [];
   currentIndex: number = 0;
+  currentUrl: string | null = null;
+  urls: string[] = [];
 
   readonly dialogRef = inject(MatDialogRef<ViewImageDialogComponent>);
   readonly data = inject<ViewImageDialogData>(MAT_DIALOG_DATA);
@@ -52,6 +55,7 @@ export class ViewImageDialogComponent implements OnInit {
   ngOnInit(): void {
     this.images = this.data.images || [];
     this.currentIndex = this.data.currentIndex || 0;
+    this.urls = this.data.urls || [];
     this.updateImage();
   }
 
@@ -60,9 +64,12 @@ export class ViewImageDialogComponent implements OnInit {
    */
   updateImage(): void {
     let imageData = this.data.imageData;
+    let url = '';
     if (this.images.length > 0) {
       imageData = this.images[this.currentIndex];
+      url = this.urls[this.currentIndex] || '';
     }
+    this.currentUrl = url;
     this.processImageData(imageData);
   }
 
