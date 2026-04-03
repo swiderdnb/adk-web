@@ -3301,12 +3301,28 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.safeValuesService.windowOpen(window, url, '_blank');
   }
 
-  openViewImageDialog(imageData: string | null) {
+  openViewImageDialog(data: string | null | {images: string[], currentIndex: number}) {
+    let imageData: string | null = null;
+    let images: string[] | undefined = undefined;
+    let currentIndex: number | undefined = undefined;
+
+    if (typeof data === 'string' || data === null) {
+      imageData = data;
+    } else {
+      images = data.images;
+      currentIndex = data.currentIndex;
+      if (images && currentIndex !== undefined) {
+        imageData = images[currentIndex];
+      }
+    }
+
     const dialogRef = this.dialog.open(ViewImageDialogComponent, {
       maxWidth: '90vw',
       maxHeight: '90vh',
       data: {
         imageData,
+        images,
+        currentIndex,
       },
     });
   }

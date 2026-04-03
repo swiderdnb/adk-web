@@ -8,7 +8,7 @@
           @if (screenshot) {
             <div class="image-wrapper">
               <img [src]="screenshot" class="computer-use-screenshot" alt="Computer Use Screenshot"
-                (load)="onImageLoad($event)" (click)="openImage.emit(screenshot); $event.stopPropagation()" />
+                (load)="onImageLoad($event)" (click)="openImageViewer(screenshot); $event.stopPropagation()" />
               <div class="click-overlay-box" [ngStyle]="getClickBoxStyle()"></div>
             </div>
           } @else {
@@ -25,12 +25,12 @@
 
           <div class="image-wrapper">
             <img [src]="nextScreenshot" class="computer-use-screenshot" alt="Next Screenshot"
-              (click)="openImage.emit(nextScreenshot); $event.stopPropagation()" />
+              (click)="openImageViewer(nextScreenshot); $event.stopPropagation()" />
           </div>
         } @else {
           <div class="image-wrapper">
             <img [src]="screenshot" class="computer-use-screenshot" alt="Computer Use Screenshot"
-              (load)="onImageLoad($event)" (click)="openImage.emit(screenshot); $event.stopPropagation()" />
+              (load)="onImageLoad($event)" (click)="openImageViewer(screenshot); $event.stopPropagation()" />
             <div class="click-overlay-box" [ngStyle]="getClickBoxStyle()"></div>
           </div>
         }

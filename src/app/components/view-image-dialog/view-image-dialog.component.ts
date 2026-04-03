@@ -22,6 +22,8 @@ import {SafeHtml, SafeUrl} from '@angular/platform-browser';
 
 export interface ViewImageDialogData {
   imageData: string|null;
+  images?: string[];
+  currentIndex?: number;
 }
 
 @Component({
@@ -35,6 +37,9 @@ export class ViewImageDialogComponent implements OnInit {
   displayContent: SafeUrl|SafeHtml|null = null;
   // Flag to determine if the content is SVG
   isSvgContent: boolean = false;
+  
+  images: string[] = [];
+  currentIndex: number = 0;
 
   readonly dialogRef = inject(MatDialogRef<ViewImageDialogComponent>);
   readonly data = inject<ViewImageDialogData>(MAT_DIALOG_DATA);
@@ -45,16 +50,27 @@ export class ViewImageDialogComponent implements OnInit {
    * This is used to process the image data when the dialog opens.
    */
   ngOnInit(): void {
-    this.processImageData();
+    this.images = this.data.images || [];
+    this.currentIndex = this.data.currentIndex || 0;
+    this.updateImage();
+  }
+
+  /**
+   * Updates the displayed image based on currentIndex.
+   */
+  updateImage(): void {
+    let imageData = this.data.imageData;
+    if (this.images.length > 0) {
+      imageData = this.images[this.currentIndex];
+    }
+    this.processImageData(imageData);
   }
 
   /**
    * Processes the input imageData to determine if it's base64 or SVG
    * and sanitizes it for display.
    */
-  private processImageData(): void {
-    const imageData = this.data.imageData;
-
+  private processImageData(imageData: string | null): void {
     if (!imageData) {
       this.displayContent = null;
       this.isSvgContent = false;
@@ -73,6 +89,20 @@ export class ViewImageDialogComponent implements OnInit {
       this.isSvgContent = false;
       this.displayContent =
           this.safeValuesService.bypassSecurityTrustUrl(prefix + imageData);
+    }
+  }
+
+  nextImage(): void {
+    if (this.currentIndex < this.images.length - 1) {
+      this.currentIndex++;
+      this.updateImage();
+    }
+  }
+
+  prevImage(): void {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+      this.updateImage();
     }
   }
 

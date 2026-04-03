@@ -40,7 +40,7 @@ export class ComputerActionComponent {
   @Input() allMessages: Array<{functionResponses?: FunctionResponse[]}> = [];
   @Input() index: number = 0;
   @Output() readonly clickEvent = new EventEmitter<number>();
-  @Output() readonly openImage = new EventEmitter<string>();
+  @Output() readonly openImage = new EventEmitter<{images: string[], currentIndex: number}>();
   imageDimensions = new Map < number, {
     width: number;
     height: number
@@ -218,5 +218,39 @@ export class ComputerActionComponent {
     if (screenshot.startsWith('data:')) return screenshot;
     const mimeType = imageInfo.mimetype || 'image/png';
     return `data:${mimeType};base64,${screenshot}`;
+  }
+
+  getAllComputerUseScreenshots(): string[] {
+    const screenshots: string[] = [];
+    for (const msg of this.allMessages) {
+      if (this.isMsgComputerUseResponse(msg)) {
+        if (msg.functionResponses) {
+          for (const resp of msg.functionResponses) {
+            if (isComputerUseResponse(resp)) {
+              const payload = resp.response as ComputerUsePayload;
+              screenshots.push(this.getScreenshotFromPayload(payload));
+            }
+            
+            const parts = (resp as any)['parts'];
+            if (Array.isArray(parts)) {
+              for (const p of parts) {
+                if (p.inlineData?.mimeType?.startsWith('image/') && p.inlineData.data) {
+                  const mimeType = p.inlineData.mimeType;
+                  const data = p.inlineData.data.replace(/-/g, '+').replace(/_/g, '/');
+                  screenshots.push(`data:${mimeType};base64,${data}`);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return screenshots;
+  }
+
+  openImageViewer(currentScreenshot: string): void {
+    const images = this.getAllComputerUseScreenshots();
+    const currentIndex = images.indexOf(currentScreenshot);
+    this.openImage.emit({images, currentIndex});
   }
 }
