@@ -28,6 +28,8 @@ export enum ComputerTool {
   MOUSE_MOVE = 'mouse_move',
   SCROLL_DOCUMENT = 'scroll_document',
   WAIT_5_SECONDS = 'wait_5_seconds',
+  NAVIGATE = 'navigate',
+  OPEN_WEB_BROWSER = 'open_web_browser',
 }
 
 export enum ComputerAction {
@@ -86,6 +88,8 @@ export function isVisibleComputerUseClick(fc: FunctionCall|undefined): boolean {
     ComputerTool.MOUSE_MOVE,
     ComputerTool.SCROLL_DOCUMENT,
     ComputerTool.WAIT_5_SECONDS,
+    ComputerTool.NAVIGATE,
+    ComputerTool.OPEN_WEB_BROWSER,
   ].includes(fc.name as ComputerTool);
   const hasCoordinates =
       (fc.args?.['x'] != null && fc.args?.['y'] != null) ||

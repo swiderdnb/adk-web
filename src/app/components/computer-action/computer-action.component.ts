@@ -103,6 +103,45 @@ export class ComputerActionComponent {
     return '';
   }
 
+  getNextComputerUseScreenshot(): string {
+    for (let i = this.index + 1; i < this.allMessages.length; i++) {
+      const msg = this.allMessages[i];
+      if (this.isMsgComputerUseResponse(msg)) {
+        if (msg.functionResponses && msg.functionResponses.length > 0) {
+          for (let j = 0; j < msg.functionResponses.length; j++) {
+            const resp = msg.functionResponses[j];
+            if (isComputerUseResponse(resp)) {
+               const payload = resp.response as ComputerUsePayload;
+               return this.getScreenshotFromPayload(payload);
+            }
+            
+            const parts = (resp as any)['parts'];
+            if (Array.isArray(parts)) {
+              for (let k = 0; k < parts.length; k++) {
+                const p = parts[k];
+                if (p.inlineData?.mimeType?.startsWith('image/') && p.inlineData.data) {
+                  const mimeType = p.inlineData.mimeType;
+                  const data = p.inlineData.data.replace(/-/g, '+').replace(/_/g, '/');
+                  return `data:${mimeType};base64,${data}`;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return '';
+  }
+
+  getActionName(): string {
+    if (!this.functionCall) return '';
+    const name = this.functionCall.name;
+    if (name === 'computer') {
+      return this.functionCall.args?.['action'] || name;
+    }
+    return name;
+  }
+
   getClickCoordinates(): {x: number; y: number}|null {
     if (!this.isComputerUseClick()) return null;
     const args = this.functionCall!.args;
