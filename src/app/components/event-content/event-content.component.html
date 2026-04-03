@@ -43,10 +43,8 @@
     ></app-hover-info-button>
     }
     @if (uiEvent.functionCalls && uiEvent.functionCalls.length > 0) {
-      @for (functionCall of uiEvent.functionCalls; track functionCall.id) {
-        @if (isComputerUseClick(functionCall)) {
-          <app-computer-action [functionCall]="functionCall" [allMessages]="uiEvents" [index]="index" (clickEvent)="clickEvent.emit($event)"></app-computer-action>
-        } @else {
+      <div class="function-calls-buttons">
+        @for (functionCall of uiEvent.functionCalls; track functionCall.id) {
           <app-hover-info-button
             [icon]="'bolt'"
             [text]="functionCall.name"
@@ -54,7 +52,14 @@
             [tooltipTitle]="'Function Call'"
           ></app-hover-info-button>
         }
-      }
+      </div>
+      <div class="function-calls-previews">
+        @for (functionCall of uiEvent.functionCalls; track functionCall.id) {
+          @if (isComputerUseClick(functionCall)) {
+            <app-computer-action [functionCall]="functionCall" [allMessages]="uiEvents" [index]="index" (clickEvent)="clickEvent.emit($event)" (openImage)="openViewImageDialog.emit($event)"></app-computer-action>
+          }
+        }
+      </div>
     }
     @if (uiEvent.functionResponses && uiEvent.functionResponses.length > 0) {
       @for (functionResponse of uiEvent.functionResponses; track functionResponse) {

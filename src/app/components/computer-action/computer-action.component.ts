@@ -40,6 +40,7 @@ export class ComputerActionComponent {
   @Input() allMessages: Array<{functionResponses?: FunctionResponse[]}> = [];
   @Input() index: number = 0;
   @Output() readonly clickEvent = new EventEmitter<number>();
+  @Output() readonly openImage = new EventEmitter<string>();
   imageDimensions = new Map < number, {
     width: number;
     height: number
@@ -81,6 +82,19 @@ export class ComputerActionComponent {
             if (isComputerUseResponse(resp)) {
                const payload = resp.response as ComputerUsePayload;
                return this.getScreenshotFromPayload(payload);
+            }
+            
+            // Fallback: check if the response has parts with inlineData
+            const parts = (resp as any)['parts'];
+            if (Array.isArray(parts)) {
+              for (let k = parts.length - 1; k >= 0; k--) {
+                const p = parts[k];
+                if (p.inlineData?.mimeType?.startsWith('image/') && p.inlineData.data) {
+                  const mimeType = p.inlineData.mimeType;
+                  const data = p.inlineData.data.replace(/-/g, '+').replace(/_/g, '/');
+                  return `data:${mimeType};base64,${data}`;
+                }
+              }
             }
           }
         }
@@ -144,7 +158,15 @@ export class ComputerActionComponent {
 
   private isMsgComputerUseResponse(message: {functionResponses?: FunctionResponse[]}): boolean {
     if (message.functionResponses && message.functionResponses.length > 0) {
-        return message.functionResponses.some((resp: FunctionResponse) => isComputerUseResponse(resp));
+        return message.functionResponses.some((resp: FunctionResponse) => {
+          if (isComputerUseResponse(resp)) return true;
+          
+          const parts = (resp as any)['parts'];
+          if (Array.isArray(parts)) {
+            return parts.some(p => p.inlineData?.mimeType?.startsWith('image/'));
+          }
+          return false;
+        });
     }
     return false;
   }

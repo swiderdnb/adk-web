@@ -5,7 +5,7 @@
 .computer-use-container {
   display: flex;
   flex-direction: column;
-  max-width: 600px;
+  max-width: 320px;
   border-radius: 12px;
   border: 1px solid var(--chat-panel-input-field-mat-mdc-text-field-wrapper-border-color);
   overflow: hidden;
@@ -65,6 +65,31 @@
 .image-wrapper {
   position: relative;
   width: 100%;
+}
+
+.fallback-image {
+  background-color: var(--mat-sys-surface-container-high, #e0e0e0);
+  width: 240px;
+  height: 120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--chat-panel-input-field-textarea-color);
+  opacity: 0.7;
+
+  .missing-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .fallback-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
 
 .click-overlay-box {
