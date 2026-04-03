@@ -2541,6 +2541,56 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     const visitedStrokeColor = theme === 'dark' ? '#34a853' : '#a1c2a1';
     const visitedFillColor = theme === 'dark' ? '#0d652d' : '#e6f4ea';
 
+    // Find the edge that triggered the last active node
+    let triggeringEdge: string | null = null;
+    const lastTargetId = targetNodeIds[targetNodeIds.length - 1];
+    if (targetNodeIds.length > 0 && lastTargetId) {
+      const fullSeq = [...targetNodeIds];
+      const startNode = Array.from(visitedNodes).find(n => n.toLowerCase() === '__start__');
+      
+      if (fullSeq.length > 0 && fullSeq[0].toLowerCase() !== '__start__' && startNode) {
+        fullSeq.unshift(startNode);
+      }
+      
+      const activeNodeIndex = fullSeq.lastIndexOf(lastTargetId);
+      
+      if (activeNodeIndex > 0) {
+        const src = fullSeq[activeNodeIndex - 1];
+        const dst = fullSeq[activeNodeIndex];
+        
+        const queue: { node: string, path: string[] }[] = [];
+        const visited = new Set<string>();
+        
+        const initialChildren = forwardAdjacencyList.get(src) || [];
+        for (const child of initialChildren) {
+          const edgeKey = `${src}->${child}`;
+          if (visitedEdges.has(edgeKey)) {
+            queue.push({ node: child, path: [edgeKey] });
+            visited.add(child);
+          }
+        }
+        
+        while (queue.length > 0) {
+          const current = queue.shift()!;
+          if (current.node === dst) {
+            if (current.path.length > 0) {
+              triggeringEdge = current.path[current.path.length - 1];
+            }
+            break;
+          }
+          
+          const children = forwardAdjacencyList.get(current.node) || [];
+          for (const child of children) {
+            const edgeKey = `${current.node}->${child}`;
+            if (visitedEdges.has(edgeKey) && !visited.has(child)) {
+              visited.add(child);
+              queue.push({ node: child, path: [...current.path, edgeKey] });
+            }
+          }
+        }
+      }
+    }
+
     edgeElements.forEach((edgeElement) => {
       const titleElement = edgeElement.querySelector('title');
       let title = titleElement?.textContent?.trim() || '';
@@ -2551,15 +2601,16 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         const edgeKey = `${from}->${to}`;
 
         if (visitedEdges.has(edgeKey)) {
+          const isTrigger = edgeKey === triggeringEdge;
           const shape = edgeElement.querySelector('path');
           if (shape) {
-            shape.setAttribute('stroke', visitedEdgeColor);
-            shape.setAttribute('stroke-width', '2');
+            shape.setAttribute('stroke', isTrigger ? activeStrokeColor : visitedEdgeColor);
+            shape.setAttribute('stroke-width', isTrigger ? '4' : '2');
           }
           const polygon = edgeElement.querySelector('polygon');
           if (polygon) {
-            polygon.setAttribute('fill', visitedEdgeColor);
-            polygon.setAttribute('stroke', visitedEdgeColor);
+            polygon.setAttribute('fill', isTrigger ? activeStrokeColor : visitedEdgeColor);
+            polygon.setAttribute('stroke', isTrigger ? activeStrokeColor : visitedEdgeColor);
           }
 
           const count = edgeCounts.get(edgeKey) || 0;
@@ -2606,8 +2657,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
-
-    const lastTargetId = targetNodeIds[targetNodeIds.length - 1];
 
     nodeElements.forEach((nodeElement) => {
       const titleElement = nodeElement.querySelector('title');
