@@ -15,49 +15,60 @@
  * limitations under the License.
  */
 
-import {TextFieldModule} from '@angular/cdk/text-field';
-import {CommonModule, NgClass} from '@angular/common';
-import {AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, EventEmitter, HostListener, inject, InjectionToken, input, Input, OnChanges, Output, signal, SimpleChanges, Type, ViewChild} from '@angular/core';
-import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
-import {FormsModule} from '@angular/forms';
-import {MatButtonModule} from '@angular/material/button';
-import {MatCardModule} from '@angular/material/card';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatIconModule} from '@angular/material/icon';
-import {MatInputModule} from '@angular/material/input';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {NgxJsonViewerModule} from 'ngx-json-viewer';
-import {EMPTY, merge, NEVER, of, Subject} from 'rxjs';
-import {catchError, filter, first, switchMap, tap} from 'rxjs/operators';
+import { TextFieldModule } from '@angular/cdk/text-field';
+import { CommonModule } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, EventEmitter, HostListener, inject, InjectionToken, input, Input, OnChanges, Output, signal, SimpleChanges, Type, ViewChild } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
+import { EMPTY, merge, NEVER, of, Subject } from 'rxjs';
+import { catchError, filter, first, switchMap, tap } from 'rxjs/operators';
 
-import {isComputerUseResponse, isVisibleComputerUseClick} from '../../core/models/ComputerUse';
-import type {EvalCase} from '../../core/models/Eval';
-import {FunctionCall, FunctionResponse} from '../../core/models/types';
-import {AGENT_SERVICE} from '../../core/services/interfaces/agent';
-import {FEATURE_FLAG_SERVICE} from '../../core/services/interfaces/feature-flag';
-import {SAFE_VALUES_SERVICE} from '../../core/services/interfaces/safevalues';
-import {SESSION_SERVICE} from '../../core/services/interfaces/session';
-import {STRING_TO_COLOR_SERVICE} from '../../core/services/interfaces/string-to-color';
-import {ListResponse} from '../../core/services/interfaces/types';
-import {UI_STATE_SERVICE} from '../../core/services/interfaces/ui-state';
-import {JsonTooltipDirective} from '../../directives/html-tooltip.directive';
-import {A2uiCanvasComponent} from '../a2ui-canvas/a2ui-canvas.component';
-import {MediaType,} from '../artifact-tab/artifact-tab.component';
-import {AudioPlayerComponent} from '../audio-player/audio-player.component';
-import {ComputerActionComponent} from '../computer-action/computer-action.component';
-import {LongRunningResponseComponent} from '../long-running-response/long-running-response';
-import {MARKDOWN_COMPONENT, MarkdownComponentInterface} from '../markdown/markdown.component.interface';
-import {MessageFeedbackComponent} from '../message-feedback/message-feedback.component';
+import { AgentRunRequest } from '../../core/models/AgentRunRequest';
+import { isComputerUseResponse, isVisibleComputerUseClick } from '../../core/models/ComputerUse';
+import type { EvalCase } from '../../core/models/Eval';
+import { FunctionCall, FunctionResponse } from '../../core/models/types';
+import { UiEvent } from '../../core/models/UiEvent';
+import { AGENT_SERVICE } from '../../core/services/interfaces/agent';
+import { FEATURE_FLAG_SERVICE } from '../../core/services/interfaces/feature-flag';
+import { SAFE_VALUES_SERVICE } from '../../core/services/interfaces/safevalues';
+import { SESSION_SERVICE } from '../../core/services/interfaces/session';
+import { STRING_TO_COLOR_SERVICE } from '../../core/services/interfaces/string-to-color';
+import { ListResponse } from '../../core/services/interfaces/types';
+import { UI_STATE_SERVICE } from '../../core/services/interfaces/ui-state';
+import { THEME_SERVICE } from '../../core/services/interfaces/theme';
+import { JsonTooltipDirective } from '../../directives/html-tooltip.directive';
+import { WorkflowGraphTooltipDirective } from '../../directives/workflow-graph-tooltip.directive';
+import { A2uiCanvasComponent } from '../a2ui-canvas/a2ui-canvas.component';
+import { MediaType, } from '../artifact-tab/artifact-tab.component';
+import { AudioPlayerComponent } from '../audio-player/audio-player.component';
+import { ComputerActionComponent } from '../computer-action/computer-action.component';
+import { LongRunningResponseComponent } from '../long-running-response/long-running-response';
+import { MARKDOWN_COMPONENT, MarkdownComponentInterface } from '../markdown/markdown.component.interface';
+import { MessageFeedbackComponent } from '../message-feedback/message-feedback.component';
 
-import {ChatPanelMessagesInjectionToken} from './chat-panel.component.i18n';
+import { ChatPanelMessagesInjectionToken } from './chat-panel.component.i18n';
 
-const ROOT_AGENT = 'root_agent';
+import { HoverInfoButtonComponent } from '../hover-info-button/hover-info-button.component';
+import { ChatAvatarComponent } from '../chat-avatar/chat-avatar.component';
+import { EventRowComponent } from '../event-row/event-row.component';
+import { CallControlsComponent } from '../call-controls/call-controls.component';
+import { TraceTreeComponent } from '../trace-tab/trace-tree/trace-tree.component';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-chat-panel',
   templateUrl: './chat-panel.component.html',
   styleUrl: './chat-panel.component.scss',
@@ -74,35 +85,38 @@ const ROOT_AGENT = 'root_agent';
     MatFormFieldModule,
     MatMenuModule,
     MatProgressSpinnerModule,
+    MatSlideToggleModule,
     NgxJsonViewerModule,
-    A2uiCanvasComponent,
-    AudioPlayerComponent,
-    MessageFeedbackComponent,
     MatTooltipModule,
-    NgClass,
-    JsonTooltipDirective,
-    ComputerActionComponent,
-    LongRunningResponseComponent,
+    MatButtonToggleModule,
+    MatSelectModule,
+    EventRowComponent,
+    CallControlsComponent,
+    TraceTreeComponent,
   ],
 })
 export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Input() appName: string = '';
+  @Input() agentReadme: string = '';
   sessionName = input<string>('');
-  @Input() messages: any[] = [];
+  @Input() uiEvents: UiEvent[] = [];
+  @Input() traceData: any[] = [];
   @Input() isChatMode: boolean = true;
-  @Input() evalCase: EvalCase|null = null;
+  @Input() evalCase: EvalCase | null = null;
   @Input() isEvalEditMode: boolean = false;
   @Input() isEvalCaseEditing: boolean = false;
+  @Input() agentGraphData: any = null;
   @Input() isEditFunctionArgsEnabled: boolean = false;
+  @Input() isTokenStreamingEnabled: boolean = false;
+  @Input() useSse: boolean = false;
   @Input() userInput: string = '';
   @Input() userEditEvalCaseMessage: string = '';
-  @Input() selectedFiles: {file: File; url: string}[] = [];
-  @Input() updatedSessionState: any|null = null;
-  @Input() eventData = new Map<string, any>();
-  @Input() selectedEvent: any = undefined;
+  @Input() selectedFiles: { file: File; url: string }[] = [];
+  @Input() updatedSessionState: any | null = null;
+  @Input() selectedMessageIndex: number | undefined = undefined;
   @Input() isAudioRecording: boolean = false;
+  @Input() micVolume: number = 0;
   @Input() isVideoRecording: boolean = false;
-  @Input() hoveredEventMessageIndices: number[] = [];
   @Input() userId: string = '';
   @Input() sessionId: string = '';
 
@@ -111,17 +125,17 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Output() readonly clickEvent = new EventEmitter<number>();
   @Output()
   readonly handleKeydown =
-      new EventEmitter<{event: KeyboardEvent, message: any}>();
+    new EventEmitter<{ event: KeyboardEvent, message: any }>();
   @Output() readonly cancelEditMessage = new EventEmitter<any>();
   @Output() readonly saveEditMessage = new EventEmitter<any>();
   @Output() readonly openViewImageDialog = new EventEmitter<string>();
   @Output()
   readonly openBase64InNewTab =
-      new EventEmitter<{data: string, mimeType: string}>();
+    new EventEmitter<{ data: string, mimeType: string }>();
   @Output() readonly editEvalCaseMessage = new EventEmitter<any>();
   @Output()
   readonly deleteEvalCaseMessage =
-      new EventEmitter<{message: any, index: number}>();
+    new EventEmitter<{ message: any, index: number }>();
   @Output() readonly editFunctionArgs = new EventEmitter<any>();
   @Output() readonly fileSelect = new EventEmitter<Event>();
   @Output() readonly removeFile = new EventEmitter<number>();
@@ -130,20 +144,25 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Output() readonly updateState = new EventEmitter<void>();
   @Output() readonly toggleAudioRecording = new EventEmitter<void>();
   @Output() readonly toggleVideoRecording = new EventEmitter<void>();
-  @Output() readonly longRunningResponseComplete = new EventEmitter<any[]>();
+  @Output() readonly longRunningResponseComplete = new EventEmitter<AgentRunRequest>();
+  @Output() readonly toggleHideIntermediateEvents = new EventEmitter<void>();
+  @Output() readonly toggleSse = new EventEmitter<void>();
 
-  @ViewChild('videoContainer', {read: ElementRef}) videoContainer!: ElementRef;
+  @ViewChild('videoContainer', { read: ElementRef }) videoContainer!: ElementRef;
   @ViewChild('autoScroll') scrollContainer!: ElementRef;
-  @ViewChild('messageTextarea') public textarea: ElementRef|undefined;
+  @ViewChild('messageTextarea') public textarea: ElementRef | undefined;
   scrollInterrupted = false;
   private scrollHeight = 0;
   private lastMessageRef: any = null;
   private nextPageToken = '';
+  private scrollTimeout: any = null;
+  private mutationObserver: MutationObserver | null = null;
   protected readonly i18n = inject(ChatPanelMessagesInjectionToken);
   protected readonly uiStateService = inject(UI_STATE_SERVICE);
+  protected readonly themeService = inject(THEME_SERVICE);
   private readonly stringToColorService = inject(STRING_TO_COLOR_SERVICE);
   readonly markdownComponent: Type<MarkdownComponentInterface> = inject(
-      MARKDOWN_COMPONENT,
+    MARKDOWN_COMPONENT,
   );
   protected readonly featureFlagService = inject(FEATURE_FLAG_SERVICE);
   private readonly agentService = inject(AGENT_SERVICE);
@@ -151,257 +170,420 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly MediaType = MediaType;
   readonly JSON = JSON;
+  readonly Object = Object;
+  readonly String = String;
 
   readonly isMessageFileUploadEnabledObs =
-      this.featureFlagService.isMessageFileUploadEnabled();
+    this.featureFlagService.isMessageFileUploadEnabled();
   readonly isManualStateUpdateEnabledObs =
-      this.featureFlagService.isManualStateUpdateEnabled();
+    this.featureFlagService.isManualStateUpdateEnabled();
   readonly isBidiStreamingEnabledObs =
-      this.featureFlagService.isBidiStreamingEnabled();
+    this.featureFlagService.isBidiStreamingEnabled();
   readonly canEditSession = signal(true);
   readonly isUserFeedbackEnabled =
-      toSignal(this.featureFlagService.isFeedbackServiceEnabled());
+    toSignal(this.featureFlagService.isFeedbackServiceEnabled());
   readonly isLoadingAgentResponse =
-      toSignal(this.agentService.getLoadingState());
+    toSignal(this.agentService.getLoadingState());
   readonly hideMoreOptionsButton =
-      toSignal(this.featureFlagService.isMoreOptionsButtonHidden());
+    toSignal(this.featureFlagService.isMoreOptionsButtonHidden());
 
   protected readonly onScroll = new Subject<Event>();
   protected readonly sanitizer = inject(SAFE_VALUES_SERVICE);
+
+  hideIntermediateEvents = input<boolean>(false);
+  invocationDisplayMap = input<Map<string, string>>(new Map());
+
+  viewMode = signal<'events' | 'traces'>('events');
+  invocationIdFilterActive = signal<boolean>(false);
+  nodePathFilterActive = signal<boolean>(false);
+  invocationIdFilter = signal<string>('');
+  nodePathFilter = signal<string>('');
+  invocationIdOptions: string[] = [];
+  nodePathOptions: string[] = [];
+
+  @ViewChild('invChipMenuTrigger') invChipMenuTrigger?: MatMenuTrigger;
+  @ViewChild('nodeChipMenuTrigger') nodeChipMenuTrigger?: MatMenuTrigger;
+  @ViewChild('addMenuTrigger') addMenuTrigger?: MatMenuTrigger;
+
+  openAddFilterMenu(event: Event) {
+    event.stopPropagation();
+    this.addMenuTrigger?.openMenu();
+  }
+
+  addInvocationIdFilter() {
+    this.invocationIdFilterActive.set(true);
+    setTimeout(() => {
+      this.invChipMenuTrigger?.openMenu();
+    });
+  }
+
+  addNodePathFilter() {
+    this.nodePathFilterActive.set(true);
+    setTimeout(() => {
+      this.nodeChipMenuTrigger?.openMenu();
+    });
+  }
+
+  removeInvocationIdFilter(event: Event) {
+    event.stopPropagation();
+    this.invocationIdFilterActive.set(false);
+    this.invocationIdFilter.set('');
+  }
+
+  removeNodePathFilter(event: Event) {
+    event.stopPropagation();
+    this.nodePathFilterActive.set(false);
+    this.nodePathFilter.set('');
+  }
+
+  onInvocationMenuClosed() {
+    if (!this.invocationIdFilter()) {
+      this.invocationIdFilterActive.set(false);
+    }
+  }
+
+  onNodePathMenuClosed() {
+    if (!this.nodePathFilter()) {
+      this.nodePathFilterActive.set(false);
+    }
+  }
+  spansByInvocationId = new Map<string, any[]>();
+
+  eventsScrollTop = -1;
+  tracesScrollTop = -1;
+
+  clearAllFilters(event: Event) {
+    event.stopPropagation();
+    if (this.invocationIdFilterActive()) {
+      this.invocationIdFilterActive.set(false);
+      this.invocationIdFilter.set('');
+    }
+    if (this.nodePathFilterActive()) {
+      this.nodePathFilterActive.set(false);
+      this.nodePathFilter.set('');
+    }
+    if (this.hideIntermediateEvents()) {
+      this.toggleHideIntermediateEvents.emit();
+    }
+  }
+
+  onViewModeChange(mode: 'events' | 'traces') {
+    if (this.scrollContainer?.nativeElement) {
+      if (this.viewMode() === 'events') {
+        this.eventsScrollTop = this.scrollContainer.nativeElement.scrollTop;
+      } else if (this.viewMode() === 'traces') {
+        this.tracesScrollTop = this.scrollContainer.nativeElement.scrollTop;
+      }
+    }
+
+    this.viewMode.set(mode);
+    try {
+      localStorage.setItem('chat-view-mode', mode);
+    } catch (e) {
+      // Ignored
+    }
+
+    setTimeout(() => {
+      if (this.scrollContainer?.nativeElement) {
+        if (mode === 'events' && this.eventsScrollTop !== -1) {
+          this.scrollContainer.nativeElement.scrollTop = this.eventsScrollTop;
+        } else if (mode === 'traces' && this.tracesScrollTop !== -1) {
+          this.scrollContainer.nativeElement.scrollTop = this.tracesScrollTop;
+        } else {
+          // If first time switching to mode and we haven't tracked a scroll position yet, stick to bottom
+          this.scrollToBottom();
+        }
+      }
+    });
+  }
+
+  shouldShowEvent(uiEvent: UiEvent): boolean {
+    const invFilter = this.invocationIdFilter();
+    if (invFilter) {
+      const eventInvId = uiEvent.event?.invocationId || '';
+      if (!eventInvId.includes(invFilter)) {
+        return false;
+      }
+    }
+
+    const pathFilter = this.nodePathFilter();
+    if (pathFilter) {
+      const eventPath = uiEvent.event?.nodeInfo?.path || '';
+      if (!eventPath.includes(pathFilter)) {
+        return false;
+      }
+    }
+
+    if (!this.hideIntermediateEvents()) {
+      return true;
+    }
+
+    if (uiEvent.role === 'user') {
+      return true;
+    }
+
+    if (uiEvent.event?.content !== undefined) {
+      const parts = uiEvent.event.content.parts || [];
+      const hasOnlyFunctions = parts.length > 0 && parts.every((p: any) => p.functionCall || p.functionResponse);
+
+      if (hasOnlyFunctions) {
+        const isLongRunning = parts.some((p: any) => {
+          const id = p.functionCall?.id || p.functionResponse?.id;
+          return id && uiEvent.event?.longRunningToolIds?.includes(id);
+        });
+        if (isLongRunning) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    }
+
+    if (uiEvent.event?.output !== undefined) {
+      const nodeInfo = uiEvent.event?.nodeInfo;
+      let isTopLevel = false;
+      let outputFor = nodeInfo?.['outputFor'];
+
+      if (Array.isArray(outputFor)) {
+        isTopLevel = outputFor.some((path: string) => !path.includes('/'));
+      } else if (typeof outputFor === 'string') {
+        isTopLevel = !outputFor.includes('/');
+      } else if (nodeInfo?.path) {
+        isTopLevel = !nodeInfo.path.includes('/');
+      }
+
+      if (isTopLevel) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  shouldShowTraceTree(uiEvent: UiEvent): boolean {
+    const invFilter = this.invocationIdFilter();
+    if (invFilter && uiEvent.event?.invocationId !== invFilter) {
+      return false;
+    }
+    return true;
+  }
+
+  shouldShowEventFn = this.shouldShowEvent.bind(this);
 
   constructor() {
     effect(() => {
       const sessionName = this.sessionName();
       if (sessionName) {
         this.nextPageToken = '';
-        this.uiStateService
-            .lazyLoadMessages(sessionName, {
-              pageSize: 100,
-              pageToken: this.nextPageToken,
-            })
-            .pipe(first())
-            .subscribe();
+        this.featureFlagService.isInfinityMessageScrollingEnabled()
+          .pipe(first(), filter((enabled) => enabled))
+          .subscribe(() => {
+            this.uiStateService
+              .lazyLoadMessages(sessionName, {
+                pageSize: 100,
+                pageToken: this.nextPageToken,
+              })
+              .pipe(first())
+              .subscribe();
+          });
       }
     });
   }
 
   ngOnInit() {
+    this.uiStateService.isSessionLoading()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((isLoading) => {
+        if (!isLoading) {
+          this.focusInput();
+        }
+      });
+
+    try {
+      const savedMode = localStorage.getItem('chat-view-mode');
+      if (savedMode === 'events' || savedMode === 'traces') {
+        this.viewMode.set(savedMode);
+      }
+    } catch (e) {
+      // Ignored
+    }
+
     this.featureFlagService.isInfinityMessageScrollingEnabled()
-        .pipe(
-            first(),
-            filter((enabled) => enabled),
-            switchMap(
-                () => merge(
-                    this.uiStateService.onNewMessagesLoaded().pipe(
-                        tap((response: ListResponse<any>&
-                             {isBackground?: boolean}) => {
-                          this.nextPageToken = response.nextPageToken ?? '';
-                          if (!response.isBackground) {
-                            this.restoreScrollPosition();
-                          }
-                        })),
-                    this.onScroll.pipe(switchMap((event: Event) => {
-                      const element = event.target as HTMLElement;
-                      if (element.scrollTop !== 0) {
-                        return EMPTY;
-                      }
+      .pipe(
+        first(),
+        filter((enabled) => enabled),
+        switchMap(
+          () => merge(
+            this.uiStateService.onNewMessagesLoaded().pipe(
+              tap((response: ListResponse<any> &
+              { isBackground?: boolean }) => {
+                this.nextPageToken = response.nextPageToken ?? '';
+                if (!response.isBackground) {
+                  this.restoreScrollPosition();
+                }
+              })),
+            this.onScroll.pipe(switchMap((event: Event) => {
+              const element = event.target as HTMLElement;
+              if (element.scrollTop !== 0) {
+                return EMPTY;
+              }
 
-                      if (!this.nextPageToken) {
-                        return EMPTY;
-                      }
+              if (!this.nextPageToken) {
+                return EMPTY;
+              }
 
-                      this.scrollHeight = element.scrollHeight;
-                      return this.uiStateService
-                          .lazyLoadMessages(this.sessionName(), {
-                            pageSize: 100,
-                            pageToken: this.nextPageToken,
-                          })
-                          .pipe(first(), catchError(() => NEVER));
-                    })))),
-            takeUntilDestroyed(this.destroyRef),
-            )
-        .subscribe();
+              this.scrollHeight = element.scrollHeight;
+              return this.uiStateService
+                .lazyLoadMessages(this.sessionName(), {
+                  pageSize: 100,
+                  pageToken: this.nextPageToken,
+                })
+                .pipe(first(), catchError(() => NEVER));
+            })))),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   ngAfterViewInit() {
     if (this.scrollContainer?.nativeElement) {
-      this.scrollContainer.nativeElement.addEventListener('wheel', () => {
-        this.scrollInterrupted = true;
+      const el = this.scrollContainer.nativeElement;
+
+      el.addEventListener('scroll', () => {
+        const isAtBottom = Math.abs(el.scrollHeight - el.scrollTop - el.clientHeight) < 50;
+        this.scrollInterrupted = !isAtBottom;
       });
-      this.scrollContainer.nativeElement.addEventListener('touchmove', () => {
-        this.scrollInterrupted = true;
+
+      this.mutationObserver = new MutationObserver(() => {
+        if (!this.scrollInterrupted) {
+          this.scrollToBottom();
+        }
+      });
+      this.mutationObserver.observe(el, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
+
+      this.destroyRef.onDestroy(() => {
+        this.mutationObserver?.disconnect();
       });
     }
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['messages']) {
-      const currentLastMessage = this.messages[this.messages.length - 1];
+    if (changes['appName']) {
+      this.focusInput();
+    }
+
+    // Scroll to top when switching apps or when messages become empty (new session with README)
+    if ((changes['appName'] || changes['uiEvents']) && this.uiEvents.length === 0 && this.agentReadme) {
+      setTimeout(() => this.scrollToTop(), 0);
+    }
+
+    if (changes['uiEvents']) {
+      const ids = new Set<string>();
+      const paths = new Set<string>();
+      for (const e of this.uiEvents) {
+        if (e.event?.invocationId) ids.add(e.event.invocationId);
+        if (e.event?.nodeInfo?.path) paths.add(e.event.nodeInfo.path);
+      }
+      this.invocationIdOptions = Array.from(ids);
+      this.nodePathOptions = Array.from(paths);
+
+      const currentLastMessage = this.uiEvents[this.uiEvents.length - 1];
       const isNewMessageAppended = currentLastMessage !== this.lastMessageRef;
 
       if (isNewMessageAppended) {
         if (currentLastMessage?.role === 'user' ||
-            currentLastMessage?.isLoading === true) {
+          currentLastMessage?.isLoading === true) {
           this.scrollInterrupted = false;
         }
         this.scrollToBottom();
       }
       this.lastMessageRef = currentLastMessage;
     }
+
+    if (changes['traceData'] && this.traceData) {
+      this.rebuildTrace();
+    }
+  }
+
+  rebuildTrace() {
+    const invocTraces = this.traceData.reduce((map: any, item: any) => {
+      const key = item.trace_id;
+      const group = map.get(key);
+      if (group) {
+        group.push(item);
+        group.sort((a: any, b: any) => a.start_time - b.start_time);
+      } else {
+        map.set(key, [item]);
+      }
+      return map;
+    }, new Map<string, any[]>());
+
+    this.spansByInvocationId = new Map<string, any[]>();
+    for (const [key, group] of invocTraces) {
+      const invocId = group.find(
+        (item: any) => item.attributes !== undefined && 'gcp.vertex.agent.invocation_id' in item.attributes
+      )?.attributes['gcp.vertex.agent.invocation_id'];
+
+      if (invocId) {
+        this.spansByInvocationId.set(invocId, group);
+      }
+    }
+  }
+
+  isFirstEventForInvocation(uiEvent: UiEvent, index: number): boolean {
+    if (!uiEvent.event?.invocationId) return false;
+
+    // Check if any previous bot event in uiEvents has the same invocationId
+    for (let i = index - 1; i >= 0; i--) {
+      const priorEvent = this.uiEvents[i];
+      if (priorEvent.role === 'bot' && priorEvent.event?.invocationId === uiEvent.event?.invocationId) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   scrollToBottom() {
+    if (!this.sessionId) return;
     if (!this.scrollInterrupted) {
-      setTimeout(() => {
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout);
+      }
+      this.scrollTimeout = setTimeout(() => {
         this.scrollContainer?.nativeElement.scrollTo({
           top: this.scrollContainer.nativeElement.scrollHeight,
           behavior: 'auto',
         });
+        this.scrollTimeout = null;
       }, 50);
     }
   }
 
-  getAgentNameFromEvent(i: number) {
-    const key = this.messages[i].eventId;
-    const selectedEvent = this.eventData.get(key);
-
-    return selectedEvent?.author ?? ROOT_AGENT;
+  scrollToTop() {
+    setTimeout(() => {
+      this.scrollContainer?.nativeElement.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }, 50);
   }
 
-  customIconColorClass(i: number) {
-    const agentName = this.getAgentNameFromEvent(i);
-    return agentName !== ROOT_AGENT ?
-        `custom-icon-color-${
-            this.stringToColorService.stc(agentName).replace('#', '')}` :
-        '';
-  }
-
-  shouldMessageHighlighted(index: number) {
-    return this.hoveredEventMessageIndices.includes(index);
+  focusInput() {
+    setTimeout(() => {
+      this.textarea?.nativeElement?.focus();
+    }, 50);
   }
 
   isMessageEventSelected(index: number): boolean {
-    const message = this.messages[index];
-    return message.eventId && this.selectedEvent &&
-        message.eventId === this.selectedEvent.id;
-  }
-
-  shouldShowMessageCard(message: any): boolean {
-    return !!(
-        message.text || message.attachments || message.inlineData ||
-        message.executableCode || message.codeExecutionResult ||
-        message.a2uiData || message.renderedContent || message.isLoading ||
-        (message.failedMetric && message.evalStatus === 2));
-  }
-
-  getBotEventNumber(messageIndex: number): number {
-    const message = this.messages[messageIndex];
-
-    if (message.role !== 'bot' || !message.eventId) {
-      return -1;
-    }
-
-    const uniqueBotEventIds: string[] = [];
-    for (let i = 0; i <= messageIndex; i++) {
-      const msg = this.messages[i];
-      if (msg.role === 'bot' && msg.eventId &&
-          !uniqueBotEventIds.includes(msg.eventId)) {
-        uniqueBotEventIds.push(msg.eventId);
-      }
-    }
-
-    return uniqueBotEventIds.indexOf(message.eventId) + 1;
+    return index === this.selectedMessageIndex;
   }
 
 
-  getOverallEventNumber(messageIndex: number): number {
-    let eventCount = 0;
-    let lastSeenGroupType: 'user'|'bot'|null = null;
-    let lastBotEventId: string|null = null;
-
-    for (let i = 0; i <= messageIndex; i++) {
-      const msg = this.messages[i];
-
-      if (msg.role === 'user') {
-        // User messages increment when they start a new group
-        if (lastSeenGroupType !== 'user') {
-          eventCount++;
-          lastSeenGroupType = 'user';
-        }
-
-        if (i === messageIndex) {
-          return eventCount;
-        }
-      } else if (msg.role === 'bot' && msg.eventId) {
-        // Bot events increment when they're a new event
-        if (msg.eventId !== lastBotEventId) {
-          eventCount++;
-          lastBotEventId = msg.eventId;
-          lastSeenGroupType = 'bot';
-        }
-
-        if (i === messageIndex) {
-          return eventCount;
-        }
-      }
-    }
-
-    return -1;
-  }
-
-  isFirstUserMessageInGroup(messageIndex: number): boolean {
-    const message = this.messages[messageIndex];
-
-    if (message.role !== 'user') {
-      return false;
-    }
-
-    if (messageIndex === 0) {
-      return true;
-    }
-
-    const prevMessage = this.messages[messageIndex - 1];
-    return prevMessage.role !== 'user';
-  }
-
-  isFirstMessageInEventGroup(messageIndex: number): boolean {
-    const message = this.messages[messageIndex];
-
-    if (message.role !== 'bot' || !message.eventId) {
-      return false;
-    }
-
-    if (messageIndex === 0) {
-      return true;  // First message overall
-    }
-
-    const prevMessage = this.messages[messageIndex - 1];
-    return prevMessage.eventId !== message.eventId;
-  }
-
-
-  hasStateDelta(messageIndex: number): boolean {
-    const message = this.messages[messageIndex];
-    if (!message.eventId) return false;
-
-    const event = this.eventData.get(message.eventId);
-    const stateDelta = event?.actions?.stateDelta;
-    return stateDelta && Object.keys(stateDelta).length > 0;
-  }
-
-
-  hasArtifactDelta(messageIndex: number): boolean {
-    const message = this.messages[messageIndex];
-    if (!message.eventId) return false;
-
-    const event = this.eventData.get(message.eventId);
-    const artifactDelta = event?.actions?.artifactDelta;
-    return artifactDelta && Object.keys(artifactDelta).length > 0;
-  }
-
-  renderGooglerSearch(content: string) {
-    return this.sanitizer.bypassSecurityTrustHtml(content);
-  }
 
   private restoreScrollPosition() {
     if (!this.scrollHeight) {
@@ -412,71 +594,48 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
     const scrollContainer = this.scrollContainer?.nativeElement;
     if (scrollContainer) {
       scrollContainer.scrollTop =
-          scrollContainer.scrollHeight - this.scrollHeight;
+        scrollContainer.scrollHeight - this.scrollHeight;
       this.scrollHeight = 0;
     }
   }
 
-  isComputerUseClick(input: any): boolean {
-    return isVisibleComputerUseClick(input);
-  }
-
-  isComputerUseResponse(input: any): boolean {
-    return isComputerUseResponse(input);
-  }
-
-  getFunctionCallArgsTooltip(message: any): string {
-    if (!message.functionCall || !message.functionCall.args) {
-      return '';
-    }
-    try {
-      return JSON.stringify(message.functionCall.args);
-    } catch (e) {
-      return String(message.functionCall.args);
-    }
-  }
 
 
-  getFunctionResponseTooltip(message: any): string {
-    if (!message.functionResponse || !message.functionResponse.response) {
-      return '';
+  getAllWorkflowNodes(messageIndex: number): any {
+    // Collect node states from all events, organized by nodePath
+    // Structure: { "order_processing_pipeline": { "__START__": {...}, "validation_stage": {...} }, ... }
+    const nodesByPath: any = {};
+
+    for (let i = 0; i <= messageIndex; i++) {
+      const msg = this.uiEvents[i];
+      const event = msg.event;
+      const nodes = event?.actions?.agentState?.nodes;
+      const nodePath = event?.nodeInfo?.path;
+
+      if (nodes && nodePath) {
+        // Initialize path if not exists
+        if (!nodesByPath[nodePath]) {
+          nodesByPath[nodePath] = {};
+        }
+
+        // Merge nodes for this path, later states override earlier ones
+        Object.assign(nodesByPath[nodePath], nodes);
+      }
     }
-    try {
-      return JSON.stringify(message.functionResponse.response);
-    } catch (e) {
-      return String(message.functionResponse.response);
-    }
+
+    return Object.keys(nodesByPath).length > 0 ? nodesByPath : null;
   }
 
 
-  getStateDeltaTooltip(messageIndex: number): string {
-    const message = this.messages[messageIndex];
-    if (!message.eventId) return '';
-
-    const event = this.eventData.get(message.eventId);
-    const stateDelta = event?.actions?.stateDelta;
-    if (!stateDelta) return '';
-
-    try {
-      return JSON.stringify(stateDelta);
-    } catch (e) {
-      return String(stateDelta);
-    }
-  }
 
 
-  getArtifactDeltaTooltip(messageIndex: number): string {
-    const message = this.messages[messageIndex];
-    if (!message.eventId) return '';
+  handleAgentStateClick(event: Event, messageIndex: number) {
+    event.stopPropagation();
 
-    const event = this.eventData.get(message.eventId);
-    const artifactDelta = event?.actions?.artifactDelta;
-    if (!artifactDelta) return '';
+    const isAlreadySelected = messageIndex === this.selectedMessageIndex;
 
-    try {
-      return JSON.stringify(artifactDelta);
-    } catch (e) {
-      return String(artifactDelta);
+    if (!isAlreadySelected) {
+      this.clickEvent.emit(messageIndex);
     }
   }
 
@@ -497,55 +656,47 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
 
   @HostListener('window:keydown', ['$event'])
   handleKeyboardNavigation(event: KeyboardEvent) {
-    if (!this.selectedEvent) return;
+    if (this.selectedMessageIndex === undefined) return;
+
+    const activeElement = document.activeElement as HTMLElement | null;
+    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable)) {
+      return;
+    }
 
     // Only handle arrow keys
     if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
 
     event.preventDefault();
 
-    // Find unique eventIds and their first occurrence index
-    const uniqueEventMap = new Map<string, number>();
-    for (let i = 0; i < this.messages.length; i++) {
-      const msg = this.messages[i];
-      if (msg.eventId && !uniqueEventMap.has(msg.eventId)) {
-        uniqueEventMap.set(msg.eventId, i);
-      }
-    }
-
-    const eventIndices = Array.from(uniqueEventMap.values());
-
-    if (eventIndices.length === 0) return;
-
-    // Find current selected event index
-    const currentIndex = eventIndices.findIndex(
-        (idx) => this.messages[idx].eventId === this.selectedEvent.id);
-
-    if (currentIndex === -1) return;
-
     // Navigate to next or previous
     let newIndex: number;
     if (event.key === 'ArrowDown') {
-      newIndex = currentIndex + 1 >= eventIndices.length ? 0 : currentIndex + 1;
+      newIndex = this.selectedMessageIndex + 1 >= this.uiEvents.length ? 0 : this.selectedMessageIndex + 1;
     } else {
       newIndex =
-          currentIndex - 1 < 0 ? eventIndices.length - 1 : currentIndex - 1;
+        this.selectedMessageIndex - 1 < 0 ? this.uiEvents.length - 1 : this.selectedMessageIndex - 1;
     }
 
     // Emit click event for the new index
-    this.clickEvent.emit(eventIndices[newIndex]);
+    this.clickEvent.emit(newIndex);
+    this.scrollToSelectedMessage(newIndex);
+  }
 
-    // Scroll the selected message into view
+  scrollToSelectedMessage(index?: number) {
+    const targetIndex = index !== undefined ? index : this.selectedMessageIndex;
+    if (targetIndex === undefined) return;
+
+    // Scroll the selected message into view after a short delay to allow DOM updates
     setTimeout(() => {
       if (!this.scrollContainer?.nativeElement) return;
 
       const messageElements =
-          this.scrollContainer.nativeElement.querySelectorAll(
-              '.message-column-container');
-      if (messageElements && messageElements[eventIndices[newIndex]]) {
-        messageElements[eventIndices[newIndex]].scrollIntoView(
-            {behavior: 'smooth', block: 'nearest', inline: 'nearest'});
+        this.scrollContainer.nativeElement.querySelectorAll(
+          '.message-row-container');
+      if (messageElements && messageElements[targetIndex]) {
+        messageElements[targetIndex].scrollIntoView(
+          { behavior: 'smooth', block: 'nearest', inline: 'nearest' });
       }
-    }, 0);
+    }, 50);
   }
 }

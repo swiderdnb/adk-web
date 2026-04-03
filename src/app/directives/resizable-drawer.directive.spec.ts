@@ -24,14 +24,14 @@ import {ResizableDrawerDirective} from './resizable-drawer.directive';
 // Directive constants
 const SIDE_DRAWER_WIDTH_VAR = '--side-drawer-width';
 const INITIAL_WIDTH = 570;
-const MIN_WIDTH = 310;
+const MIN_WIDTH = 360;
 
 // Test constants
 const MOCKED_WINDOW_WIDTH = 2000;
 const MAX_WIDTH = MOCKED_WINDOW_WIDTH / 2;  // 1000
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div appResizableDrawer>Drawer</div>
     <div class="resize-handler"></div>

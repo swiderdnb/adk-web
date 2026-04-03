@@ -17,14 +17,16 @@
 
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {MatIconButton} from '@angular/material/button';
+import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 
-import {AgentRunRequest} from '../../core/models/AgentRunRequest';
-import {AGENT_SERVICE} from '../../core/services/interfaces/agent';
+    import {AgentRunRequest} from '../../core/models/AgentRunRequest';
+    import {MarkdownComponent} from '../markdown/markdown.component';
+
+import {HoverInfoButtonComponent} from '../hover-info-button/hover-info-button.component';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-long-running-response',
   templateUrl: './long-running-response.html',
   styleUrl: './long-running-response.scss',
@@ -32,6 +34,8 @@ import {AGENT_SERVICE} from '../../core/services/interfaces/agent';
     FormsModule,
     MatIconButton,
     MatIcon,
+    MarkdownComponent,
+    HoverInfoButtonComponent,
   ],
 })
 export class LongRunningResponseComponent {
@@ -40,11 +44,42 @@ export class LongRunningResponseComponent {
   @Input() userId!: string;
   @Input() sessionId!: string;
 
-  @Output() responseComplete = new EventEmitter<any[]>();
+  @Output() responseComplete = new EventEmitter<any>();
 
-  private readonly agentService = inject(AGENT_SERVICE);
   private readonly cdr = inject(ChangeDetectorRef);
-  private responseChunks: any[] = [];
+
+  hasMessage(): boolean {
+    return !!(this.functionCall.args?.prompt || this.functionCall.args?.message);
+  }
+
+  getPromptText(): string {
+    return this.functionCall.args?.prompt || this.functionCall.args?.message || 'Please provide your response';
+  }
+
+  hasPayload(): boolean {
+    return this.functionCall.args?.payload !== undefined &&
+           this.functionCall.args?.payload !== null;
+  }
+
+  getPayloadJson(): string {
+    try {
+      return JSON.stringify(this.functionCall.args?.payload || {}, null, 2);
+    } catch (e) {
+      return '';
+    }
+  }
+
+  hasResponseSchema(): boolean {
+    return !!this.functionCall.args?.response_schema;
+  }
+
+  getResponseSchemaJson(): string {
+    try {
+      return JSON.stringify(this.functionCall.args?.response_schema || {}, null, 2);
+    } catch (e) {
+      return '';
+    }
+  }
 
   onSend() {
     if (!this.functionCall.userResponse ||
@@ -52,46 +87,25 @@ export class LongRunningResponseComponent {
       return;
     }
 
-    // Update status to sending
-    this.functionCall.responseStatus = 'sending';
+    // Store the user response before sending
+    this.functionCall.sentUserResponse = this.functionCall.userResponse;
+
+    // Update status to sent
+    this.functionCall.responseStatus = 'sent';
     this.cdr.detectChanges();
 
-    const req: AgentRunRequest = {
-      appName: this.appName,
-      userId: this.userId,
-      sessionId: this.sessionId,
-      newMessage: {
+    const content = {
         role: 'user',
         parts: [{
           functionResponse: {
             id: this.functionCall.id,
             name: this.functionCall.name,
-            response: {'response': this.functionCall.userResponse},
+            response: { 'result': this.functionCall.userResponse },
           },
         }],
-      },
-      functionCallEventId: this.functionCall.functionCallEventId,
+        functionCallEventId: this.functionCall.functionCallEventId
     };
 
-    this.responseChunks = [];  // Reset chunks array
-    this.agentService.runSse(req).subscribe({
-      next: async (chunkJson) => {
-        this.responseChunks.push(chunkJson);
-      },
-      error: (err) => {
-        console.error('SSE error:', err);
-        this.functionCall.responseStatus = 'pending';  // Reset on error
-        this.responseChunks = [];
-        this.cdr.detectChanges();
-      },
-      complete: () => {
-        console.log(
-            'Long-running response complete for:', this.functionCall.name);
-        this.functionCall.responseStatus = 'sent';
-        this.responseComplete.emit(
-            this.responseChunks);  // Emit chunks for processing
-        this.cdr.detectChanges();
-      },
-    });
+    this.responseComplete.emit(content);
   }
 }
