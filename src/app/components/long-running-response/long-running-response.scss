@@ -14,89 +14,112 @@
  * limitations under the License.
  */
 
-.response-chip-container {
-  display: inline-block;
-  margin: 5px;
+:host {
+  display: block;
 }
 
-.input-chip {
-  display: inline-flex;
+.response-chip-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 5px 5px 5px 0;
+}
+
+.message-box {
+  background-color: var(--mat-sys-surface-container-high);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 20px;
+  padding: 12px 16px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message-content {
+  flex: 1;
+}
+
+
+.request-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.request-card-standalone {
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 70%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 30%, transparent);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+}
+
+.data-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.input-container {
+  display: flex;
   align-items: center;
   gap: 4px;
-  border: 1px solid var(--mat-standard-button-toggle-divider-color);
-  border-radius: 16px;
-  padding: 0 4px 0 12px;
-  background-color: var(--chat-panel-function-event-button-background-color);
-  height: 30px;
+  background: color-mix(in srgb, var(--mat-sys-surface-container-highest) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-outline-variant) 50%, transparent);
+  border-radius: 12px;
+  padding: 4px 8px;
+  width: 100%;
   box-sizing: border-box;
-  max-width: 300px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 
-  .input-icon {
-    color: var(--long-running-response-icon-color);
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+  &:focus-within {
+    border-color: var(--mat-sys-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+    background: color-mix(in srgb, var(--mat-sys-surface-container-highest) 70%, transparent);
   }
 
   .response-input {
+    flex: 1;
     border: none;
     outline: none;
     background: transparent;
-    font-size: 13px;
-    flex: 1;
-    min-width: 120px;
-    padding: 0;
-    color: var(--long-running-response-input-text-color);
-    caret-color: var(--long-running-response-input-caret-color);
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--mat-sys-on-surface);
+    caret-color: var(--mat-sys-primary);
 
     &::placeholder {
-      color: var(--long-running-response-input-placeholder-color);
+      color: var(--mat-sys-on-surface-variant);
+      opacity: 0.6;
     }
   }
 
-  .send-icon-btn {
+  .send-button {
+    color: var(--mat-sys-primary);
     width: 24px;
     height: 24px;
+    min-width: 24px;
     padding: 0;
-    min-width: unset;
-    color: var(--long-running-response-send-button-color);
+    line-height: 24px;
+
+    box-sizing: border-box; // Ensure padding doesn't push size
+
+    &:disabled {
+      color: var(--mat-sys-on-surface-variant);
+      opacity: 0.3;
+    }
 
     mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
-  }
-}
-
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border-radius: 16px;
-  padding: 0 12px;
-  font-size: 13px;
-  font-weight: 500;
-  height: 32px;
-  box-sizing: border-box;
-  border: 1px solid;
-  line-height: 32px;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-
-  &.sending {
-    background-color: rgba(33, 150, 243, 0.1);
-    border-color: rgba(33, 150, 243, 0.3);
-    color: #2196f3;
-  }
-
-  &.sent {
-    background-color: rgba(76, 175, 80, 0.1);
-    border-color: rgba(76, 175, 80, 0.3);
-    color: #4caf50;
   }
 }

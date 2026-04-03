@@ -64,7 +64,7 @@ export class StreamChatService implements StreamChatServiceInterface {
   private async startAudioStreaming() {
     try {
       await this.audioRecordingService.startRecording();
-      this.audioIntervalId = setInterval(() => this.sendBufferedAudio(), 250);
+      this.audioIntervalId = window.setInterval(() => this.sendBufferedAudio(), 250);
     } catch (error) {
       console.error('Error accessing microphone:', error);
     }
@@ -115,10 +115,10 @@ export class StreamChatService implements StreamChatServiceInterface {
     this.webSocketService.closeConnection();
   }
 
-  private async startVideoStreaming(videoContainer: ElementRef) {
+  async startVideoStreaming(videoContainer: ElementRef) {
     try {
       await this.videoService.startRecording(videoContainer);
-      this.videoIntervalId = setInterval(
+      this.videoIntervalId = window.setInterval(
           async () => await this.sendCapturedFrame(),
           1000,
       );
@@ -140,7 +140,7 @@ export class StreamChatService implements StreamChatServiceInterface {
     this.webSocketService.sendMessage(request);
   }
 
-  private stopVideoStreaming(videoContainer: ElementRef) {
+  stopVideoStreaming(videoContainer: ElementRef) {
     clearInterval(this.videoIntervalId);
     this.videoIntervalId = undefined;
     this.videoService.stopRecording(videoContainer);
