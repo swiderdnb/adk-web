@@ -2392,13 +2392,15 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         graphPath = segments.slice(1, -1).join('/');
       }
 
-      if (!(graphPath in sessionGraphSvgLight)) {
-        graphPath = '';
+      while (graphPath && !(graphPath in sessionGraphSvgLight)) {
+        const pathSegments = graphPath.split('/');
+        pathSegments.pop();
+        graphPath = pathSegments.join('/');
       }
     }
 
-    let highlightedSvgLight = sessionGraphSvgLight[graphPath] || sessionGraphSvgLight[''] || Object.values(sessionGraphSvgLight)[0] || '';
-    let highlightedSvgDark = sessionGraphSvgDark[graphPath] || sessionGraphSvgDark[''] || Object.values(sessionGraphSvgDark)[0] || '';
+    let highlightedSvgLight = sessionGraphSvgLight[graphPath] || sessionGraphSvgLight[''] || '';
+    let highlightedSvgDark = sessionGraphSvgDark[graphPath] || sessionGraphSvgDark[''] || '';
 
     const runNodeNames: string[] = [];
     const allRunNodeNames: string[] = [];
@@ -3063,7 +3065,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                       // Normalize path: strip @run_id and skip first segment (root_agent)
                       const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
                       const segments = barePath.split('/');
-                      const normalizedPath = segments.slice(1).join('/');
+                      const normalizedPath = segments.length > 1 ? segments.slice(1).join('/') : (segments[0] === 'root_agent' || segments[0] === app ? '' : segments[0]);
                       this.sessionGraphSvgLight[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
                     }
                   }
@@ -3117,7 +3119,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                       // Normalize path: strip @run_id and skip first segment (root_agent)
                       const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
                       const segments = barePath.split('/');
-                      const normalizedPath = segments.slice(1).join('/');
+                      const normalizedPath = segments.length > 1 ? segments.slice(1).join('/') : (segments[0] === 'root_agent' || segments[0] === app ? '' : segments[0]);
                       this.sessionGraphSvgDark[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
                     }
                   }
