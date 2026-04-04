@@ -280,6 +280,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly canEditSession = signal(true);
   protected readonly isViewOnlySession = signal(false);
   protected readonly isViewOnlyAppNameMismatch = signal(false);
+  protected readonly isLoadedAppUnavailable = signal(false);
+  protected readonly unavailableAppName = signal('');
   hideIntermediateEvents = signal(window.localStorage.getItem('adk-hide-intermediate-events') === 'true');
 
   toggleHideIntermediateEvents() {
@@ -544,6 +546,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   selectApp(appName: string) {
+    this.isLoadedAppUnavailable.set(false);
     if (appName != this.appName) {
       const isInitialLoad = !this.appName;
       this.agentService.setApp(appName);
@@ -634,6 +637,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.resetToNewSession();
     this.isViewOnlySession.set(false);
     this.isViewOnlyAppNameMismatch.set(false);
+    this.canEditSession.set(true);
+    this.chatPanel()?.canEditSession.set(true);
     this.eventData = new Map<string, any>();
     this.uiEvents.set([]);
     this.artifacts = [];
@@ -3487,6 +3492,29 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private doViewSession(sessionData: Session, filename: string) {
+    const fileApp = sessionData.appName;
+    
+    if (fileApp && fileApp !== this.appName) {
+      this.apps$.pipe(take(1)).subscribe(apps => {
+        if (apps?.includes(fileApp)) {
+          // Switch to app
+          this.router.navigate([], { queryParams: { 'app': fileApp }, queryParamsHandling: 'merge' }).then(() => {
+            this.openSnackBar(`Switched to app '${fileApp}'`, 'OK');
+            this.performViewSessionLoading(sessionData, filename);
+          });
+        } else {
+          // Show warning
+          this.isLoadedAppUnavailable.set(true);
+          this.unavailableAppName.set(fileApp);
+          this.performViewSessionLoading(sessionData, filename);
+        }
+      });
+    } else {
+      this.performViewSessionLoading(sessionData, filename);
+    }
+  }
+
+  private performViewSessionLoading(sessionData: Session, filename: string) {
     this.traceService.resetTraceService();
     this.traceData = [];
     this.sessionId = `File: ${filename}`;
@@ -3517,7 +3545,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.changeDetectorRef.detectChanges();
-    this.openSnackBar('Session loaded in read-only mode', 'OK');
   }
 
   private doImportSession(sessionData: Session) {

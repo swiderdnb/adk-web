@@ -32,7 +32,10 @@
     <div class="selector-group">
       <button class="selector-button" (click)="toggleAppSelectorDrawer()" matTooltip="Select an app">
         <mat-icon fontSet="material-symbols-outlined">robot_2</mat-icon>
-        <span class="selector-label">{{ appName || 'Select an app' }}</span>
+        <span class="selector-label">{{ isLoadedAppUnavailable() ? unavailableAppName() : (appName || 'Select an app') }}</span>
+        @if (isLoadedAppUnavailable()) {
+          <mat-icon color="warn" matTooltip="The app for the loaded file is not available" style="margin-left: 4px;">warning</mat-icon>
+        }
         <mat-icon class="selector-caret" fontSet="material-symbols-outlined">arrow_drop_down</mat-icon>
       </button>
       @if (!isBuilderMode()) {
