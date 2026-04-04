@@ -29,7 +29,7 @@ export const SIDE_PANEL_MESSAGES = {
   stateTabLabel: 'State',
   artifactsTabLabel: 'Artifacts',
   sessionsTabLabel: 'Sessions',
-  evalTabLabel: 'Eval',
+  evalTabLabel: 'Evals',
   testsTabLabel: 'Tests',
   selectEventAriaLabel: 'Select event',
   infoTabLabel: 'Info',
