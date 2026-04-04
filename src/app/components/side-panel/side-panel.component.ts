@@ -86,6 +86,8 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly graphsAvailable = input<boolean>(true);
   readonly invocationDisplayMap = input<Map<string, string>>(new Map());
   readonly forceGraphTab = input(false);
+  readonly isViewOnlySession = input(false);
+  readonly isViewOnlyAppNameMismatch = input(false);
 
   readonly closePanel = output<void>();
   readonly tabChange = output<MatTabChangeEvent>();

@@ -55,6 +55,8 @@ export class EventTabComponent {
   readonly graphsAvailable = input<boolean>(true);
   readonly invocationDisplayMap = input<Map<string, string>>(new Map());
   readonly forceGraphTab = input(false);
+  readonly isViewOnlySession = input(false);
+  readonly isViewOnlyAppNameMismatch = input(false);
 
   readonly invocationDisplayEntries = computed(() => {
     return Array.from(this.invocationDisplayMap().entries()).map(([key, value]) => ({key, value}));

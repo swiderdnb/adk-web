@@ -247,6 +247,12 @@
       }
       @if (selectedDetailTab === 'graph') {
       <div class="event-graph-wrapper">
+        @if (isViewOnlyAppNameMismatch()) {
+          <div class="warning-banner" style="background-color: #fff3cd; color: #856404; padding: 8px; margin-bottom: 8px; border-radius: 4px; display: flex; align-items: center;">
+            <mat-icon style="margin-right: 8px;">warning</mat-icon>
+            <span>The loaded session file was for a different app. The graph may not be accurate.</span>
+          </div>
+        }
         <div class="graph-header" style="justify-content: space-between;">
           <div style="display: flex; align-items: center; min-width: 0; flex: 1; width: 100%;">
             <span style="white-space: nowrap; flex-shrink: 0;">Invocation:</span>

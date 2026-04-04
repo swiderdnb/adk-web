@@ -278,6 +278,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   updatedSessionState: WritableSignal<any> = signal(null);
 
   protected readonly canEditSession = signal(true);
+  protected readonly isViewOnlySession = signal(false);
+  protected readonly isViewOnlyAppNameMismatch = signal(false);
   hideIntermediateEvents = signal(window.localStorage.getItem('adk-hide-intermediate-events') === 'true');
 
   toggleHideIntermediateEvents() {
@@ -582,6 +584,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected loadSession(sessionId: string, isFromUrl: boolean = false) {
     this.uiStateService.setIsSessionLoading(true);
+    this.isViewOnlySession.set(false);
+    this.isViewOnlyAppNameMismatch.set(false);
 
     combineLatest([
       this.sessionService.getSession(this.userId, this.appName, sessionId).pipe(
@@ -628,6 +632,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private createSessionAndReset() {
     this.resetToNewSession();
+    this.isViewOnlySession.set(false);
+    this.isViewOnlyAppNameMismatch.set(false);
     this.eventData = new Map<string, any>();
     this.uiEvents.set([]);
     this.artifacts = [];
@@ -2162,6 +2168,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       return 'NEW SESSION';
     }
 
+    if (this.isViewOnlySession()) {
+      return this.sessionId;
+    }
+
     const meta = this.currentSessionState?.['__session_metadata__'] as any;
     if (meta?.displayName) {
       const shortId = this.sessionId.substring(0, 4);
@@ -3434,6 +3444,76 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     input.click();
+  }
+
+  protected viewSession() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+
+    input.onchange = () => {
+      if (!input.files || input.files.length === 0) {
+        return;
+      }
+
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          try {
+            const sessionData =
+              JSON.parse(e.target.result as string) as Session;
+            if (!sessionData.events || sessionData.events.length === 0) {
+              this.openSnackBar('Invalid session file: no events found', 'OK');
+              return;
+            }
+
+            this.doViewSession(sessionData, file.name);
+          } catch (error) {
+            this.openSnackBar('Error parsing session file', 'OK');
+          }
+        }
+      };
+
+      reader.readAsText(file);
+    };
+
+    input.click();
+  }
+
+  private doViewSession(sessionData: Session, filename: string) {
+    this.traceService.resetTraceService();
+    this.traceData = [];
+    this.sessionId = `File: ${filename}`;
+    this.currentSessionState = sessionData.state || {};
+    this.evalCase = null;
+    this.isChatMode.set(true);
+    this.resetEventsAndMessages();
+
+    this.isViewOnlySession.set(true);
+    this.canEditSession.set(false);
+    this.chatPanel()?.canEditSession.set(false);
+
+    const mismatch = !!(sessionData.appName && sessionData.appName !== this.appName);
+    this.isViewOnlyAppNameMismatch.set(mismatch);
+
+    if (sessionData.events) {
+      sessionData.events.forEach((event: any) => {
+        this.appendEventRow(event, false);
+        const isBot = event.author !== 'user';
+        if (isBot && event.actions?.artifactDelta) {
+          for (const key in event.actions.artifactDelta) {
+            if (event.actions.artifactDelta.hasOwnProperty(key)) {
+              this.renderArtifact(key, event.actions.artifactDelta[key]);
+            }
+          }
+        }
+      });
+    }
+
+    this.changeDetectorRef.detectChanges();
+    this.openSnackBar('Session loaded in read-only mode', 'OK');
   }
 
   private doImportSession(sessionData: Session) {

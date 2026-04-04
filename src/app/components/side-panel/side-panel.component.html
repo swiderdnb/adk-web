@@ -38,6 +38,8 @@
           [graphsAvailable]="graphsAvailable()"
           [invocationDisplayMap]="invocationDisplayMap()"
           [forceGraphTab]="forceGraphTab()"
+          [isViewOnlySession]="isViewOnlySession()"
+          [isViewOnlyAppNameMismatch]="isViewOnlyAppNameMismatch()"
           (page)="page.emit($event)"
           (closeSelectedEvent)="closeSelectedEvent.emit()"
           (openImageDialog)="openImageDialog.emit($event)"

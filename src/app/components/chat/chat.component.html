@@ -125,11 +125,10 @@
       @let isSessionLoading = uiStateService.isSessionLoading() | async; @if (isSessionLoading ===
       false) {
       @if (!canEditSession()) {
-      <div class="readonly-badge">
+      <div class="readonly-badge" [matTooltip]="isViewOnlySession() ? i18n.viewSessionReadOnlyMessage : i18n.cannotEditSessionMessage">
         <mat-icon>visibility</mat-icon>
         {{ i18n.readOnlyBadgeLabel }}
       </div>
-      <div class="readonly-session-message">{{i18n.cannotEditSessionMessage}}</div>
       } } @else {
       <div class="toolbar-session-text">{{ i18n.loadingSessionLabel }}</div>
       }
@@ -171,6 +170,10 @@
           <span>{{ i18n.importSessionTooltip }}</span>
         </button>
         }
+        <button mat-menu-item id="toolbar-view-session-button" (click)="viewSession()">
+          <mat-icon>visibility</mat-icon>
+          <span>{{ i18n.viewSessionTooltip }}</span>
+        </button>
       </mat-menu>
     }
   </div>
@@ -304,6 +307,8 @@
       [appName]="appName"
       [userId]="userId"
       [sessionId]="sessionId"
+      [isViewOnlySession]="isViewOnlySession()"
+      [isViewOnlyAppNameMismatch]="isViewOnlyAppNameMismatch()"
       [traceData]="traceData"
       [eventData]="eventData"
       [currentSessionState]="currentSessionState"

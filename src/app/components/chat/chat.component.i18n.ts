@@ -45,6 +45,7 @@ export const CHAT_MESSAGES = {
   deleteSessionTooltip: 'Delete session',
   exportSessionTooltip: 'Export session',
   importSessionTooltip: 'Import session',
+  viewSessionTooltip: 'View session',
   loadingAgentsLabel: 'Loading agents, please wait...',
   welcomeMessage: 'Welcome to ADK!',
   selectAgentMessage: 'Select an agent on the left to begin with.',
@@ -53,6 +54,7 @@ export const CHAT_MESSAGES = {
   noAgentsFoundWarning: 'Warning: No agents found in current folder.',
   cannotEditSessionMessage:
       'Chat is disabled to prevent changes to the end user\'s session.',
+  viewSessionReadOnlyMessage: 'This is a read-only view of a session file. Use "Import Session" if you want to continue this session.',
   readOnlyBadgeLabel: 'Read-only',
 };
 
