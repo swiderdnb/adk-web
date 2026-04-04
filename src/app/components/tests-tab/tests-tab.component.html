@@ -4,8 +4,8 @@
   }
 
   <div class="toolbar">
-    <button mat-icon-button (click)="loadTests()" matTooltip="Refresh">
-      <mat-icon>refresh</mat-icon>
+    <button mat-button color="primary" (click)="promoteCurrentSessionToTest()" [disabled]="!sessionId() || isViewOnlySession()">
+      <mat-icon>add</mat-icon> From Current Session
     </button>
     <button mat-button color="primary" (click)="runAllTests()" [disabled]="isRunning() || isRebuilding()">
       <mat-icon>playlist_play</mat-icon> Run All
@@ -14,8 +14,8 @@
       <mat-icon>sync</mat-icon> Rebuild All
     </button>
     <span class="spacer"></span>
-    <button mat-button color="primary" (click)="promoteCurrentSessionToTest()" [disabled]="!sessionId() || isViewOnlySession()">
-      <mat-icon>add</mat-icon> From Current Session
+    <button mat-icon-button (click)="loadTests()" matTooltip="Refresh">
+      <mat-icon>refresh</mat-icon>
     </button>
   </div>
 

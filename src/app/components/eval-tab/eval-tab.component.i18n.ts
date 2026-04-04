@@ -27,7 +27,8 @@ export const EVAL_TAB_MESSAGES = {
   evalSetDescription:
       'An evaluation set is a curated collection of evaluation cases, where each case includes input-output examples for assessing agent performance.',
   createEvalSetButton: 'Create Evaluation Set',
-  runEvaluationButton: 'Run Evaluation',
+  runEvaluationButton: 'Run All',
+  runSelectedEvaluationButton: 'Run Selected',
   viewEvalRunHistoryTooltip: 'View eval run history',
   caseIdHeader: 'Case ID',
   resultHeader: 'Result',
@@ -38,7 +39,7 @@ export const EVAL_TAB_MESSAGES = {
   failStatusCaps: 'FAIL',
   passedSuffix: 'Passed',
   failedSuffix: 'Failed',
-  addSessionToSetButtonPrefix: 'Add current session to',
+  addSessionToSetButtonPrefix: 'From Current Session',
 };
 
 

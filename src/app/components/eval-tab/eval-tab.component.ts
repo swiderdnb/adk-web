@@ -18,6 +18,8 @@
 import {SelectionModel} from '@angular/cdk/collections';
 import {NgClass} from '@angular/common';
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, InjectionToken, input, OnChanges, OnInit, output, signal, SimpleChanges, Type, viewChildren} from '@angular/core';
+import {MatButton, MatIconButton} from '@angular/material/button';
+import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatDialog} from '@angular/material/dialog';
 import {MatIcon} from '@angular/material/icon';
@@ -86,6 +88,10 @@ interface AppEvaluationResult {
   standalone: true,
   imports: [
     MatIcon,
+    MatButton,
+    MatIconButton,
+    MatButtonToggle,
+    MatButtonToggleGroup,
     MatTooltip,
     MatTable,
     MatColumnDef,
@@ -241,16 +247,11 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   runEval() {
     this.evalRunning.set(true);
-    if (this.selection.selected.length == 0) {
-      alert('No case selected!');
-      this.evalRunning.set(false);
-      return;
-    }
     this.evalService
         .runEval(
             this.appName(),
             this.selectedEvalSet,
-            this.selection.selected,
+            this.selection.selected.length === 0 ? this.dataSource.data : this.selection.selected,
             this.evalMetrics,
             )
         .pipe(catchError((error) => {
@@ -562,11 +563,6 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   protected openEvalConfigDialog() {
-    if (this.selection.selected.length == 0) {
-      alert('No case selected!');
-      return;
-    }
-
     const dialogRef = this.dialog.open(RunEvalConfigDialogComponent, {
       maxWidth: '90vw',
       maxHeight: '90vh',

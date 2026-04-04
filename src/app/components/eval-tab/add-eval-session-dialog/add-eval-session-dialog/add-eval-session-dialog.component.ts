@@ -52,7 +52,7 @@ export class AddEvalSessionDialogComponent {
   } = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<AddEvalSessionDialogComponent>);
 
-  newCaseId: string = 'case' + uuidv4().slice(0, 6);
+  newCaseId: string = 'case_' + uuidv4().slice(0, 6);
 
   constructor() {}
 

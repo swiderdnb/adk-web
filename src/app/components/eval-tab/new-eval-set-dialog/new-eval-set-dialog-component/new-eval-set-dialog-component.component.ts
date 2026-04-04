@@ -47,7 +47,7 @@ export class NewEvalSetDialogComponentComponent {
   readonly data: {appName: string} = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<NewEvalSetDialogComponentComponent>);
 
-  newSetId: string = 'evalset' + uuidv4().slice(0, 6);
+  newSetId: string = 'evalset_' + uuidv4().slice(0, 6);
 
   constructor() {}
 

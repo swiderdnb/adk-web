@@ -16,9 +16,15 @@
 
 <div class="eval-container">
   @if (selectedEvalSet == '') {
-    <div class="eval-set-actions">
-      <div>{{ i18n.allEvalSetsHeader }}</div>
-      <mat-icon style="cursor: pointer;" (click)="openNewEvalSetDialog()" [matTooltip]="i18n.createNewEvalSetTooltip">add</mat-icon>
+    <div class="toolbar">
+      <div style="font-weight: 500; font-size: 14px;">{{ i18n.allEvalSetsHeader }}</div>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="openNewEvalSetDialog()" [matTooltip]="i18n.createNewEvalSetTooltip">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-icon-button (click)="getEvalSet()" matTooltip="Refresh">
+        <mat-icon>refresh</mat-icon>
+      </button>
     </div>
   }
   @if (evalsets.length == 0) {
@@ -40,12 +46,12 @@
     <div>
       @for (set of evalsets; track set) {
         <div class="eval-set-row" (click)="selectEvalSet(set)">
-          <div style="display: flex;">
-            <span class="material-symbols-outlined" style="margin-right:10px; padding-top: 16px;">folder</span>
-            <div style="font-family: Roboto;font-size: 14px; padding: 16px; padding-top: 20px;">{{set}}</div>
+          <div class="eval-set-left">
+            <span class="material-symbols-outlined">folder</span>
+            <div class="eval-set-name">{{set}}</div>
           </div>
-          <div>
-            <mat-icon style="padding-top: 20px; color:#9AA0A6;">chevron_right</mat-icon>
+          <div class="eval-set-right">
+            <mat-icon>chevron_right</mat-icon>
           </div>
         </div>
       }
@@ -53,22 +59,38 @@
   }
   @if (selectedEvalSet != '') {
     <div>
-      <div style="display: flex;">
-        <mat-icon style="color:white;cursor: pointer;" (click)="clearSelectedEvalSet()">chevron_left</mat-icon>
-        <div style="color:#9AA0A6; padding-top:2px;cursor: pointer;" (click)="clearSelectedEvalSet()">
+      <div class="toolbar">
+        <button mat-button color="primary" (click)="openEvalConfigDialog()" [disabled]="evalCases.length == 0">
+          <mat-icon>play_arrow</mat-icon> {{ (isAllSelected() || selection.isEmpty()) ? i18n.runEvaluationButton : i18n.runSelectedEvaluationButton }}
+        </button>
+        <button mat-button color="accent" (click)="openNewEvalCaseDialog()">
+          <mat-icon>add</mat-icon> {{ i18n.addSessionToSetButtonPrefix }}
+        </button>
+        <span class="spacer"></span>
+        <button mat-icon-button (click)="listEvalCases()" matTooltip="Refresh">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+
+      <div class="eval-detail-header">
+        <button mat-icon-button (click)="clearSelectedEvalSet()">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="eval-set-title">
           {{selectedEvalSet}}
         </div>
+        
+        <mat-button-toggle-group [value]="showEvalHistory() ? 'history' : 'cases'" (change)="showEvalHistory.set($event.value === 'history')" hideSingleSelectionIndicator>
+          <mat-button-toggle value="cases">Cases</mat-button-toggle>
+          <mat-button-toggle value="history">History</mat-button-toggle>
+        </mat-button-toggle-group>
       </div>
       @if (evalCases.length > 0 && !evalRunning()) {
         <div>
           @if (!showEvalHistory()) {
             <div>
-              <div class="evaluation-tab-header">
-                <button class="run-eval-btn" (click)="openEvalConfigDialog()">{{ i18n.runEvaluationButton }}</button>
-                <mat-icon class="evaluation-history-icon" (click)="toggleEvalHistoryButton()" [matTooltip]="i18n.viewEvalRunHistoryTooltip">history</mat-icon>
-              </div>
               <div class="mat-table-container" style="margin-top:16px;">
-                <table mat-table [dataSource]="dataSource">
+                <table mat-table [dataSource]="dataSource" class="eval-table">
                   <ng-container matColumnDef="select">
                     <th mat-header-cell *matHeaderCellDef>
                       <mat-checkbox (change)="$event ? toggleAllRows() : null"
@@ -166,16 +188,7 @@
           }
         </div>
       }
-      @if (!evalRunning() && !showEvalHistory()) {
-        <button class="save-session-btn" (click)="openNewEvalCaseDialog()">
-          <div class="save-session-btn-detail">
-            <mat-icon>add</mat-icon>
-            <div class="save-session-btn-text">
-              {{ i18n.addSessionToSetButtonPrefix }} {{selectedEvalSet}}
-            </div>
-          </div>
-        </button>
-      }
+
       @if (evalRunning()) {
         <div>
           <mat-spinner class="eval-spinner" [diameter]="28" [strokeWidth]="3"></mat-spinner>

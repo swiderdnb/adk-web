@@ -95,10 +95,12 @@
     }
   <div class="toolbar-content">
     @if (evalCase) {
+    @if (!isViewOnlySession()) {
     <div style="display: flex; align-items: center">
       <div class="toolbar-session-text">{{ i18n.evalCaseIdLabel }}</div>
       <div class="toolbar-session-id">{{ evalCase.evalId }}</div>
     </div>
+    }
     <div class="toolbar-actions">
       @if (this.isEvalEditMode()) {
       <button mat-button (click)="cancelEditEvalCase()" style="height: 30px">

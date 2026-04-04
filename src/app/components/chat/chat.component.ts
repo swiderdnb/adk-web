@@ -2004,6 +2004,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected updateWithSelectedEvalCase(evalCase: EvalCase) {
     this.evalCase = evalCase;
     this.isChatMode.set(false);
+    
+    this.isViewOnlySession.set(true);
+    this.readonlySessionType.set('Eval Case');
+    this.readonlySessionName.set(evalCase.evalId);
 
     this.resetEventsAndMessages();
     let invocationIndex = 0;
@@ -2154,6 +2158,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected editEvalCase() {
     this.isEvalEditMode.set(true);
+    this.isViewOnlySession.set(false);
   }
 
   protected deleteEvalCase() {
