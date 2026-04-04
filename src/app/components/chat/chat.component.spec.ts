@@ -680,7 +680,52 @@ describe('ChatComponent', () => {
             });
           });
         });
-  });
+    });
+
+    describe('Read-only Session Management', () => {
+      it('should set type to Test Case and save original session', () => {
+        component.sessionId = SESSION_1_ID;
+        component['updateWithSelectedTest']('my-test', []);
+        
+        expect(component.sessionId).toBe('my-test');
+        expect(component['readonlySessionType']()).toBe('Test Case');
+        expect(component['readonlySessionName']()).toBe('my-test');
+        expect(component['originalSessionId']).toBe(SESSION_1_ID);
+      });
+
+      it('should set type to File and save original session', () => {
+        component.sessionId = SESSION_1_ID;
+        component['performViewSessionLoading']({ events: [] } as any, 'my-file.json');
+        
+        expect(component.sessionId).toBe('File: my-file.json');
+        expect(component['readonlySessionType']()).toBe('File');
+        expect(component['readonlySessionName']()).toBe('my-file.json');
+        expect(component['originalSessionId']).toBe(SESSION_1_ID);
+      });
+
+      it('should restore original session on close', () => {
+        component.sessionId = SESSION_1_ID;
+        component['updateWithSelectedTest']('my-test', []);
+        
+        spyOn(component as any, 'loadSession');
+        
+        component['closeReadonlySession']();
+        
+        expect(component['isViewOnlySession']()).toBeFalse();
+        expect((component as any).loadSession).toHaveBeenCalledWith(SESSION_1_ID);
+      });
+
+      it('should reset to empty state on close if no original session', () => {
+        component.sessionId = '';
+        component['updateWithSelectedTest']('my-test', []);
+        
+        component['closeReadonlySession']();
+        
+        expect(component.sessionId).toBe('');
+        expect(component['isViewOnlySession']()).toBeFalse();
+        expect(component['canEditSession']()).toBeTrue();
+      });
+    });
 
   describe('UI and State', () => {
     beforeEach(() => {

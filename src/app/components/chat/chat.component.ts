@@ -284,6 +284,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly isViewOnlyAppNameMismatch = signal(false);
   protected readonly isLoadedAppUnavailable = signal(false);
   protected readonly unavailableAppName = signal('');
+  protected readonly readonlySessionType = signal('');
+  protected readonly readonlySessionName = signal('');
+  protected originalSessionId = '';
   hideIntermediateEvents = signal(window.localStorage.getItem('adk-hide-intermediate-events') === 'true');
 
   toggleHideIntermediateEvents() {
@@ -1975,6 +1978,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected updateWithSelectedTest(testName: string, events: any[]) {
     this.traceService.resetTraceService();
     this.traceData = [];
+    if (!this.isViewOnlySession()) {
+      this.originalSessionId = this.sessionId;
+    }
+    this.readonlySessionType.set('Test Case');
+    this.readonlySessionName.set(testName);
     this.sessionId = testName;
     this.currentSessionState = {};
     this.evalCase = null;
@@ -3540,6 +3548,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   private performViewSessionLoading(sessionData: Session, filename: string) {
     this.traceService.resetTraceService();
     this.traceData = [];
+    if (!this.isViewOnlySession()) {
+      this.originalSessionId = this.sessionId;
+    }
+    this.readonlySessionType.set('File');
+    this.readonlySessionName.set(filename);
     this.sessionId = `File: ${filename}`;
     this.currentSessionState = sessionData.state || {};
     this.evalCase = null;
@@ -3568,6 +3581,22 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.changeDetectorRef.detectChanges();
+  }
+
+  protected closeReadonlySession() {
+    this.isViewOnlySession.set(false);
+    this.readonlySessionType.set('');
+    this.readonlySessionName.set('');
+    
+    if (this.originalSessionId) {
+      this.loadSession(this.originalSessionId);
+    } else {
+      this.sessionId = '';
+      this.resetEventsAndMessages();
+      this.canEditSession.set(true);
+      this.chatPanel()?.canEditSession.set(true);
+    }
+    this.originalSessionId = '';
   }
 
   private doImportSession(sessionData: Session) {

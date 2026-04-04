@@ -60,29 +60,39 @@
   </div>
   @if (appName) {
   <div class="toolbar-group toolbar-session-group">
-    <div class="selector-group">
-      <button class="selector-button" (click)="toggleSessionSelectorDrawer()" matTooltip="Select a session">
-        <mat-icon fontSet="material-symbols-outlined">chat</mat-icon>
-        <span class="selector-label">{{ getToolbarSessionId() }}</span>
-        <mat-icon class="selector-caret" fontSet="material-symbols-outlined">arrow_drop_down</mat-icon>
-      </button>
-      @if (!evalCase) {
-        @let isSessionLoadingGroup = uiStateService.isSessionLoading() | async;
-        @if (isSessionLoadingGroup === false) {
-          <div class="selector-group-divider"></div>
-          <button
-            mat-icon-button
-            class="toolbar-icon-button"
-            (click)="onNewSessionClick()"
-            id="toolbar-new-session-button"
-            [matTooltip]="i18n.createNewSessionTooltip"
-            [disabled]="!sessionId"
-          >
-            <mat-icon>add</mat-icon>
-          </button>
+    @if (isViewOnlySession()) {
+      <div class="readonly-chip" style="display: flex; align-items: center; background-color: rgba(0, 0, 0, 0.05); border-radius: 16px; padding: 2px 8px; gap: 4px; border: 1px solid rgba(0, 0, 0, 0.12);">
+        <mat-icon fontSet="material-symbols-outlined" style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">visibility</mat-icon>
+        <span class="chip-label" style="font-size: 13px; font-weight: 500;">{{ readonlySessionType() }}: {{ readonlySessionName() }}</span>
+        <button mat-icon-button style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;" (click)="closeReadonlySession()" aria-label="Close readonly view">
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px;">close</mat-icon>
+        </button>
+      </div>
+    } @else {
+      <div class="selector-group">
+        <button class="selector-button" (click)="toggleSessionSelectorDrawer()" matTooltip="Select a session">
+          <mat-icon fontSet="material-symbols-outlined">chat</mat-icon>
+          <span class="selector-label">{{ getToolbarSessionId() }}</span>
+          <mat-icon class="selector-caret" fontSet="material-symbols-outlined">arrow_drop_down</mat-icon>
+        </button>
+        @if (!evalCase) {
+          @let isSessionLoadingGroup = uiStateService.isSessionLoading() | async;
+          @if (isSessionLoadingGroup === false) {
+            <div class="selector-group-divider"></div>
+            <button
+              mat-icon-button
+              class="toolbar-icon-button"
+              (click)="onNewSessionClick()"
+              id="toolbar-new-session-button"
+              [matTooltip]="i18n.createNewSessionTooltip"
+              [disabled]="!sessionId"
+            >
+              <mat-icon>add</mat-icon>
+            </button>
+          }
         }
-      }
-    </div>
+      </div>
+    }
   <div class="toolbar-content">
     @if (evalCase) {
     <div style="display: flex; align-items: center">
