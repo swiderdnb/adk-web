@@ -4,21 +4,18 @@
   }
 
   <div class="toolbar">
+    <button mat-icon-button (click)="loadTests()" matTooltip="Refresh">
+      <mat-icon>refresh</mat-icon>
+    </button>
     <button mat-button color="primary" (click)="runAllTests()" [disabled]="isRunning() || isRebuilding()">
-      <mat-icon>play_arrow</mat-icon> Run All
+      <mat-icon>playlist_play</mat-icon> Run All
     </button>
     <button mat-button color="accent" (click)="rebuildAllTests()" [disabled]="isRunning() || isRebuilding()">
       <mat-icon>sync</mat-icon> Rebuild All
     </button>
-    <button mat-button (click)="loadTests()">
-      <mat-icon>refresh</mat-icon> Refresh
-    </button>
     <span class="spacer"></span>
-  </div>
-
-  <div class="action-row">
     <button mat-button color="primary" (click)="promoteCurrentSessionToTest()" [disabled]="!sessionId() || isViewOnlySession()">
-      <mat-icon>add</mat-icon> Add Current Session as Test
+      <mat-icon>add</mat-icon> From Current Session
     </button>
   </div>
 
