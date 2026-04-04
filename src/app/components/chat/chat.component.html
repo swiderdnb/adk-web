@@ -140,41 +140,12 @@
     @if (isSessionLoadingActions === false) {
       <button
         mat-icon-button
-        [matMenuTriggerFor]="sessionActionsMenu"
         class="toolbar-icon-button"
-        [matTooltip]="i18n.moreOptionsTooltip"
-        id="toolbar-session-actions-button"
+        (click)="themeService.toggleTheme()"
+        [matTooltip]="themeService.currentTheme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
       >
-        <mat-icon>more_vert</mat-icon>
+        <mat-icon>{{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
-      <mat-menu #sessionActionsMenu="matMenu" xPosition="before" panelClass="toolbar-session-menu">
-        <button mat-menu-item (click)="themeService.toggleTheme()">
-          <mat-icon class="menu-check-icon" [class.inactive]="themeService.currentTheme() !== 'dark'">check</mat-icon>
-          <span>Dark mode</span>
-        </button>
-        @if (isDeleteSessionEnabledObs | async) {
-        <button mat-menu-item id="toolbar-delete-session-button" (click)="deleteSession(sessionId)">
-          <mat-icon>delete</mat-icon>
-          <span>{{ i18n.deleteSessionTooltip }}</span>
-        </button>
-        }
-        @if (isExportSessionEnabledObs | async) {
-        <button mat-menu-item id="toolbar-export-session-button" (click)="exportSession()">
-          <mat-icon>download</mat-icon>
-          <span>{{ i18n.exportSessionTooltip }}</span>
-        </button>
-        }
-        @if (importSessionEnabledObs | async) {
-        <button mat-menu-item id="toolbar-import-session-button" (click)="importSession()">
-          <mat-icon>upload</mat-icon>
-          <span>{{ i18n.importSessionTooltip }}</span>
-        </button>
-        }
-        <button mat-menu-item id="toolbar-view-session-button" (click)="viewSession()">
-          <mat-icon>visibility</mat-icon>
-          <span>{{ i18n.viewSessionTooltip }}</span>
-        </button>
-      </mat-menu>
     }
   </div>
   </div>
@@ -259,7 +230,17 @@
     } @else if (showSessionSelectorDrawer) {
     <div class="selector-drawer-header">
       <span class="selector-drawer-title">Select a Session</span>
-      <div>
+      <div style="display: flex; gap: 4px;">
+        @if (importSessionEnabledObs | async) {
+        <button mat-button class="toolbar-button" (click)="importSession()" [matTooltip]="i18n.importSessionTooltip">
+          <mat-icon>upload</mat-icon>
+          <span>Import</span>
+        </button>
+        }
+        <button mat-button class="toolbar-button" (click)="viewSession()" [matTooltip]="i18n.viewSessionTooltip">
+          <mat-icon>visibility</mat-icon>
+          <span>View</span>
+        </button>
         <button mat-icon-button class="toolbar-icon-button" (click)="toggleSessionSelectorDrawer()" aria-label="Close session selector">
           <mat-icon>close</mat-icon>
         </button>
@@ -277,14 +258,27 @@
           (save)="saveSessionName($event)"
         ></app-inline-edit>
       </div>
-      <div class="session-selector-current-real-id-row">
+      <div class="session-selector-current-real-id-row" style="display: flex; align-items: center; gap: 4px;">
         <span class="session-selector-current-real-id-value" [title]="sessionId">{{ sessionId }}</span>
         <button mat-icon-button class="session-selector-action-button" (click)="copySessionId()" matTooltip="Copy session ID" aria-label="Copy session ID">
           <mat-icon>content_copy</mat-icon>
         </button>
+        @if (isExportSessionEnabledObs | async) {
+        <button mat-button (click)="exportSession()" [matTooltip]="i18n.exportSessionTooltip">
+          <mat-icon>download</mat-icon>
+          <span>Export</span>
+        </button>
+        }
+        @if (isDeleteSessionEnabledObs | async) {
+        <button mat-button color="warn" (click)="deleteSession(sessionId)" [matTooltip]="i18n.deleteSessionTooltip">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </button>
+        }
       </div>
     </div>
     }
+
     <div class="session-selector-drawer-content">
       <app-session-tab
         #drawerSessionTab
