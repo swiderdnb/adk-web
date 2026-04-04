@@ -67,6 +67,7 @@ import { LOGO_COMPONENT } from '../../injection_tokens';
 import { ListResponse } from '../../core/services/interfaces/types';
 import { UI_STATE_SERVICE } from '../../core/services/interfaces/ui-state';
 import { LOCATION_SERVICE } from '../../core/services/location.service';
+import { TestsService } from '../../core/services/tests.service';
 import { ResizableDrawerDirective } from '../../directives/resizable-drawer.directive';
 import { AddItemDialogComponent } from '../add-item-dialog/add-item-dialog.component';
 import { AgentStructureGraphDialogComponent } from '../agent-structure-graph-dialog/agent-structure-graph-dialog';
@@ -187,6 +188,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly renderer = inject(Renderer2);
   private readonly router = inject(Router);
   private readonly safeValuesService = inject(SAFE_VALUES_SERVICE);
+  private readonly testsService = inject(TestsService);
   private readonly sessionService = inject(SESSION_SERVICE);
   private readonly streamChatService = inject(STREAM_CHAT_SERVICE);
   private readonly webSocketService = inject(WEBSOCKET_SERVICE);
@@ -1969,6 +1971,27 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadTraceData();
       });
   }
+
+  protected updateWithSelectedTest(testName: string, events: any[]) {
+    this.traceService.resetTraceService();
+    this.traceData = [];
+    this.sessionId = testName;
+    this.currentSessionState = {};
+    this.evalCase = null;
+    this.isChatMode.set(true);
+    this.resetEventsAndMessages();
+
+    events.forEach((event: any) => {
+      this.appendEventRow(event, false);
+    });
+
+    this.canEditSession.set(false);
+    this.chatPanel()?.canEditSession.set(false);
+    this.isViewOnlySession.set(true);
+
+    this.changeDetectorRef.detectChanges();
+  }
+
 
   protected updateWithSelectedEvalCase(evalCase: EvalCase) {
     this.evalCase = evalCase;

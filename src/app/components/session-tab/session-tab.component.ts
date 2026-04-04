@@ -32,6 +32,7 @@ import {Session} from '../../core/models/Session';
 import {FEATURE_FLAG_SERVICE} from '../../core/services/interfaces/feature-flag';
 import {SESSION_SERVICE} from '../../core/services/interfaces/session';
 import {UI_STATE_SERVICE} from '../../core/services/interfaces/ui-state';
+import {TestsService} from '../../core/services/tests.service';
 
 import {DeleteSessionDialogComponent, DeleteSessionDialogData} from './delete-session-dialog/delete-session-dialog.component';
 import {SessionTabMessagesInjectionToken} from './session-tab.component.i18n';
@@ -84,6 +85,7 @@ export class SessionTabComponent implements OnInit {
   protected readonly i18n = inject(SessionTabMessagesInjectionToken);
   protected readonly featureFlagService = inject(FEATURE_FLAG_SERVICE);
   protected readonly dialog = inject(MatDialog);
+  protected readonly testsService = inject(TestsService);
   isSessionFilteringEnabled =
       this.featureFlagService.isSessionFilteringEnabled();
 
@@ -256,6 +258,26 @@ export class SessionTabComponent implements OnInit {
         });
       }
     });
+  }
+
+  promoteToTest(event: Event, session: Session) {
+    event.stopPropagation();
+    const testName = window.prompt('Enter test name (e.g., test1):');
+    if (!testName) return;
+
+    this.sessionService.getSession(this.userId, this.appName, session.id!)
+      .subscribe((fullSession) => {
+        const sessionData = { events: fullSession.events };
+        this.testsService.createTest(this.appName, testName, sessionData)
+          .subscribe({
+            next: () => {
+              alert(`Test ${testName} created successfully.`);
+            },
+            error: (err) => {
+              alert(`Error creating test: ${err.message || err}`);
+            }
+          });
+      });
   }
 
   protected getDate(session: Session): string {

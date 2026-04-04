@@ -40,6 +40,9 @@
       <div class="session-info">
         <div class="session-header">
           <div class="session-id" [class.is-monospace]="!hasDisplayName(session)" [title]="session.id">{{ getSessionDisplayName(session) }}</div>
+          <button mat-icon-button class="action-btn promote-btn" (click)="promoteToTest($event, session)" title="Promote to test">
+            <mat-icon>fact_check</mat-icon>
+          </button>
           <button mat-icon-button class="action-btn delete-btn" (click)="deleteSession($event, session)" title="Delete session">
             <mat-icon>delete</mat-icon>
           </button>

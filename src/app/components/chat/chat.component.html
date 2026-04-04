@@ -327,6 +327,7 @@
       (tabChange)="handleTabChange($event)"
       (sessionSelected)="updateWithSelectedSession($event)"
       (evalCaseSelected)="updateWithSelectedEvalCase($event)"
+      (testSelected)="updateWithSelectedTest($event.testName, $event.events)"
       (evalSetIdSelected)="updateSelectedEvalSetId($event)"
       (returnToSession)="handleReturnToSession($event)"
       (evalNotInstalled)="handleEvalNotInstalled($event)"

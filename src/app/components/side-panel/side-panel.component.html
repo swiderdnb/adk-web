@@ -67,6 +67,14 @@
         <app-artifact-tab [artifacts]="artifacts()"> </app-artifact-tab>
       </mat-tab>
     }
+    @if (isTestsEnabledObs | async) {
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="tab-label">{{ i18n.testsTabLabel }}</span>
+        </ng-template>
+        <app-tests-tab [appName]="appName()" [sessionId]="sessionId()" [userId]="userId()" [isViewOnlySession]="isViewOnlySession()" (testSelected)="testSelected.emit($event)"></app-tests-tab>
+      </mat-tab>
+    }
     @if (isEvalEnabledObs | async) {
       <mat-tab>
         <ng-template mat-tab-label>

@@ -38,6 +38,7 @@ export declare abstract class FeatureFlagService {
   abstract isTraceEnabled(): Observable<boolean>;
   abstract isArtifactsTabEnabled(): Observable<boolean>;
   abstract isEvalEnabled(): Observable<boolean>;
+  abstract isTestsEnabled(): Observable<boolean>;
   abstract isTokenStreamingEnabled(): Observable<boolean>;
   abstract isMessageFileUploadEnabled(): Observable<boolean>;
   abstract isManualStateUpdateEnabled(): Observable<boolean>;

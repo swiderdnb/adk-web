@@ -1,0 +1,64 @@
+<div class="tests-container">
+  @if (isRunning() || isRebuilding()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <div class="toolbar">
+    <button mat-button color="primary" (click)="runAllTests()" [disabled]="isRunning() || isRebuilding()">
+      <mat-icon>play_arrow</mat-icon> Run All
+    </button>
+    <button mat-button color="accent" (click)="rebuildAllTests()" [disabled]="isRunning() || isRebuilding()">
+      <mat-icon>sync</mat-icon> Rebuild All
+    </button>
+    <button mat-button (click)="loadTests()">
+      <mat-icon>refresh</mat-icon> Refresh
+    </button>
+    <span class="spacer"></span>
+  </div>
+
+  <div class="action-row">
+    <button mat-button color="primary" (click)="promoteCurrentSessionToTest()" [disabled]="!sessionId() || isViewOnlySession()">
+      <mat-icon>add</mat-icon> Add Current Session as Test
+    </button>
+  </div>
+
+  @if (dataSource.data.length === 0) {
+    <div class="empty-state">
+      <mat-icon>assignment_late</mat-icon>
+      <span>No tests found for this agent.</span>
+    </div>
+  } @else {
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 tests-table">
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Test Name </th>
+        <td mat-cell *matCellDef="let test"> {{test.replace('.json', '')}} </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let test">
+          <button mat-icon-button color="primary" matTooltip="Run Test" (click)="runTest(test)" [disabled]="isRunning() || isRebuilding()">
+            <mat-icon>play_arrow</mat-icon>
+          </button>
+          <button mat-icon-button color="accent" matTooltip="Rebuild Test" (click)="rebuildTest(test)" [disabled]="isRunning() || isRebuilding()">
+            <mat-icon>sync</mat-icon>
+          </button>
+          <button mat-icon-button color="primary" matTooltip="Rename Test" (click)="renameTest(test)" [disabled]="isRunning() || isRebuilding()">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" matTooltip="Delete Test" (click)="deleteTest(test)" [disabled]="isRunning() || isRebuilding()">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          (click)="selectTest(row)"
+          [class.selected-row]="row === selectedTest()"></tr>
+    </table>
+  }
+
+
+</div>

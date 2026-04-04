@@ -69,6 +69,10 @@ export class FeatureFlagService implements FeatureFlagServiceInterface {
     return of(true);
   }
 
+  isTestsEnabled(): Observable<boolean> {
+    return of(true);
+  }
+
   isTokenStreamingEnabled(): Observable<boolean> {
     return of(true);
   }

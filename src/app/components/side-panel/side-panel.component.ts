@@ -34,6 +34,7 @@ import {UI_STATE_SERVICE} from '../../core/services/interfaces/ui-state';
 import {LOGO_COMPONENT} from '../../injection_tokens';
 import {ArtifactTabComponent, getMediaTypeFromMimetype} from '../artifact-tab/artifact-tab.component';
 import {EVAL_TAB_COMPONENT, EvalTabComponent} from '../eval-tab/eval-tab.component';
+import {TestsTabComponent} from '../tests-tab/tests-tab.component';
 import {StateTabComponent} from '../state-tab/state-tab.component';
 import {TraceTabComponent} from '../trace-tab/trace-tab.component';
 import {EventTabComponent} from '../event-tab/event-tab.component';
@@ -60,6 +61,7 @@ import {SidePanelMessagesInjectionToken} from './side-panel.component.i18n';
     ArtifactTabComponent,
     EventTabComponent,
     MatProgressSpinner,
+    TestsTabComponent,
   ],
 })
 export class SidePanelComponent implements AfterViewInit, OnInit {
@@ -94,6 +96,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly sessionSelected = output<Session>();
   readonly sessionReloaded = output<Session>();
   readonly evalCaseSelected = output<EvalCase>();
+  readonly testSelected = output<{ testName: string; events: any[] }>();
   readonly evalSetIdSelected = output<string>();
   readonly returnToSession = output<boolean>();
   readonly evalNotInstalled = output<string>();
@@ -163,6 +166,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly isArtifactsTabEnabledObs =
       this.featureFlagService.isArtifactsTabEnabled();
   readonly isEvalEnabledObs = this.featureFlagService.isEvalEnabled();
+  readonly isTestsEnabledObs = this.featureFlagService.isTestsEnabled();
   readonly isTokenStreamingEnabledObs =
       this.featureFlagService.isTokenStreamingEnabled();
   readonly isMessageFileUploadEnabledObs =
