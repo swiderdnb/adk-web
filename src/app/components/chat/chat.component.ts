@@ -403,6 +403,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Builder
   disableBuilderSwitch = false;
+  autoSelectLatestEvent = false;
 
   constructor() {
     effect(() => {
@@ -774,6 +775,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   submitAgentRunRequest(req: AgentRunRequest) {
+    this.autoSelectLatestEvent = true;
     this.agentService.runSse(req).subscribe({
       next: async (chunkJson: any) => {
         if (chunkJson.error) {
@@ -782,6 +784,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this.appendEventRow(chunkJson);
+
+        if (this.autoSelectLatestEvent && chunkJson.id) {
+          this.selectEvent(chunkJson.id, undefined, false);
+        }
 
         if (chunkJson.actions) {
           this.processActionArtifact(chunkJson);
@@ -2934,7 +2940,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     return edgeCounts;
   }
 
-  selectEvent(key: string, messageIndex?: number) {
+  selectEvent(key: string, messageIndex?: number, isManual = true) {
+    if (isManual) {
+      this.autoSelectLatestEvent = false;
+    }
     this.traceService.selectedRow(undefined);
     this.selectedEvent = this.eventData.get(key);
     this.selectedEventIndex = this.getIndexOfKeyInMap(key);

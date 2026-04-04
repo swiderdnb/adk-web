@@ -54,6 +54,7 @@ export class EventTabComponent {
   readonly hasSubWorkflows = input<boolean>(false);
   readonly graphsAvailable = input<boolean>(true);
   readonly invocationDisplayMap = input<Map<string, string>>(new Map());
+  readonly forceGraphTab = input(false);
 
   readonly invocationDisplayEntries = computed(() => {
     return Array.from(this.invocationDisplayMap().entries()).map(([key, value]) => ({key, value}));
@@ -225,6 +226,11 @@ export class EventTabComponent {
 
     effect(() => {
       const event = this.selectedEvent();
+      
+      if (this.forceGraphTab()) {
+        this.selectedDetailTab = 'graph';
+      }
+
       if (event) {
         let isTabValid = false;
         const currentTab = this.selectedDetailTab;
