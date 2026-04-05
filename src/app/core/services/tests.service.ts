@@ -41,7 +41,7 @@ export class TestsService {
 
   createTest(appName: string, testName: string, sessionData: any): Observable<any> {
     const url = `${this.apiServerDomain}/dev/${appName}/tests/${testName}`;
-    return this.http.post<any>(url, { session_data: sessionData });
+    return this.http.put<any>(url, { session_data: sessionData });
   }
 
   deleteTest(appName: string, testName: string): Observable<any> {

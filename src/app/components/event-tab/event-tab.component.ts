@@ -233,27 +233,7 @@ export class EventTabComponent {
         this.selectedDetailTab = 'graph';
       }
 
-      if (event) {
-        let isTabValid = false;
-        const currentTab = this.selectedDetailTab;
-        if (currentTab === 'event') {
-          isTabValid = true;
-        } else if (currentTab === 'raw') {
-          isTabValid = true;
-        } else if (currentTab === 'request') {
-          isTabValid = this.isEventRequestResponseLoadingSignal() || !!(this.llmRequest() && Object.keys(this.llmRequest()!).length > 0);
-        } else if (currentTab === 'response') {
-          isTabValid = this.isEventRequestResponseLoadingSignal() || !!(this.llmResponse() && Object.keys(this.llmResponse()!).length > 0);
-        } else if (currentTab === 'graph') {
-          isTabValid = true;
-        } else if (currentTab === 'metadata') {
-          isTabValid = !!(event.usageMetadata && Object.keys(event.usageMetadata).length > 0);
-        }
 
-        if (!isTabValid) {
-          this.selectedDetailTab = 'event';
-        }
-      }
     });
   }
 

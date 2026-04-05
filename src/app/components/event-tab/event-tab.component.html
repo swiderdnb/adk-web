@@ -13,34 +13,22 @@
         matTooltip="{{ i18n.infoTabLabel }}" matTooltipPosition="right">
         <mat-icon>info</mat-icon>
       </button>
-      @if (graphsAvailable()) {
       <button mat-icon-button (click)="selectedDetailTab = 'graph'" [class.active]="selectedDetailTab === 'graph'"
         matTooltip="{{ i18n.graphTabLabel }}" matTooltipPosition="right">
         <mat-icon>account_tree</mat-icon>
       </button>
-      }
-      @if ((uiStateService.isEventRequestResponseLoading() | async) === true || (llmRequest() &&
-      Object.keys(llmRequest()!).length > 0)) {
       <button mat-icon-button (click)="selectedDetailTab = 'request'" [class.active]="selectedDetailTab === 'request'"
         matTooltip="{{ i18n.requestDetailsTabLabel }}" matTooltipPosition="right">
         <mat-icon>input</mat-icon>
       </button>
-      }
-      @if ((uiStateService.isEventRequestResponseLoading() | async) === true || (llmResponse() &&
-      Object.keys(llmResponse()!).length > 0)) {
       <button mat-icon-button (click)="selectedDetailTab = 'response'" [class.active]="selectedDetailTab === 'response'"
         matTooltip="{{ i18n.responseDetailsTabLabel }}" matTooltipPosition="right">
         <mat-icon>output</mat-icon>
       </button>
-      }
-
-      @if (selectedEvent()?.usageMetadata && Object.keys(selectedEvent()!.usageMetadata).length > 0) {
       <button mat-icon-button (click)="selectedDetailTab = 'metadata'" [class.active]="selectedDetailTab === 'metadata'"
         matTooltip="Usage Metadata" matTooltipPosition="right">
         <mat-icon>analytics</mat-icon>
       </button>
-      }
-
       <button mat-icon-button (click)="selectedDetailTab = 'raw'" [class.active]="selectedDetailTab === 'raw'"
         matTooltip="Raw JSON" matTooltipPosition="right">
         <mat-icon>data_object</mat-icon>
@@ -234,6 +222,8 @@
           </tr>
           }
         </table>
+        } @else {
+          <div class="request-response-empty-state">Select an LLM response to see usage metadata.</div>
         }
       </div>
       }
@@ -339,7 +329,7 @@
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
       </div>
       } @else if (!llmRequest()) {
-      <div class="request-response-empty-state">{{ i18n.requestIsNotAvailable }}</div>
+      <div class="request-response-empty-state">Select an LLM response to see request details.</div>
       } @else {
       <div class="json-viewer-container json-viewer-wrapper">
         <ngx-json-viewer [json]="llmRequest()"></ngx-json-viewer>
@@ -355,7 +345,7 @@
         <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
       </div>
       } @else if (!llmResponse()) {
-      <div class="request-response-empty-state">{{ i18n.responseIsNotAvailable }}</div>
+      <div class="request-response-empty-state">Select an LLM response to see response details.</div>
       } @else {
       <div class="json-viewer-container json-viewer-wrapper">
         <ngx-json-viewer [json]="llmResponse()"></ngx-json-viewer>
