@@ -19,6 +19,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit, OnDestroy, signal, ViewChild, ElementRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Observable, Subscription } from 'rxjs';
 
 export interface ConsoleDialogData {
@@ -35,10 +36,12 @@ export interface ConsoleDialogData {
     CommonModule,
     MatButtonModule,
     MatDialogModule,
+    MatProgressBarModule,
   ],
 })
 export class ConsoleDialogComponent implements OnInit, OnDestroy {
   consoleOutput = signal<string>('');
+  isLoading = signal<boolean>(true);
   private subscription?: Subscription;
 
   @ViewChild('consoleArea') consoleArea!: ElementRef;
@@ -49,9 +52,14 @@ export class ConsoleDialogComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.subscription = this.data.output$.subscribe((text) => {
-      this.consoleOutput.update(current => current + text);
-      this.scrollToBottom();
+    this.subscription = this.data.output$.subscribe({
+      next: (text) => {
+        this.consoleOutput.update(current => current + text);
+        this.scrollToBottom();
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      }
     });
   }
 

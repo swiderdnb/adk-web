@@ -16,6 +16,9 @@
 
 <h2 mat-dialog-title>{{ data.title }}</h2>
 <mat-dialog-content class="mat-typography">
+  @if (isLoading()) {
+    <mat-progress-bar mode="indeterminate" style="margin-bottom: 8px;"></mat-progress-bar>
+  }
   <div class="console-box" #consoleArea>
     <pre>{{ consoleOutput() }}</pre>
   </div>

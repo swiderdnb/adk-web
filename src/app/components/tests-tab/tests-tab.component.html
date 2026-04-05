@@ -1,7 +1,5 @@
 <div class="tests-container">
-  @if (isRunning() || isRebuilding()) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  }
+
 
   <div class="toolbar">
     <button mat-button color="primary" (click)="promoteCurrentSessionToTest()" [disabled]="!sessionId() || isViewOnlySession()">
