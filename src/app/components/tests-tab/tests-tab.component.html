@@ -7,10 +7,10 @@
     <button mat-button color="primary" (click)="promoteCurrentSessionToTest()" [disabled]="!sessionId() || isViewOnlySession()">
       <mat-icon>add</mat-icon> From Current Session
     </button>
-    <button mat-button color="primary" (click)="runAllTests()" [disabled]="isRunning() || isRebuilding()">
+    <button mat-button color="primary" (click)="runAllTests()" [disabled]="isRunning() || isRebuilding() || dataSource.data.length === 0">
       <mat-icon>playlist_play</mat-icon> Run All
     </button>
-    <button mat-button color="accent" (click)="rebuildAllTests()" [disabled]="isRunning() || isRebuilding()">
+    <button mat-button color="accent" (click)="rebuildAllTests()" [disabled]="isRunning() || isRebuilding() || dataSource.data.length === 0">
       <mat-icon>sync</mat-icon> Rebuild All
     </button>
     <span class="spacer"></span>

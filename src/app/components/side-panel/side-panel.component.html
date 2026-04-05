@@ -12,6 +12,7 @@
 @if (appName() != "" && showSidePanel()) {
 <div class="tabs-container" [hidden]="isSessionLoading">
   <mat-tab-group
+    animationDuration="0ms"
     [(selectedIndex)]="selectedIndex"
     (selectedTabChange)="onTabChange($event)">
     <mat-tab>
