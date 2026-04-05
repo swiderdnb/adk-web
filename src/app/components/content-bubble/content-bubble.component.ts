@@ -58,4 +58,22 @@ export class ContentBubbleComponent {
   renderGooglerSearch(content: string) {
     return this.sanitizer.bypassSecurityTrustHtml(content);
   }
+
+  get jsonOutputData(): any {
+    if (this.uiEvent.event?.nodeInfo?.['messageAsOutput'] === true) {
+      const parts = this.uiEvent.event.content?.parts;
+      if (parts) {
+        const text = parts
+          .filter((part: any) => part.text)
+          .map((part: any) => part.text)
+          .join('');
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          return text;
+        }
+      }
+    }
+    return null;
+  }
 }

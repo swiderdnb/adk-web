@@ -24,7 +24,13 @@
         }
       </div>
     }
-    @if (uiEvent.thought || uiEvent.text || uiEvent.renderedContent || uiEvent.a2uiData || uiEvent.event.inputTranscription || uiEvent.event.outputTranscription) {
+    @if (uiEvent.event?.nodeInfo?.['messageAsOutput']) {
+      <ngx-json-viewer 
+        [json]="jsonOutputData"
+        [appJsonTooltip]="uiEvent.event.nodeInfo?.['path'] || uiEvent.nodePath"
+        appJsonTooltipTitle="Node Output for"
+      ></ngx-json-viewer>
+    } @else if (uiEvent.thought || uiEvent.text || uiEvent.renderedContent || uiEvent.a2uiData || uiEvent.event.inputTranscription || uiEvent.event.outputTranscription) {
       <div>
         <div>
           @if (uiEvent.text) { 
