@@ -94,13 +94,25 @@ export class LongRunningResponseComponent {
     this.functionCall.responseStatus = 'sent';
     this.cdr.detectChanges();
 
+    let responseValue: any;
+    try {
+      const parsed = JSON.parse(this.functionCall.userResponse);
+      if (typeof parsed === 'object' && parsed !== null) {
+        responseValue = parsed;
+      } else {
+        responseValue = { 'result': this.functionCall.userResponse };
+      }
+    } catch (e) {
+      responseValue = { 'result': this.functionCall.userResponse };
+    }
+
     const content = {
         role: 'user',
         parts: [{
           functionResponse: {
             id: this.functionCall.id,
             name: this.functionCall.name,
-            response: { 'result': this.functionCall.userResponse },
+            response: responseValue,
           },
         }],
         functionCallEventId: this.functionCall.functionCallEventId
