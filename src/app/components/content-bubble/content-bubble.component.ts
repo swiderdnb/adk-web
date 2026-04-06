@@ -59,14 +59,21 @@ export class ContentBubbleComponent {
     return this.sanitizer.bypassSecurityTrustHtml(content);
   }
 
+  get rawMessageText(): string {
+    const parts = this.uiEvent.event?.content?.parts;
+    if (parts) {
+      return parts
+        .filter((part: any) => part.text)
+        .map((part: any) => part.text)
+        .join('');
+    }
+    return '';
+  }
+
   get jsonOutputData(): any {
     if (this.uiEvent.event?.nodeInfo?.['messageAsOutput'] === true) {
-      const parts = this.uiEvent.event.content?.parts;
-      if (parts) {
-        const text = parts
-          .filter((part: any) => part.text)
-          .map((part: any) => part.text)
-          .join('');
+      const text = this.rawMessageText;
+      if (text) {
         try {
           return JSON.parse(text);
         } catch (e) {
