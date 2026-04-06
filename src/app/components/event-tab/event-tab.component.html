@@ -52,6 +52,10 @@
                     }}</mat-icon></button></span></td>
           </tr>
           <tr>
+            <td>Branch</td>
+            <td><span class="value-cell"><span>{{ selectedEvent()?.branch || 'N/A' }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()?.branch)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()?.branch ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
+          </tr>
+          <tr>
             <td>Timestamp</td>
             <td><span class="value-cell"><span>{{ formatTime(selectedEvent()?.timestamp) }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(formatTime(selectedEvent()?.timestamp), 'timestamp')" matTooltip="Copy"><mat-icon>{{ copiedId === 'timestamp' ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
