@@ -1277,7 +1277,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (part.text) {
-      uiEvent.text = part.text;
+      uiEvent.text = (uiEvent.text || '') + part.text;
       uiEvent.thought = part.thought ? true : false;
       if (event?.groundingMetadata && event.groundingMetadata.searchEntryPoint &&
         event.groundingMetadata.searchEntryPoint.renderedContent) {
