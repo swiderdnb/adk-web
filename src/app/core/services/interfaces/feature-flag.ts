@@ -22,6 +22,7 @@ export const IMPORT_SESSION = 'import_session';
 export const EDIT_FUNCTION_ARGS = 'edit_function_args';
 export const SESSION_URL = 'session_url';
 export const A2A_CARD = 'a2a_card';
+export const TESTS = 'tests';
 
 export const FEATURE_FLAG_SERVICE = new InjectionToken<FeatureFlagService>('FeatureFlagService');
 
