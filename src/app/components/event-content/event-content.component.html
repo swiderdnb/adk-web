@@ -128,7 +128,7 @@
     </div>
     @if (uiEvent.functionCalls && uiEvent.functionCalls.length > 0) {
       @for (functionCall of uiEvent.functionCalls; track functionCall.id) {
-        @if (functionCall.needsResponse) {
+        @if (functionCall.needsResponse && !hasFunctionResponse(functionCall.id)) {
           <app-long-running-response
             [functionCall]="functionCall"
             [appName]="appName"

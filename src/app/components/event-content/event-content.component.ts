@@ -105,4 +105,13 @@ export class EventContentComponent {
   getEndOfAgentAuthor(): string {
     return this.uiEvent.event?.author || 'Agent';
   }
+
+  hasFunctionResponse(callId: string | undefined): boolean {
+    if (!callId) {
+      return false;
+    }
+    return this.uiEvents.some(event => 
+      event.functionResponses?.some(response => response.id === callId)
+    );
+  }
 }

@@ -15,6 +15,10 @@ app-content-bubble + app-content-bubble {
   width: 100%;
 }
 
+:host-context(.user) .event-chips-container {
+  justify-content: flex-end;
+}
+
 .eval-case-edit-button {
   cursor: pointer;
   margin-left: 4px;

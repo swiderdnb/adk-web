@@ -59,11 +59,6 @@ app-message-feedback {
   justify-content: flex-end;
   align-items: flex-start;
   gap: 15px;
-
-
-  .event-chips-container {
-    justify-content: flex-end;
-  }
 }
 
 :host(.bot) {
