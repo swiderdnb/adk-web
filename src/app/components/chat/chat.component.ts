@@ -1813,12 +1813,17 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadTraceData() {
     if (!this.sessionId) return;
+    this.uiStateService.setIsEventRequestResponseLoading(true);
     this.eventService.getTrace(this.sessionId)
       .pipe(first(), catchError((err) => { console.error('[DEBUG] getTrace error:', err); return of([]); }))
       .subscribe(res => {
         this.traceData = res;
         this.traceService.setEventData(this.eventData);
         this.traceService.setMessages(this.uiEvents());
+        if (this.selectedEvent) {
+          this.populateLlmRequestResponse();
+        }
+        this.uiStateService.setIsEventRequestResponseLoading(false);
         this.changeDetectorRef.detectChanges();
       });
     this.changeDetectorRef.detectChanges();
@@ -3007,8 +3012,16 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     // Auto-scroll to the selected event row in the chat panel
     this.chatPanel()?.scrollToSelectedMessage(this.selectedMessageIndex);
 
+    this.populateLlmRequestResponse();
+
+    this.updateRenderedGraph();
+  }
+
+  private populateLlmRequestResponse() {
     this.llmRequest = undefined;
     this.llmResponse = undefined;
+
+    if (!this.selectedEvent) return;
 
     const matchingSpan = this.traceData?.find(
       (span: any) => span?.attributes?.['gcp.vertex.agent.event_id'] === this.selectedEvent.id && span?.name === 'call_llm'
@@ -3034,8 +3047,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     }
-
-    this.updateRenderedGraph();
   }
 
   deleteSession(session: string) {
