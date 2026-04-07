@@ -126,12 +126,16 @@
     padding: 0 16px;
     gap: 8px;
 
+    .spacer {
+      flex: 1 1 auto;
+    }
+
     button {
       color: var(--mat-sys-on-surface);
     }
 
     .eval-set-title {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 500;
       color: var(--mat-sys-on-surface);
       margin-right: 16px;
@@ -543,4 +547,12 @@
       background-color: var(--mat-sys-surface-container-lowest);
     }
   }
+}
+
+.info-tables-container {
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }

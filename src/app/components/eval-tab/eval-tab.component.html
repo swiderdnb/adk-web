@@ -16,11 +16,11 @@
 
 <div class="eval-container">
   @if (selectedEvalSet == '') {
-  <div class="toolbar">
-    <div style="font-weight: 500; font-size: 14px;">{{ i18n.allEvalSetsHeader }}</div>
+  <div class="eval-detail-header">
+    <div class="eval-set-title">{{ i18n.allEvalSetsHeader }}</div>
     <span class="spacer"></span>
     <button mat-button (click)="openNewEvalSetDialog()" [matTooltip]="i18n.createNewEvalSetTooltip">
-      <mat-icon>add</mat-icon> New Eval Set
+      <mat-icon>add</mat-icon> New
     </button>
     <button mat-icon-button (click)="getEvalSet()" matTooltip="Refresh">
       <mat-icon>refresh</mat-icon>
@@ -92,15 +92,21 @@
         </div>
         } @else {
           @if (selectedEvalTab() === 'info') {
-          <div style="padding: 16px;">
-            <div class="empty-eval-info">
-              <div class="info-title">
-                {{selectedEvalSet}}
-              </div>
-              <div class="info-detail">
-                This is the information tab for the evaluation set. You can view summary details here.
-              </div>
-            </div>
+          <div class="info-tables-container">
+            <table app-info-table>
+              <tr>
+                <td>Name</td>
+                <td>{{ selectedEvalSet }}</td>
+              </tr>
+              <tr>
+                <td>Total Cases</td>
+                <td>{{ evalCases.length }}</td>
+              </tr>
+              <tr>
+                <td>Total Runs</td>
+                <td>{{ getEvalHistoryOfCurrentSetSorted().length }}</td>
+              </tr>
+            </table>
           </div>
           }
 

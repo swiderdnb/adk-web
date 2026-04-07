@@ -21,7 +21,7 @@ import {InjectionToken} from '@angular/core';
  * Default English messages for EvalTabComponent.
  */
 export const EVAL_TAB_MESSAGES = {
-  allEvalSetsHeader: 'All eval sets',
+  allEvalSetsHeader: 'Eval sets',
   createNewEvalSetTooltip: 'Create new evaluation set',
   createNewEvalSetTitle: 'Create New Evaluation Set',
   evalSetDescription:

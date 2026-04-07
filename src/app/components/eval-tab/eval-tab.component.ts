@@ -41,6 +41,7 @@ import {EvalTabMessagesInjectionToken} from './eval-tab.component.i18n';
 import {NewEvalSetDialogComponentComponent} from './new-eval-set-dialog/new-eval-set-dialog-component/new-eval-set-dialog-component.component';
 import {RunEvalConfigDialogComponent} from './run-eval-config-dialog/run-eval-config-dialog.component';
 import {DeleteSessionDialogComponent, DeleteSessionDialogData} from '../session-tab/delete-session-dialog/delete-session-dialog.component';
+import {InfoTable} from '../info-table/info-table';
 
 export const EVAL_TAB_COMPONENT = new InjectionToken<Type<EvalTabComponent>>(
     'EVAL_TAB_COMPONENT',
@@ -108,6 +109,7 @@ interface AppEvaluationResult {
     MatRow,
     MatProgressSpinner,
     DeleteSessionDialogComponent,
+    InfoTable,
   ],
 })
 export class EvalTabComponent implements OnInit, OnChanges {
@@ -404,11 +406,17 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   protected getEvalHistoryOfCurrentSet() {
-    return this.appEvaluationResults[this.appName()][this.selectedEvalSet];
+    if (!this.appEvaluationResults[this.appName()]) {
+      return {};
+    }
+    return this.appEvaluationResults[this.appName()][this.selectedEvalSet] || {};
   }
 
   protected getEvalHistoryOfCurrentSetSorted(): any[] {
     const evalHistory = this.getEvalHistoryOfCurrentSet();
+    if (!evalHistory) {
+      return [];
+    }
     const evalHistorySorted =
         Object.keys(evalHistory).sort((a, b) => b.localeCompare(a));
 
