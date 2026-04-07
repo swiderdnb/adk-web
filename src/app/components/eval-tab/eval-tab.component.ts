@@ -334,6 +334,9 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   private formatToolUses(toolUses: any[]): any[] {
+    if (!toolUses || !Array.isArray(toolUses)) {
+      return [];
+    }
     const formattedToolUses = [];
     for (const toolUse of toolUses) {
       formattedToolUses.push({name: toolUse.name, args: toolUse.args});
@@ -501,12 +504,13 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   getHistorySession(evalCaseResult: EvaluationResult) {
-    this.addEvalCaseResultToEvents(
-        evalCaseResult.sessionDetails, evalCaseResult);
-
-    const session = this.fromApiResultToSession(evalCaseResult.sessionDetails);
-
-    this.sessionSelected.emit(session);
+    const sessionId = evalCaseResult.sessionId;
+    this.sessionService.getSession(this.userId(), this.appName(), sessionId)
+        .subscribe((res) => {
+          this.addEvalCaseResultToEvents(res, evalCaseResult);
+          const session = this.fromApiResultToSession(res);
+          this.sessionSelected.emit(session);
+        });
   }
 
   protected getEvalCase(element: any) {

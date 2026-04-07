@@ -423,6 +423,7 @@
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
+    box-sizing: border-box;
     
     &:hover {
       background-color: var(--mat-sys-surface-container-low, #f5f5f5);
