@@ -154,6 +154,18 @@ export class EvalTabComponent implements OnInit, OnChanges {
     if (!runObj) return this.evalMetrics;
     return this.getEvalMetrics(runObj);
   });
+
+  caseHistory = computed(() => {
+    const caseObj = this.selectedEvalCase();
+    if (!caseObj) return [];
+    const evalId = caseObj.evalId;
+    const history = this.evalHistorySorted();
+    return history.map(run => {
+      const result = run.evaluationResults.evaluationResults.find((r: any) => r.evalId === evalId);
+      return { timestamp: run.timestamp, result: result };
+    }).filter(item => item.result !== undefined);
+  });
+
   evalCases: string[] = [];
   selectedEvalCase = signal<EvalCase|null>(null);
   deletedEvalCaseIndex: number = -1;

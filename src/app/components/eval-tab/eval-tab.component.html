@@ -141,43 +141,77 @@
 
           @if (selectedEvalTab() === 'cases') {
           <div>
-            <div class="toolbar" style="position: sticky; top: 0; z-index: 1;">
-              <mat-checkbox style="margin-left: 6px;" (change)="$event ? toggleAllRows() : null"
-                [checked]="selection.hasValue() && isAllSelected()"
-                [indeterminate]="selection.hasValue() && !isAllSelected()">
-              </mat-checkbox>
-              <button mat-button color="primary" (click)="openEvalConfigDialog()" [disabled]="evalCases.length == 0">
-                <mat-icon>play_arrow</mat-icon> {{ (isAllSelected() || selection.isEmpty()) ? i18n.runEvaluationButton :
-                i18n.runSelectedEvaluationButton }}
-              </button>
-              <button mat-button color="accent" (click)="openNewEvalCaseDialog()">
-                <mat-icon>add</mat-icon> {{ i18n.addSessionToSetButtonPrefix }}
-              </button>
-              <span class="spacer"></span>
-              <button mat-icon-button (click)="listEvalCases()" matTooltip="Refresh">
-                <mat-icon>refresh</mat-icon>
-              </button>
-            </div>
-            @if (evalCases.length > 0) {
-            <div class="eval-cases-list">
-
-              @for (element of evalCases; track element) {
-              <div class="eval-case-row" [class.selected-row]="element === selectedEvalCase()?.evalId" (click)="getEvalCase(element)">
-                <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(element) : null"
-                  [checked]="selection.isSelected(element)">
+            @if (!selectedEvalCase()) {
+              <div class="toolbar" style="position: sticky; top: 0; z-index: 1;">
+                <mat-checkbox style="margin-left: 6px;" (change)="$event ? toggleAllRows() : null"
+                  [checked]="selection.hasValue() && isAllSelected()"
+                  [indeterminate]="selection.hasValue() && !isAllSelected()">
                 </mat-checkbox>
-                <div class="eval-case-id">
-                  {{element}}
-                </div>
-                <button mat-icon-button class="edit-btn" (click)="requestEditEvalCase($event, element)" [matTooltip]="i18n.editEvalCaseTooltip">
-                  <mat-icon>edit</mat-icon>
+                <button mat-button color="primary" (click)="openEvalConfigDialog()" [disabled]="evalCases.length == 0">
+                  <mat-icon>play_arrow</mat-icon> {{ (isAllSelected() || selection.isEmpty()) ? i18n.runEvaluationButton :
+                  i18n.runSelectedEvaluationButton }}
                 </button>
-                <button mat-icon-button class="delete-btn" (click)="confirmDeleteEvalCase($event, element)" [matTooltip]="i18n.deleteEvalCaseTooltip">
-                  <mat-icon>delete</mat-icon>
+                <button mat-button color="accent" (click)="openNewEvalCaseDialog()">
+                  <mat-icon>add</mat-icon> {{ i18n.addSessionToSetButtonPrefix }}
+                </button>
+                <span class="spacer"></span>
+                <button mat-icon-button (click)="listEvalCases()" matTooltip="Refresh">
+                  <mat-icon>refresh</mat-icon>
                 </button>
               </div>
+              @if (evalCases.length > 0) {
+              <div class="eval-cases-list">
+  
+                @for (element of evalCases; track element) {
+                <div class="eval-case-row" [class.selected-row]="element === selectedEvalCase()?.evalId" (click)="getEvalCase(element)">
+                  <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(element) : null"
+                    [checked]="selection.isSelected(element)">
+                  </mat-checkbox>
+                  <div class="eval-case-id">
+                    {{element}}
+                  </div>
+                  <button mat-icon-button class="edit-btn" (click)="requestEditEvalCase($event, element)" [matTooltip]="i18n.editEvalCaseTooltip">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="delete-btn" (click)="confirmDeleteEvalCase($event, element)" [matTooltip]="i18n.deleteEvalCaseTooltip">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                }
+              </div>
               }
-            </div>
+            } @else {
+              @let currentCase = selectedEvalCase()!;
+              <div class="eval-case-details" style="padding: 16px;">
+                <div style="margin-bottom: 16px;">
+                  <h3 style="margin-top: 0;">Case: {{ currentCase.evalId }}</h3>
+                </div>
+                
+                <h4 style="margin-bottom: 8px;">Past Runs</h4>
+                <div class="eval-cases-list">
+                  @let history = caseHistory();
+                  @for (item of history; track item.timestamp; let i = $index) {
+                    <div class="eval-case-row">
+                      <div class="eval-case-id">
+                        #{{ history.length - i }} {{ formatTimestamp(item.timestamp) }}
+                      </div>
+                      <div class="spacer"></div>
+                      <div class="status-card__summary">
+                        @if (item.result?.finalEvalStatus == 1) {
+                          <span class="status-card__passed">{{ i18n.passedSuffix }}</span>
+                        } @else {
+                          <span class="status-card__failed">{{ i18n.failedSuffix }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @if (history.length === 0) {
+                    <div style="padding: 16px; text-align: center; color: var(--app-color-text-secondary);">
+                      No runs found for this case.
+                    </div>
+                  }
+                </div>
+              </div>
             }
             @if (evalCases.length === 0) {
             <div class="empty-eval-info">
