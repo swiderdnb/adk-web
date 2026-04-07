@@ -197,6 +197,8 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
 
   hideIntermediateEvents = input<boolean>(false);
   invocationDisplayMap = input<Map<string, string>>(new Map());
+  evalCaseResult = input<any | null>(null);
+  showEvalSummary = input<boolean>(false);
 
 
   

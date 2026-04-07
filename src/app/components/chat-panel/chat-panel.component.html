@@ -18,6 +18,43 @@
 @if (appName != "" && !isSessionLoading) {
 
 <div #autoScroll class="chat-messages" (scroll)="onScroll.next($event)">
+  @if (showEvalSummary() && evalCaseResult()) {
+    @let result = evalCaseResult();
+    <div class="eval-result-summary" style="margin: 16px; padding: 16px; border-radius: 8px; background: var(--mat-sys-surface-container); border: 1px solid var(--mat-sys-outline-variant);">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; color: var(--mat-sys-primary);">Evaluation Result</h3>
+        <div class="status-card__summary">
+          @if (result.finalEvalStatus == 1) {
+            <span class="status-card__passed" style="font-size: 16px; font-weight: 600;">Passed</span>
+          } @else {
+            <span class="status-card__failed" style="font-size: 16px; font-weight: 600;">Failed</span>
+          }
+        </div>
+      </div>
+      <div style="margin-top: 12px; display: flex; gap: 24px;">
+        <div>
+          <span style="color: var(--mat-sys-on-surface-variant); font-size: 13px;">Case ID</span>
+          <div style="font-weight: 500;">{{ result.evalId }}</div>
+        </div>
+        <div>
+          <span style="color: var(--mat-sys-on-surface-variant); font-size: 13px;">Set ID</span>
+          <div style="font-weight: 500;">{{ result.setId }}</div>
+        </div>
+        @if (result.overallEvalMetricResults?.length) {
+          <div>
+            <span style="color: var(--mat-sys-on-surface-variant); font-size: 13px;">Metrics</span>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              @for (metric of result.overallEvalMetricResults; track metric.metricName) {
+                <span [style.color]="metric.evalStatus == 1 ? 'var(--app-color-success)' : 'var(--app-color-error)'" style="font-size: 13px; font-weight: 500;">
+                  {{ metric.metricName }}: {{ metric.score }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
   @if (uiEvents.length === 0 && agentReadme) {
   <div class="readme-content">
     <ng-container [ngComponentOutlet]="markdownComponent"

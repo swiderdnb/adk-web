@@ -265,6 +265,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionId = ``;
   sessionIdOfLoadedMessages = '';
   evalCase: EvalCase | null = null;
+  evalCaseResult = signal<any | null>(null);
   updatedEvalCase: EvalCase | null = null;
   evalSetId = '';
   isAudioRecording = false;
@@ -2118,7 +2119,16 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if ((session as any).isEvalResult) {
       this.isViewOnlySession.set(true);
       this.readonlySessionType.set('Eval Result');
-      this.readonlySessionName.set(session.id);
+      const caseName = (session as any).evalCase?.evalId;
+      const runTime = (session as any).timestamp;
+      let formattedTime = runTime;
+      if (runTime) {
+        const numericTimestamp = Number(runTime);
+        if (!isNaN(numericTimestamp)) {
+          formattedTime = new Date(numericTimestamp * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+      }
+      this.readonlySessionName.set(caseName && formattedTime ? `${formattedTime} > ${caseName}` : session.id);
       this.canEditSession.set(false);
       this.chatPanel()?.canEditSession.set(false);
     } else {
@@ -2129,6 +2139,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.expectedUiEvents.set(this.buildUiEventsFromEvalCase((session as any).evalCase));
     } else {
       this.expectedUiEvents.set([]);
+    }
+    
+    if ((session as any).evalCaseResult) {
+      this.evalCaseResult.set((session as any).evalCaseResult);
+    } else {
+      this.evalCaseResult.set(null);
     }
     if (!(session as any).isEvalResult) {
       this.isSideBySide.set(false);

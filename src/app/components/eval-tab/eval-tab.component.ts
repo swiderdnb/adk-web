@@ -527,7 +527,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
     return this.getEvalHistoryOfCurrentSet()[timestamp].evaluationResults;
   }
 
-  getHistorySession(evalCaseResult: EvaluationResult) {
+  getHistorySession(evalCaseResult: EvaluationResult, timestamp: string) {
     const sessionId = evalCaseResult.sessionId;
     const evalId = evalCaseResult.evalId;
     
@@ -538,6 +538,8 @@ export class EvalTabComponent implements OnInit, OnChanges {
                 this.addEvalCaseResultToEvents(res, evalCaseResult);
                 const session = this.fromApiResultToSession(res);
                 (session as any).evalCase = evalCase;
+                (session as any).evalCaseResult = evalCaseResult;
+                (session as any).timestamp = timestamp;
                 this.sessionSelected.emit(session);
               });
         });
