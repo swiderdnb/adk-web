@@ -370,6 +370,47 @@
   margin-left: 5px;
 }
 
+.readonly-chip {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--mat-sys-primary-container) !important;
+  color: var(--mat-sys-on-primary-container) !important;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 6px;
+  
+  .chip-label {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.9;
+  }
+  
+  .chip-value {
+    font-family: 'Google Sans Mono', monospace;
+  }
+
+  .chip-close-button {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: inherit !important;
+    opacity: 0.8;
+    margin-left: 4px;
+    
+    &:hover {
+      opacity: 1;
+      background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+}
+
 .toolbar-session-id-container {
   display: flex;
   align-items: center;
@@ -503,9 +544,10 @@
 }
 
 .readonly-badge {
-  color: var(--chat-readonly-badge-color);
-  border-radius: 4px;
-  padding: 2px 8px;
+  color: var(--mat-sys-on-primary-container) !important;
+  background-color: var(--mat-sys-primary-container) !important;
+  border-radius: 16px;
+  padding: 4px 12px;
   display: flex;
   align-items: center;
   margin-left: 8px;

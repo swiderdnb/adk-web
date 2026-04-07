@@ -57,6 +57,7 @@ export declare interface IntermediateData {
 export declare interface EvalCase {
   evalId: string;
   conversation: Invocation[];
+  events?: any[];
   sessionInput: any;
   creationTimestamp: number;
 }

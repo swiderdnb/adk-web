@@ -61,10 +61,10 @@
   @if (appName) {
   <div class="toolbar-group toolbar-session-group">
     @if (isViewOnlySession()) {
-      <div class="readonly-chip" style="display: flex; align-items: center; background-color: rgba(0, 0, 0, 0.05); border-radius: 16px; padding: 2px 8px; gap: 4px; border: 1px solid rgba(0, 0, 0, 0.12);">
+      <div class="readonly-chip">
         <mat-icon fontSet="material-symbols-outlined" style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">visibility</mat-icon>
-        <span class="chip-label" style="font-size: 13px; font-weight: 500;">{{ readonlySessionType() }}: {{ readonlySessionName() }}</span>
-        <button mat-icon-button style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;" (click)="closeReadonlySession()" aria-label="Close readonly view">
+        <span class="chip-label">{{ readonlySessionType() }}: {{ readonlySessionName() }}</span>
+        <button mat-icon-button class="chip-close-button" (click)="closeReadonlySession()" aria-label="Close readonly view">
           <mat-icon style="font-size: 16px; width: 16px; height: 16px;">close</mat-icon>
         </button>
       </div>
@@ -96,9 +96,9 @@
   <div class="toolbar-content">
     @if (evalCase) {
     @if (!isViewOnlySession()) {
-    <div style="display: flex; align-items: center">
-      <div class="toolbar-session-text">{{ i18n.evalCaseIdLabel }}</div>
-      <div class="toolbar-session-id">{{ evalCase.evalId }}</div>
+    <div class="readonly-chip">
+      <span class="chip-label">{{ i18n.evalCaseIdLabel }}</span>
+      <span class="chip-value">{{ evalCase.evalId }}</span>
     </div>
     }
     <div class="toolbar-actions">
@@ -140,7 +140,7 @@
       @let isSessionLoading = uiStateService.isSessionLoading() | async; @if (isSessionLoading ===
       false) {
       @if (!canEditSession()) {
-      <div class="readonly-badge" [matTooltip]="isViewOnlySession() ? i18n.viewSessionReadOnlyMessage : i18n.cannotEditSessionMessage">
+      <div class="readonly-chip" [matTooltip]="isViewOnlySession() ? i18n.viewSessionReadOnlyMessage : i18n.cannotEditSessionMessage">
         <mat-icon>visibility</mat-icon>
         {{ i18n.readOnlyBadgeLabel }}
       </div>

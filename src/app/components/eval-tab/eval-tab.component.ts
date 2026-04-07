@@ -126,7 +126,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
       inject<FeatureFlagService>(FEATURE_FLAG_SERVICE);
   protected readonly i18n = inject(EvalTabMessagesInjectionToken);
 
-  displayedColumns: string[] = ['select', 'evalId', 'finalEvalStatus'];
+  displayedColumns: string[] = ['select', 'evalId'];
   evalsets: any[] = [];
   selectedEvalSet: string = '';
   evalCases: string[] = [];
@@ -137,6 +137,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
   selection = new SelectionModel<string>(true, []);
 
   showEvalHistory = signal(false);
+  selectedEvalTab = signal('cases');
 
   evalRunning = signal(false);
   evalMetrics: EvalMetric[] = DEFAULT_EVAL_METRICS;
@@ -275,8 +276,8 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   clearSelectedEvalSet() {
-    if (!!this.showEvalHistory()) {
-      this.toggleEvalHistoryButton();
+    if (this.selectedEvalTab() !== 'cases') {
+      this.selectedEvalTab.set('cases');
       return;
     }
     this.selectedEvalSet = '';

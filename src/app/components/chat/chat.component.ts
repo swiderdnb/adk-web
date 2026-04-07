@@ -2015,39 +2015,46 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.readonlySessionName.set(evalCase.evalId);
 
     this.resetEventsAndMessages();
-    let invocationIndex = 0;
 
-    for (const invocation of evalCase.conversation) {
-      if (invocation.userContent?.parts) {
-        for (const part of invocation.userContent.parts) {
-          this.storeMessage(part, null, 'user');
-        }
+    if (evalCase.events && evalCase.events.length > 0) {
+      for (const event of evalCase.events) {
+        this.appendEventRow(event, false);
       }
+    } else {
+      let invocationIndex = 0;
 
-      if (invocation.intermediateData?.toolUses) {
-        let toolUseIndex = 0;
-        for (const toolUse of invocation.intermediateData.toolUses) {
-          const functionCallPart = {
-            functionCall: { name: toolUse.name, args: toolUse.args },
-          };
-          this.storeMessage(
-            functionCallPart, null, 'bot', invocationIndex, { toolUseIndex });
-          toolUseIndex++;
-
-          const functionResponsePart = { functionResponse: { name: toolUse.name } };
-          this.storeMessage(functionResponsePart, null, 'bot');
+      for (const invocation of evalCase.conversation) {
+        if (invocation.userContent?.parts) {
+          for (const part of invocation.userContent.parts) {
+            this.storeMessage(part, null, 'user');
+          }
         }
-      }
 
-      if (invocation.finalResponse?.parts) {
-        let finalResponsePartIndex = 0;
-        for (const part of invocation.finalResponse.parts) {
-          this.storeMessage(
-            part, null, 'bot', invocationIndex, { finalResponsePartIndex });
-          finalResponsePartIndex++;
+        if (invocation.intermediateData?.toolUses) {
+          let toolUseIndex = 0;
+          for (const toolUse of invocation.intermediateData.toolUses) {
+            const functionCallPart = {
+              functionCall: { name: toolUse.name, args: toolUse.args },
+            };
+            this.storeMessage(
+              functionCallPart, null, 'bot', invocationIndex, { toolUseIndex });
+            toolUseIndex++;
+
+            const functionResponsePart = { functionResponse: { name: toolUse.name } };
+            this.storeMessage(functionResponsePart, null, 'bot');
+          }
         }
+
+        if (invocation.finalResponse?.parts) {
+          let finalResponsePartIndex = 0;
+          for (const part of invocation.finalResponse.parts) {
+            this.storeMessage(
+              part, null, 'bot', invocationIndex, { finalResponsePartIndex });
+            finalResponsePartIndex++;
+          }
+        }
+        invocationIndex++;
       }
-      invocationIndex++;
     }
   }
 
@@ -3603,6 +3610,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isViewOnlySession.set(false);
     this.readonlySessionType.set('');
     this.readonlySessionName.set('');
+    this.evalCase = null;
     
     if (this.originalSessionId) {
       this.loadSession(this.originalSessionId);
