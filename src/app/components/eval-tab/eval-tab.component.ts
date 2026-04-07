@@ -40,6 +40,7 @@ import {AddEvalSessionDialogComponent} from './add-eval-session-dialog/add-eval-
 import {EvalTabMessagesInjectionToken} from './eval-tab.component.i18n';
 import {NewEvalSetDialogComponentComponent} from './new-eval-set-dialog/new-eval-set-dialog-component/new-eval-set-dialog-component.component';
 import {RunEvalConfigDialogComponent} from './run-eval-config-dialog/run-eval-config-dialog.component';
+import {DeleteSessionDialogComponent, DeleteSessionDialogData} from '../session-tab/delete-session-dialog/delete-session-dialog.component';
 
 export const EVAL_TAB_COMPONENT = new InjectionToken<Type<EvalTabComponent>>(
     'EVAL_TAB_COMPONENT',
@@ -106,6 +107,7 @@ interface AppEvaluationResult {
     MatRowDef,
     MatRow,
     MatProgressSpinner,
+    DeleteSessionDialogComponent,
   ],
 })
 export class EvalTabComponent implements OnInit, OnChanges {
@@ -119,6 +121,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
   readonly evalCaseSelected = output<EvalCase>();
   readonly evalSetIdSelected = output<string>();
   readonly shouldReturnToSession = output<boolean>();
+  readonly editEvalCaseRequested = output<EvalCase>();
 
   private readonly evalCasesSubject = new BehaviorSubject<string[]>([]);
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
@@ -492,6 +495,38 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   resetEvalResults() {
     this.currentEvalResultBySet.clear();
+  }
+
+  confirmDeleteEvalCase(event: Event, evalCaseId: string) {
+    event.stopPropagation();
+    const dialogData: DeleteSessionDialogData = {
+      title: 'Confirm delete',
+      message: `Are you sure you want to delete ${evalCaseId}?`,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    };
+
+    const dialogRef = this.dialog.open(DeleteSessionDialogComponent, {
+      width: '600px',
+      data: dialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.deleteEvalCase(evalCaseId);
+      }
+    });
+  }
+
+  requestEditEvalCase(event: Event, element: string) {
+    event.stopPropagation();
+    this.evalService.getEvalCase(this.appName(), this.selectedEvalSet, element)
+        .subscribe((res) => {
+          this.selectedEvalCase.set(res);
+          this.evalCaseSelected.emit(res);
+          this.evalSetIdSelected.emit(this.selectedEvalSet);
+          this.editEvalCaseRequested.emit(res);
+        });
   }
 
   deleteEvalCase(evalCaseId: string) {

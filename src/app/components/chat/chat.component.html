@@ -115,24 +115,8 @@
         {{ i18n.saveButton }}
       </button>
       } @else {
-      <button
-        mat-icon-button
-        class="toolbar-icon-button"
-        [matTooltip]="i18n.editEvalCaseTooltip"
-        (click)="editEvalCase()"
-        aria-label="Edit eval case"
-      >
-        <mat-icon>edit</mat-icon>
-      </button>
-      <button
-        mat-icon-button
-        class="toolbar-icon-button"
-        [matTooltip]="i18n.deleteEvalCaseTooltip"
-        (click)="deleteEvalCase()"
-        aria-label="Delete eval case"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
+
+
       }
     </div>
     } @else {
@@ -339,6 +323,7 @@
       (tabChange)="handleTabChange($event)"
       (sessionSelected)="updateWithSelectedSession($event)"
       (evalCaseSelected)="updateWithSelectedEvalCase($event)"
+      (editEvalCaseRequested)="handleEditEvalCaseRequested($event)"
       (testSelected)="updateWithSelectedTest($event.testName, $event.events)"
       (evalSetIdSelected)="updateSelectedEvalSetId($event)"
       (returnToSession)="handleReturnToSession($event)"

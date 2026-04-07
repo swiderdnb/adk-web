@@ -96,6 +96,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly sessionSelected = output<Session>();
   readonly sessionReloaded = output<Session>();
   readonly evalCaseSelected = output<EvalCase>();
+  readonly editEvalCaseRequested = output<EvalCase>();
   readonly testSelected = output<{ testName: string; events: any[] }>();
   readonly evalSetIdSelected = output<string>();
   readonly returnToSession = output<boolean>();
@@ -216,6 +217,10 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
         evalTabComponent.instance.evalCaseSelected.subscribe(
             (evalCase: EvalCase) => {
               this.evalCaseSelected.emit(evalCase);
+            });
+        evalTabComponent.instance.editEvalCaseRequested.subscribe(
+            (evalCase: EvalCase) => {
+              this.editEvalCaseRequested.emit(evalCase);
             });
         evalTabComponent.instance.evalSetIdSelected.subscribe(
             (evalSetId: string) => {

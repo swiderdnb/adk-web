@@ -2058,6 +2058,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  protected handleEditEvalCaseRequested(evalCase: EvalCase) {
+    this.updateWithSelectedEvalCase(evalCase);
+    this.editEvalCase();
+  }
+
   protected updateSelectedEvalSetId(evalSetId: string) {
     this.evalSetId = evalSetId;
   }

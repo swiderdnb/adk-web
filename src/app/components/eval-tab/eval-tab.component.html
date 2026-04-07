@@ -134,6 +134,12 @@
                 <div class="eval-case-id">
                   {{element}}
                 </div>
+                <button mat-icon-button class="edit-btn" (click)="requestEditEvalCase($event, element)" [matTooltip]="i18n.editEvalCaseTooltip">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button class="delete-btn" (click)="confirmDeleteEvalCase($event, element)" [matTooltip]="i18n.deleteEvalCaseTooltip">
+                  <mat-icon>delete</mat-icon>
+                </button>
               </div>
               }
             </div>

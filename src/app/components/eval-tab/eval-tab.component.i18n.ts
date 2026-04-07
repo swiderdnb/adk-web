@@ -40,6 +40,8 @@ export const EVAL_TAB_MESSAGES = {
   passedSuffix: 'Passed',
   failedSuffix: 'Failed',
   addSessionToSetButtonPrefix: 'From Current Session',
+  deleteEvalCaseTooltip: 'Delete eval case',
+  editEvalCaseTooltip: 'Edit eval case',
 };
 
 

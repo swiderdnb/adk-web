@@ -484,6 +484,10 @@
 
   &:hover {
     background-color: var(--mat-sys-surface-container-low);
+    
+    .delete-btn, .edit-btn {
+      opacity: 1;
+    }
   }
 
   &.selected-row {
@@ -494,6 +498,41 @@
     font-size: 14px;
     color: var(--mat-sys-on-surface);
     font-family: 'Google Sans Mono', monospace;
+    flex: 1;
+  }
+  
+  .edit-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    color: var(--mat-sys-on-surface-variant);
+
+    &:hover {
+      color: var(--mat-sys-primary);
+    }
+
+    mat-icon {
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
+    }
+  }
+
+  .delete-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    color: var(--mat-sys-on-surface-variant);
+
+    &:hover {
+      color: var(--mat-sys-error);
+    }
+
+    mat-icon {
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
+    }
   }
   
   &.header-row {
