@@ -506,11 +506,17 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   getHistorySession(evalCaseResult: EvaluationResult) {
     const sessionId = evalCaseResult.sessionId;
-    this.sessionService.getSession(this.userId(), this.appName(), sessionId)
-        .subscribe((res) => {
-          this.addEvalCaseResultToEvents(res, evalCaseResult);
-          const session = this.fromApiResultToSession(res);
-          this.sessionSelected.emit(session);
+    const evalId = evalCaseResult.evalId;
+    
+    this.evalService.getEvalCase(this.appName(), this.selectedEvalSet(), evalId)
+        .subscribe((evalCase) => {
+          this.sessionService.getSession(this.userId(), this.appName(), sessionId)
+              .subscribe((res) => {
+                this.addEvalCaseResultToEvents(res, evalCaseResult);
+                const session = this.fromApiResultToSession(res);
+                (session as any).evalCase = evalCase;
+                this.sessionSelected.emit(session);
+              });
         });
   }
 

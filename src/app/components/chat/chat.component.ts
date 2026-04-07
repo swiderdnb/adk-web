@@ -22,11 +22,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatIconButton, MatFabButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
+import { MatButtonToggleGroup, MatButtonToggle } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
@@ -142,6 +143,8 @@ const BIDI_STREAMING_RESTART_WARNING =
   ],
   imports: [
     MatDrawerContainer,
+    MatButtonToggleGroup,
+    MatButtonToggle,
     MatTooltip,
     MatDrawer,
     ResizableDrawerDirective,
@@ -286,6 +289,182 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly unavailableAppName = signal('');
   protected readonly readonlySessionType = signal('');
   protected readonly readonlySessionName = signal('');
+  protected readonly isSideBySide = signal(false);
+  protected readonly expectedUiEvents = signal<UiEvent[]>([]);
+  protected readonly viewMode = signal<'events' | 'traces'>((localStorage.getItem('chat-view-mode') as 'events' | 'traces') || 'events');
+  protected readonly invocationIdFilterActive = signal<boolean>(false);
+  protected readonly nodePathFilterActive = signal<boolean>(false);
+  protected readonly invocationIdFilter = signal<string>('');
+  protected readonly nodePathFilter = signal<string>('');
+
+  protected readonly invocationIdOptions = computed(() => {
+    const ids = new Set<string>();
+    for (const e of this.uiEvents()) {
+      if (e.event?.invocationId) ids.add(e.event.invocationId);
+    }
+    return Array.from(ids);
+  });
+
+  protected readonly nodePathOptions = computed(() => {
+    const paths = new Set<string>();
+    for (const e of this.uiEvents()) {
+      const barePath = e.bareNodePath;
+      if (barePath) paths.add(barePath);
+    }
+    return Array.from(paths);
+  });
+
+  readonly invChipMenuTrigger = viewChild<MatMenuTrigger>('invChipMenuTrigger');
+  readonly nodeChipMenuTrigger = viewChild<MatMenuTrigger>('nodeChipMenuTrigger');
+  readonly addMenuTrigger = viewChild<MatMenuTrigger>('addMenuTrigger');
+
+  openAddFilterMenu(event: Event) {
+    event.stopPropagation();
+    this.addMenuTrigger()?.openMenu();
+  }
+
+  addInvocationIdFilter() {
+    this.invocationIdFilterActive.set(true);
+    setTimeout(() => {
+      this.invChipMenuTrigger()?.openMenu();
+    });
+  }
+
+  addNodePathFilter() {
+    this.nodePathFilterActive.set(true);
+    setTimeout(() => {
+      this.nodeChipMenuTrigger()?.openMenu();
+    });
+  }
+
+  removeInvocationIdFilter(event: Event) {
+    event.stopPropagation();
+    this.invocationIdFilterActive.set(false);
+    this.invocationIdFilter.set('');
+  }
+
+  removeNodePathFilter(event: Event) {
+    event.stopPropagation();
+    this.nodePathFilterActive.set(false);
+    this.nodePathFilter.set('');
+  }
+
+  setInvocationIdFilter(id: string) {
+    this.invocationIdFilter.set(id);
+  }
+
+  setNodePathFilter(path: string) {
+    this.nodePathFilter.set(path);
+  }
+
+  onInvocationMenuClosed() {
+    if (!this.invocationIdFilter()) {
+      this.invocationIdFilterActive.set(false);
+    }
+  }
+
+  onNodePathMenuClosed() {
+    if (!this.nodePathFilter()) {
+      this.nodePathFilterActive.set(false);
+    }
+  }
+
+  clearAllFilters(event: Event) {
+    event.stopPropagation();
+    if (this.invocationIdFilterActive()) {
+      this.invocationIdFilterActive.set(false);
+      this.invocationIdFilter.set('');
+    }
+    if (this.nodePathFilterActive()) {
+      this.nodePathFilterActive.set(false);
+      this.nodePathFilter.set('');
+    }
+    if (this.hideIntermediateEvents()) {
+      this.toggleHideIntermediateEvents();
+    }
+  }
+
+  shouldShowEvent(uiEvent: UiEvent): boolean {
+    const invFilter = this.invocationIdFilter();
+    if (invFilter) {
+      const eventInvId = uiEvent.event?.invocationId || '';
+      if (!eventInvId.includes(invFilter)) {
+        return false;
+      }
+    }
+
+    const pathFilter = this.nodePathFilter();
+    if (pathFilter) {
+      const eventPath = uiEvent.bareNodePath || '';
+      if (!eventPath.includes(pathFilter)) {
+        return false;
+      }
+    }
+
+    if (!this.hideIntermediateEvents()) {
+      return true;
+    }
+
+    if (uiEvent.role === 'user') {
+      return true;
+    }
+
+    if (uiEvent.event?.content !== undefined) {
+      const parts = uiEvent.event.content.parts || [];
+      const hasOnlyFunctions = parts.length > 0 && parts.every((p: any) => p.functionCall || p.functionResponse);
+
+      if (hasOnlyFunctions) {
+        const isLongRunning = parts.some((p: any) => {
+          const id = p.functionCall?.id || p.functionResponse?.id;
+          return id && uiEvent.event?.longRunningToolIds?.includes(id);
+        });
+        if (isLongRunning) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    }
+
+    if (uiEvent.event?.output !== undefined) {
+      const nodeInfo = uiEvent.event?.nodeInfo;
+      let isTopLevel = false;
+      let outputFor = nodeInfo?.['outputFor'];
+
+      if (Array.isArray(outputFor)) {
+        isTopLevel = outputFor.some((path: string) => !path.includes('/'));
+      } else if (typeof outputFor === 'string') {
+        isTopLevel = !outputFor.includes('/');
+      } else if (nodeInfo?.path) {
+        isTopLevel = !nodeInfo.path.includes('/');
+      }
+
+      if (isTopLevel) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  shouldShowEventFn = this.shouldShowEvent.bind(this);
+
+  protected readonly filteredUiEvents = computed(() => {
+    return this.uiEvents().filter(e => this.shouldShowEvent(e));
+  });
+
+  protected readonly filteredExpectedUiEvents = computed(() => {
+    return this.expectedUiEvents().filter(e => this.shouldShowEvent(e));
+  });
+
+  onViewModeChange(mode: 'events' | 'traces') {
+    this.viewMode.set(mode);
+    try {
+      localStorage.setItem('chat-view-mode', mode);
+    } catch (e) {
+      // Ignored
+    }
+  }
   protected originalSessionId = '';
   hideIntermediateEvents = signal(window.localStorage.getItem('adk-hide-intermediate-events') === 'true');
 
@@ -537,7 +716,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   switchToTraceView() {
-    this.chatPanel()?.onViewModeChange('traces');
+    this.onViewModeChange('traces');
   }
 
   ngAfterViewInit() {
@@ -1528,8 +1707,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.showSidePanel = true;
       window.localStorage.setItem('adk-side-panel-visible', 'true');
       this.updateRenderedGraph();
-      if (this.chatPanel()?.viewMode() !== 'events') {
-        this.chatPanel()?.onViewModeChange('events');
+      if (this.viewMode() !== 'events') {
+        this.onViewModeChange('events');
       }
       return;
     }
@@ -1946,6 +2125,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isViewOnlySession.set(false);
     }
 
+    if ((session as any).evalCase) {
+      this.expectedUiEvents.set(this.buildUiEventsFromEvalCase((session as any).evalCase));
+    } else {
+      this.expectedUiEvents.set([]);
+    }
+    this.isSideBySide.set(false);
+
     if (!(session as any).isEvalResult) {
       this.isSessionUrlEnabledObs.subscribe((enabled) => {
         if (enabled) {
@@ -2019,6 +2205,30 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.changeDetectorRef.detectChanges();
   }
 
+  private buildUiEventsFromEvalCase(evalCase: EvalCase): UiEvent[] {
+    const savedUiEvents = this.uiEvents();
+    const savedEventData = this.eventData;
+    const savedIsChatMode = this.isChatMode();
+    const savedIsViewOnly = this.isViewOnlySession();
+    const savedType = this.readonlySessionType();
+    const savedName = this.readonlySessionName();
+    
+    this.uiEvents.set([]);
+    this.eventData = new Map();
+    
+    this.updateWithSelectedEvalCase(evalCase);
+    
+    const expectedEvents = this.uiEvents();
+    
+    this.uiEvents.set(savedUiEvents);
+    this.eventData = savedEventData;
+    this.isChatMode.set(savedIsChatMode);
+    this.isViewOnlySession.set(savedIsViewOnly);
+    this.readonlySessionType.set(savedType);
+    this.readonlySessionName.set(savedName);
+    
+    return expectedEvents;
+  }
 
   protected updateWithSelectedEvalCase(evalCase: EvalCase) {
     this.evalCase = evalCase;
@@ -3031,8 +3241,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedEventIndex = this.getIndexOfKeyInMap(key);
     this.selectedMessageIndex = messageIndex !== undefined ? messageIndex : this.uiEvents().findIndex(msg => msg.event.id === key);
 
-    if (this.chatPanel()?.viewMode() !== 'events') {
-      this.chatPanel()?.onViewModeChange('events');
+    if (this.viewMode() !== 'events') {
+      this.onViewModeChange('events');
     }
 
     // Auto-scroll to the selected event row in the chat panel

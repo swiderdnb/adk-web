@@ -119,6 +119,11 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Input() isVideoRecording: boolean = false;
   @Input() userId: string = '';
   @Input() sessionId: string = '';
+  @Input() viewMode: 'events' | 'traces' = 'events';
+  @Input() shouldShowEvent?: (uiEvent: UiEvent) => boolean;
+  spansByInvocationId = new Map<string, any[]>();
+  eventsScrollTop = -1;
+  tracesScrollTop = -1;
 
   @Output() readonly userInputChange = new EventEmitter<string>();
   @Output() readonly userEditEvalCaseMessageChange = new EventEmitter<string>();
@@ -193,182 +198,12 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   hideIntermediateEvents = input<boolean>(false);
   invocationDisplayMap = input<Map<string, string>>(new Map());
 
-  viewMode = signal<'events' | 'traces'>('events');
-  invocationIdFilterActive = signal<boolean>(false);
-  nodePathFilterActive = signal<boolean>(false);
-  invocationIdFilter = signal<string>('');
-  nodePathFilter = signal<string>('');
-  invocationIdOptions: string[] = [];
-  nodePathOptions: string[] = [];
 
-  @ViewChild('invChipMenuTrigger') invChipMenuTrigger?: MatMenuTrigger;
-  @ViewChild('nodeChipMenuTrigger') nodeChipMenuTrigger?: MatMenuTrigger;
-  @ViewChild('addMenuTrigger') addMenuTrigger?: MatMenuTrigger;
+  
 
-  openAddFilterMenu(event: Event) {
-    event.stopPropagation();
-    this.addMenuTrigger?.openMenu();
-  }
 
-  addInvocationIdFilter() {
-    this.invocationIdFilterActive.set(true);
-    setTimeout(() => {
-      this.invChipMenuTrigger?.openMenu();
-    });
-  }
 
-  addNodePathFilter() {
-    this.nodePathFilterActive.set(true);
-    setTimeout(() => {
-      this.nodeChipMenuTrigger?.openMenu();
-    });
-  }
-
-  removeInvocationIdFilter(event: Event) {
-    event.stopPropagation();
-    this.invocationIdFilterActive.set(false);
-    this.invocationIdFilter.set('');
-  }
-
-  removeNodePathFilter(event: Event) {
-    event.stopPropagation();
-    this.nodePathFilterActive.set(false);
-    this.nodePathFilter.set('');
-  }
-
-  onInvocationMenuClosed() {
-    if (!this.invocationIdFilter()) {
-      this.invocationIdFilterActive.set(false);
-    }
-  }
-
-  onNodePathMenuClosed() {
-    if (!this.nodePathFilter()) {
-      this.nodePathFilterActive.set(false);
-    }
-  }
-  spansByInvocationId = new Map<string, any[]>();
-
-  eventsScrollTop = -1;
-  tracesScrollTop = -1;
-
-  clearAllFilters(event: Event) {
-    event.stopPropagation();
-    if (this.invocationIdFilterActive()) {
-      this.invocationIdFilterActive.set(false);
-      this.invocationIdFilter.set('');
-    }
-    if (this.nodePathFilterActive()) {
-      this.nodePathFilterActive.set(false);
-      this.nodePathFilter.set('');
-    }
-    if (this.hideIntermediateEvents()) {
-      this.toggleHideIntermediateEvents.emit();
-    }
-  }
-
-  onViewModeChange(mode: 'events' | 'traces') {
-    if (this.scrollContainer?.nativeElement) {
-      if (this.viewMode() === 'events') {
-        this.eventsScrollTop = this.scrollContainer.nativeElement.scrollTop;
-      } else if (this.viewMode() === 'traces') {
-        this.tracesScrollTop = this.scrollContainer.nativeElement.scrollTop;
-      }
-    }
-
-    this.viewMode.set(mode);
-    try {
-      localStorage.setItem('chat-view-mode', mode);
-    } catch (e) {
-      // Ignored
-    }
-
-    setTimeout(() => {
-      if (this.scrollContainer?.nativeElement) {
-        if (mode === 'events' && this.eventsScrollTop !== -1) {
-          this.scrollContainer.nativeElement.scrollTop = this.eventsScrollTop;
-        } else if (mode === 'traces' && this.tracesScrollTop !== -1) {
-          this.scrollContainer.nativeElement.scrollTop = this.tracesScrollTop;
-        } else {
-          // If first time switching to mode and we haven't tracked a scroll position yet, stick to bottom
-          this.scrollToBottom();
-        }
-      }
-    });
-  }
-
-  shouldShowEvent(uiEvent: UiEvent): boolean {
-    const invFilter = this.invocationIdFilter();
-    if (invFilter) {
-      const eventInvId = uiEvent.event?.invocationId || '';
-      if (!eventInvId.includes(invFilter)) {
-        return false;
-      }
-    }
-
-    const pathFilter = this.nodePathFilter();
-    if (pathFilter) {
-      const eventPath = uiEvent.bareNodePath || '';
-      if (!eventPath.includes(pathFilter)) {
-        return false;
-      }
-    }
-
-    if (!this.hideIntermediateEvents()) {
-      return true;
-    }
-
-    if (uiEvent.role === 'user') {
-      return true;
-    }
-
-    if (uiEvent.event?.content !== undefined) {
-      const parts = uiEvent.event.content.parts || [];
-      const hasOnlyFunctions = parts.length > 0 && parts.every((p: any) => p.functionCall || p.functionResponse);
-
-      if (hasOnlyFunctions) {
-        const isLongRunning = parts.some((p: any) => {
-          const id = p.functionCall?.id || p.functionResponse?.id;
-          return id && uiEvent.event?.longRunningToolIds?.includes(id);
-        });
-        if (isLongRunning) {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    }
-
-    if (uiEvent.event?.output !== undefined) {
-      const nodeInfo = uiEvent.event?.nodeInfo;
-      let isTopLevel = false;
-      let outputFor = nodeInfo?.['outputFor'];
-
-      if (Array.isArray(outputFor)) {
-        isTopLevel = outputFor.some((path: string) => !path.includes('/'));
-      } else if (typeof outputFor === 'string') {
-        isTopLevel = !outputFor.includes('/');
-      } else if (nodeInfo?.path) {
-        isTopLevel = !nodeInfo.path.includes('/');
-      }
-
-      if (isTopLevel) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  shouldShowTraceTree(uiEvent: UiEvent): boolean {
-    const invFilter = this.invocationIdFilter();
-    if (invFilter && uiEvent.event?.invocationId !== invFilter) {
-      return false;
-    }
-    return true;
-  }
-
-  shouldShowEventFn = this.shouldShowEvent.bind(this);
+  
 
   constructor() {
     effect(() => {
@@ -399,14 +234,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
         }
       });
 
-    try {
-      const savedMode = localStorage.getItem('chat-view-mode');
-      if (savedMode === 'events' || savedMode === 'traces') {
-        this.viewMode.set(savedMode);
-      }
-    } catch (e) {
-      // Ignored
-    }
+
 
     this.featureFlagService.isInfinityMessageScrollingEnabled()
       .pipe(
@@ -472,6 +300,31 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['viewMode']) {
+      const prevMode = changes['viewMode'].previousValue;
+      const currentMode = changes['viewMode'].currentValue;
+      
+      if (this.scrollContainer?.nativeElement) {
+        if (prevMode === 'events') {
+          this.eventsScrollTop = this.scrollContainer.nativeElement.scrollTop;
+        } else if (prevMode === 'traces') {
+          this.tracesScrollTop = this.scrollContainer.nativeElement.scrollTop;
+        }
+      }
+      
+      setTimeout(() => {
+        if (this.scrollContainer?.nativeElement) {
+          if (currentMode === 'events' && this.eventsScrollTop !== -1) {
+            this.scrollContainer.nativeElement.scrollTop = this.eventsScrollTop;
+          } else if (currentMode === 'traces' && this.tracesScrollTop !== -1) {
+            this.scrollContainer.nativeElement.scrollTop = this.tracesScrollTop;
+          } else {
+            this.scrollToBottom();
+          }
+        }
+      });
+    }
+
     if (changes['appName']) {
       this.focusInput();
     }
@@ -482,15 +335,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
     }
 
     if (changes['uiEvents']) {
-      const ids = new Set<string>();
-      const paths = new Set<string>();
-      for (const e of this.uiEvents) {
-        if (e.event?.invocationId) ids.add(e.event.invocationId);
-        const barePath = e.bareNodePath;
-        if (barePath) paths.add(barePath);
-      }
-      this.invocationIdOptions = Array.from(ids);
-      this.nodePathOptions = Array.from(paths);
+
 
       const currentLastMessage = this.uiEvents[this.uiEvents.length - 1];
       const isNewMessageAppended = currentLastMessage !== this.lastMessageRef;
