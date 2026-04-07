@@ -309,6 +309,17 @@ export class EvalTabComponent implements OnInit, OnChanges {
     this.selectedEvalSet.set('');
   }
 
+  clearAllNavigation() {
+    this.selectedEvalSet.set('');
+    this.selectedHistoryRun.set(null);
+    this.selectedEvalCase.set(null);
+  }
+
+  goToEvalSet() {
+    this.selectedHistoryRun.set(null);
+    this.selectedEvalCase.set(null);
+  }
+
   isAllSelected() {
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
