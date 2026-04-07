@@ -270,6 +270,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
             sessionId: this.sessionId(),
             evalSetId: this.selectedEvalSet(),
             defaultName: sanitizedName,
+            existingCases: this.evalCases,
           },
         });
 

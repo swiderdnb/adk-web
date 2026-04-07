@@ -50,6 +50,7 @@ export class AddEvalSessionDialogComponent {
     sessionId: string;
     evalSetId: string;
     defaultName?: string;
+    existingCases?: string[];
   } = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<AddEvalSessionDialogComponent>);
 
@@ -61,6 +62,11 @@ export class AddEvalSessionDialogComponent {
     if (!this.newCaseId || this.newCaseId == '') {
       alert('Cannot create eval set with empty id!');
     } else {
+      if (this.data.existingCases?.includes(this.newCaseId)) {
+        if (!confirm(`Eval case "${this.newCaseId}" already exists. Do you want to overwrite it?`)) {
+          return;
+        }
+      }
       this.evalService
           .addCurrentSession(
               this.data.appName,
