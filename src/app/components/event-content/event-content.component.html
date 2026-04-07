@@ -147,10 +147,7 @@
             'eval-fail': uiEvent.evalStatus === 2
           }"
     >
-      <span class="material-symbols-outlined"
-        >{{ uiEvent.evalStatus === 1 ? "check" : uiEvent.evalStatus === 2 ? "close" : "" }}</span
-      >
-      <span
+      <span style="font-family: monospace;"
         >{{ uiEvent.evalStatus === 1 ? i18n.evalPassLabel : uiEvent.evalStatus === 2 ?
         i18n.evalFailLabel : "" }}</span
       >
