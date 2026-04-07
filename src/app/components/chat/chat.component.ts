@@ -2130,7 +2130,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.expectedUiEvents.set([]);
     }
-    this.isSideBySide.set(false);
+    if (!(session as any).isEvalResult) {
+      this.isSideBySide.set(false);
+    }
 
     if (!(session as any).isEvalResult) {
       this.isSessionUrlEnabledObs.subscribe((enabled) => {

@@ -191,7 +191,7 @@
                 <div class="eval-cases-list">
                   @let history = caseHistory();
                   @for (item of history; track item.timestamp; let i = $index) {
-                    <div class="eval-case-row">
+                    <div class="eval-case-row clickable" (click)="getHistorySession(item.result!)">
                       <div class="eval-case-id">
                         #{{ history.length - i }} {{ formatTimestamp(item.timestamp) }}
                       </div>
