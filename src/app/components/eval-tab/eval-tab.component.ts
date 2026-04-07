@@ -408,7 +408,8 @@ export class EvalTabComponent implements OnInit, OnChanges {
       userId: res?.userId ?? '',
       state: res?.state ?? [],
       events: res?.events ?? [],
-    };
+      isEvalResult: true,
+    } as any;
   }
 
   getSession(evalId: string) {

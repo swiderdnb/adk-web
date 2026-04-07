@@ -1936,11 +1936,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isChatMode.set(true);
     this.resetEventsAndMessages();
 
-    this.isSessionUrlEnabledObs.subscribe((enabled) => {
-      if (enabled) {
-        this.updateSelectedSessionUrl();
-      }
-    });
+    if (!(session as any).isEvalResult) {
+      this.isSessionUrlEnabledObs.subscribe((enabled) => {
+        if (enabled) {
+          this.updateSelectedSessionUrl();
+        }
+      });
+    }
 
     if (session.events && session.state) {
       session.events.forEach((event: any) => {
