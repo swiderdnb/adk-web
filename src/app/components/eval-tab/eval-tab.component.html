@@ -223,9 +223,14 @@
           }
 
           @if (selectedEvalTab() === 'history') {
-          <div style="padding: 16px;">
             @let sortedRuns = evalHistorySorted();
-            @if (sortedRuns.length > 0) {
+            @if (sortedRuns.length === 0) {
+            <div class="empty-eval-info">
+              <div class="info-title">No Runs</div>
+              <div class="info-detail">Run an evaluation to see results here.</div>
+            </div>
+            } @else {
+            <div style="padding: 16px;">
               @if (!selectedHistoryRun()) {
                 <div class="eval-cases-list">
                   @for (run of sortedRuns; track run.timestamp; let i = $index) {
@@ -292,14 +297,8 @@
                   </div>
                 }
               }
-            }
-            @if (getEvalHistoryOfCurrentSetSorted().length === 0) {
-            <div class="empty-eval-info">
-              <div class="info-title">No Runs</div>
-              <div class="info-detail">Run an evaluation to see results here.</div>
             </div>
             }
-          </div>
           }
         }
       </div>
