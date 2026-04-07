@@ -28,8 +28,8 @@ import {MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatH
 import {MatTooltip} from '@angular/material/tooltip';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {BehaviorSubject, of} from 'rxjs';
-import {catchError} from 'rxjs/operators';
+import {BehaviorSubject, of, forkJoin} from 'rxjs';
+import {catchError, switchMap} from 'rxjs/operators';
 
 import {DEFAULT_EVAL_METRICS, EvalCase, EvalMetric, Invocation} from '../../core/models/Eval';
 import {Session} from '../../core/models/Session';
@@ -309,10 +309,9 @@ export class EvalTabComponent implements OnInit, OnChanges {
           return of([]);
         }))
         .subscribe((res) => {
-          this.evalRunning.set(false);
            this.currentEvalResultBySet.set(this.selectedEvalSet(), res);
 
-          this.getEvaluationResult();
+          this.getEvaluationResult(true);
           this.changeDetectorRef.detectChanges();
         });
   }
@@ -614,61 +613,67 @@ export class EvalTabComponent implements OnInit, OnChanges {
         });
   }
 
-  protected getEvaluationResult() {
+  protected getEvaluationResult(navigateToLatest = false) {
     this.evalService.listEvalResults(this.appName())
-        .pipe(catchError((error) => {
-          if (error.status === 404 && error.statusText === 'Not Found') {
-            this.shouldShowTab.emit(false);
-            return of(null);
+        .pipe(
+          catchError((error) => {
+            if (error.status === 404 && error.statusText === 'Not Found') {
+              this.shouldShowTab.emit(false);
+              return of(null);
+            }
+            return of([]);
+          }),
+          switchMap((ids: string[] | null) => {
+            if (!ids || ids.length === 0) return of([]);
+            const observables = ids.map(id => this.evalService.getEvalResult(this.appName(), id));
+            return forkJoin(observables);
+          })
+        )
+        .subscribe((results: any[]) => {
+          if (results.length === 0) return;
+          
+          let latestTimestamp = '';
+          
+          for (const res of results) {
+            if (!this.appEvaluationResults[this.appName()]) {
+              this.appEvaluationResults[this.appName()] = {};
+            }
+
+            if (!this.appEvaluationResults[this.appName()][res.evalSetId]) {
+              this.appEvaluationResults[this.appName()][res.evalSetId] = {};
+            }
+
+            const timeStamp = res.creationTimestamp;
+            if (!latestTimestamp || timeStamp > latestTimestamp) {
+              latestTimestamp = timeStamp;
+            }
+
+            const uiEvaluationResult: UIEvaluationResult = {
+              isToggled: false,
+              evaluationResults: res.evalCaseResults.map((result: any) => {
+                return {
+                  setId: result.id,
+                  evalId: result.evalId,
+                  finalEvalStatus: result.finalEvalStatus,
+                  evalMetricResults: result.evalMetricResults,
+                  evalMetricResultPerInvocation: result.evalMetricResultPerInvocation,
+                  sessionId: result.sessionId,
+                  sessionDetails: result.sessionDetails,
+                  overallEvalMetricResults: result.overallEvalMetricResults ?? [],
+                };
+              }),
+            };
+
+            this.appEvaluationResults[this.appName()][res.evalSetId][timeStamp] = uiEvaluationResult;
           }
-          return of([]);
-        }))
-        .subscribe((res) => {
-          for (const evalResultId of res) {
-            this.evalService.getEvalResult(this.appName(), evalResultId)
-                .subscribe((res) => {
-                  if (!this.appEvaluationResults[this.appName()]) {
-                    this.appEvaluationResults[this.appName()] = {};
-                  }
-
-                  if (!this.appEvaluationResults[this.appName()]
-                                                [res.evalSetId]) {
-                    this.appEvaluationResults[this.appName()][res.evalSetId] =
-                        {};
-                  }
-
-                  const timeStamp = res.creationTimestamp;
-
-                  if (!this.appEvaluationResults[this.appName()][res.evalSetId]
-                                                [timeStamp]) {
-                    this.appEvaluationResults[this.appName()][res.evalSetId][timeStamp] =
-                        {isToggled: false, evaluationResults: []};
-                  }
-
-                  const uiEvaluationResult: UIEvaluationResult = {
-                    isToggled: false,
-                    evaluationResults:
-                        res.evalCaseResults.map((result: any) => {
-                          return {
-                            setId: result.id,
-                            evalId: result.evalId,
-                            finalEvalStatus: result.finalEvalStatus,
-                            evalMetricResults: result.evalMetricResults,
-                            evalMetricResultPerInvocation:
-                                result.evalMetricResultPerInvocation,
-                            sessionId: result.sessionId,
-                            sessionDetails: result.sessionDetails,
-                            overallEvalMetricResults:
-                                result.overallEvalMetricResults ?? [],
-                          };
-                        }),
-                  };
-
-                  this.appEvaluationResults[this.appName()][res.evalSetId][timeStamp] =
-                      uiEvaluationResult;
-                  this.changeDetectorRef.detectChanges();
-                });
+          
+          this.changeDetectorRef.detectChanges();
+          
+          if (navigateToLatest && latestTimestamp) {
+            this.selectedEvalTab.set('history');
+            this.selectedHistoryRun.set(latestTimestamp);
           }
+          this.evalRunning.set(false);
         });
   }
 
