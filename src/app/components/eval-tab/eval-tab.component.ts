@@ -255,22 +255,31 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   openNewEvalCaseDialog() {
-    const dialogRef = this.dialog.open(AddEvalSessionDialogComponent, {
-      width: '600px',
-      data: {
-        appName: this.appName(),
-        userId: this.userId(),
-        sessionId: this.sessionId(),
-        evalSetId: this.selectedEvalSet(),
-      },
-    });
+    if (!this.sessionId()) return;
 
-    dialogRef.afterClosed().subscribe((needRefresh) => {
-      if (needRefresh) {
-        this.listEvalCases();
-        this.changeDetectorRef.detectChanges();
-      }
-    });
+    this.sessionService.getSession(this.userId(), this.appName(), this.sessionId())
+      .subscribe((fullSession) => {
+        const displayName = (fullSession.state as any)?.['__session_metadata__']?.displayName || this.sessionId();
+        const sanitizedName = displayName.replace(/ /g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
+
+        const dialogRef = this.dialog.open(AddEvalSessionDialogComponent, {
+          width: '600px',
+          data: {
+            appName: this.appName(),
+            userId: this.userId(),
+            sessionId: this.sessionId(),
+            evalSetId: this.selectedEvalSet(),
+            defaultName: sanitizedName,
+          },
+        });
+
+        dialogRef.afterClosed().subscribe((needRefresh) => {
+          if (needRefresh) {
+            this.listEvalCases();
+            this.changeDetectorRef.detectChanges();
+          }
+        });
+      });
   }
 
   listEvalCases() {

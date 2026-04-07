@@ -49,10 +49,11 @@ export class AddEvalSessionDialogComponent {
     userId: string;
     sessionId: string;
     evalSetId: string;
+    defaultName?: string;
   } = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<AddEvalSessionDialogComponent>);
 
-  newCaseId: string = 'case_' + uuidv4().slice(0, 6);
+  newCaseId: string = this.data.defaultName || ('case_' + uuidv4().slice(0, 6));
 
   constructor() {}
 
