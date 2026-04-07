@@ -17,7 +17,7 @@
 
 import {SelectionModel} from '@angular/cdk/collections';
 import {NgClass} from '@angular/common';
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, InjectionToken, input, OnChanges, OnInit, output, signal, SimpleChanges, Type, viewChildren} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, InjectionToken, input, OnChanges, OnInit, output, signal, SimpleChanges, Type, viewChildren} from '@angular/core';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {MatCheckbox} from '@angular/material/checkbox';
@@ -26,6 +26,8 @@ import {MatIcon} from '@angular/material/icon';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatCell, MatCellDef, MatColumnDef, MatHeaderCell, MatHeaderCellDef, MatHeaderRow, MatHeaderRowDef, MatRow, MatRowDef, MatTable, MatTableDataSource} from '@angular/material/table';
 import {MatTooltip} from '@angular/material/tooltip';
+import {MatSelectModule} from '@angular/material/select';
+import {MatFormFieldModule} from '@angular/material/form-field';
 import {BehaviorSubject, of} from 'rxjs';
 import {catchError} from 'rxjs/operators';
 
@@ -110,6 +112,8 @@ interface AppEvaluationResult {
     MatProgressSpinner,
     DeleteSessionDialogComponent,
     InfoTable,
+    MatSelectModule,
+    MatFormFieldModule,
   ],
 })
 export class EvalTabComponent implements OnInit, OnChanges {
@@ -133,7 +137,23 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   displayedColumns: string[] = ['select', 'evalId'];
   evalsets: any[] = [];
-  selectedEvalSet: string = '';
+  selectedEvalSet = signal<string>('');
+  
+  evalHistorySorted = computed(() => {
+    const evalHistory = this.appEvaluationResults[this.appName()]?.[this.selectedEvalSet()] || {};
+    const keys = Object.keys(evalHistory).sort((a, b) => b.localeCompare(a));
+    return keys.map((key) => {
+      return {timestamp: key, evaluationResults: evalHistory[key]};
+    });
+  });
+
+  currentHistoryMetrics = computed(() => {
+    const runId = this.selectedHistoryRun() || this.evalHistorySorted()[0]?.timestamp;
+    if (!runId) return this.evalMetrics;
+    const runObj = this.evalHistorySorted().find(r => r.timestamp === runId);
+    if (!runObj) return this.evalMetrics;
+    return this.getEvalMetrics(runObj);
+  });
   evalCases: string[] = [];
   selectedEvalCase = signal<EvalCase|null>(null);
   deletedEvalCaseIndex: number = -1;
@@ -143,6 +163,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   showEvalHistory = signal(false);
   selectedEvalTab = signal('cases');
+  selectedHistoryRun = signal<string|null>(null);
 
   evalRunning = signal(false);
   evalMetrics: EvalMetric[] = DEFAULT_EVAL_METRICS;
@@ -170,7 +191,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['appName']) {
-      this.selectedEvalSet = '';
+      this.selectedEvalSet.set('');
       this.evalCases = [];
       this.getEvalSet();
       this.getEvaluationResult();
@@ -228,7 +249,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
         appName: this.appName(),
         userId: this.userId(),
         sessionId: this.sessionId(),
-        evalSetId: this.selectedEvalSet,
+        evalSetId: this.selectedEvalSet(),
       },
     });
 
@@ -242,7 +263,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   listEvalCases() {
     this.evalCases = [];
-    this.evalService.listEvalCases(this.appName(), this.selectedEvalSet)
+    this.evalService.listEvalCases(this.appName(), this.selectedEvalSet())
         .subscribe((res) => {
           this.evalCases = res;
           this.dataSource = new MatTableDataSource<string>(this.evalCases);
@@ -256,7 +277,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
     this.evalService
         .runEval(
             this.appName(),
-            this.selectedEvalSet,
+            this.selectedEvalSet(),
             this.selection.selected.length === 0 ? this.dataSource.data : this.selection.selected,
             this.evalMetrics,
             )
@@ -268,7 +289,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
         }))
         .subscribe((res) => {
           this.evalRunning.set(false);
-          this.currentEvalResultBySet.set(this.selectedEvalSet, res);
+           this.currentEvalResultBySet.set(this.selectedEvalSet(), res);
 
           this.getEvaluationResult();
           this.changeDetectorRef.detectChanges();
@@ -276,7 +297,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   selectEvalSet(set: string) {
-    this.selectedEvalSet = set;
+    this.selectedEvalSet.set(set);
     this.listEvalCases();
   }
 
@@ -285,7 +306,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
       this.selectedEvalTab.set('cases');
       return;
     }
-    this.selectedEvalSet = '';
+    this.selectedEvalSet.set('');
   }
 
   isAllSelected() {
@@ -304,7 +325,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   getEvalResultForCase(caseId: string) {
-    const el = this.currentEvalResultBySet.get(this.selectedEvalSet)
+    const el = this.currentEvalResultBySet.get(this.selectedEvalSet())
                    ?.filter((c) => c.evalId == caseId);
     if (!el || el.length == 0) {
       return undefined;
@@ -389,7 +410,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   getSession(evalId: string) {
     const evalCaseResult =
-        this.currentEvalResultBySet.get(this.selectedEvalSet)
+        this.currentEvalResultBySet.get(this.selectedEvalSet())
             ?.filter((c) => c.evalId == evalId)[0];
     const sessionId = evalCaseResult!.sessionId;
     this.sessionService.getSession(this.userId(), this.appName(), sessionId)
@@ -409,7 +430,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
     if (!this.appEvaluationResults[this.appName()]) {
       return {};
     }
-    return this.appEvaluationResults[this.appName()][this.selectedEvalSet] || {};
+    return this.appEvaluationResults[this.appName()][this.selectedEvalSet()] || {};
   }
 
   protected getEvalHistoryOfCurrentSetSorted(): any[] {
@@ -489,11 +510,11 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   protected getEvalCase(element: any) {
-    this.evalService.getEvalCase(this.appName(), this.selectedEvalSet, element)
+    this.evalService.getEvalCase(this.appName(), this.selectedEvalSet(), element)
         .subscribe((res) => {
           this.selectedEvalCase.set(res);
           this.evalCaseSelected.emit(res);
-          this.evalSetIdSelected.emit(this.selectedEvalSet);
+          this.evalSetIdSelected.emit(this.selectedEvalSet());
         });
   }
 
@@ -528,18 +549,18 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   requestEditEvalCase(event: Event, element: string) {
     event.stopPropagation();
-    this.evalService.getEvalCase(this.appName(), this.selectedEvalSet, element)
+    this.evalService.getEvalCase(this.appName(), this.selectedEvalSet(), element)
         .subscribe((res) => {
           this.selectedEvalCase.set(res);
           this.evalCaseSelected.emit(res);
-          this.evalSetIdSelected.emit(this.selectedEvalSet);
+          this.evalSetIdSelected.emit(this.selectedEvalSet());
           this.editEvalCaseRequested.emit(res);
         });
   }
 
   deleteEvalCase(evalCaseId: string) {
     this.evalService
-        .deleteEvalCase(this.appName(), this.selectedEvalSet, evalCaseId)
+        .deleteEvalCase(this.appName(), this.selectedEvalSet(), evalCaseId)
         .subscribe((res) => {
           this.deletedEvalCaseIndex = this.evalCases.indexOf(evalCaseId);
           this.selectedEvalCase.set(null);
