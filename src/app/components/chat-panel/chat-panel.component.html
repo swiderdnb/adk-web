@@ -102,7 +102,7 @@
 
   <div style="flex-grow: 1;"></div>
 
-  @if (isTokenStreamingEnabled) {
+  @if (isTokenStreamingEnabled && canEditSession()) {
   <button mat-button (click)="toggleSse.emit()" matTooltip="Enable real-time token streaming from the server"
     [style.color]="useSse ? 'var(--mat-sys-primary)' : 'var(--mat-sys-on-surface-variant)'"
     style="height: 32px; line-height: 32px; padding: 0 12px; border-radius: 16px;">

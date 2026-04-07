@@ -1936,6 +1936,16 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isChatMode.set(true);
     this.resetEventsAndMessages();
 
+    if ((session as any).isEvalResult) {
+      this.isViewOnlySession.set(true);
+      this.readonlySessionType.set('Eval Result');
+      this.readonlySessionName.set(session.id);
+      this.canEditSession.set(false);
+      this.chatPanel()?.canEditSession.set(false);
+    } else {
+      this.isViewOnlySession.set(false);
+    }
+
     if (!(session as any).isEvalResult) {
       this.isSessionUrlEnabledObs.subscribe((enabled) => {
         if (enabled) {
@@ -1965,12 +1975,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.loadTraceData();
 
-    this.sessionService.canEdit(this.userId, session)
-      .pipe(first(), catchError(() => of(true)))
-      .subscribe((canEdit) => {
-        this.chatPanel()?.canEditSession.set(canEdit);
-        this.canEditSession.set(canEdit);
-      });
+    if (!(session as any).isEvalResult) {
+      this.sessionService.canEdit(this.userId, session)
+        .pipe(first(), catchError(() => of(true)))
+        .subscribe((canEdit) => {
+          this.chatPanel()?.canEditSession.set(canEdit);
+          this.canEditSession.set(canEdit);
+        });
+    }
 
     this.featureFlagService.isInfinityMessageScrollingEnabled()
       .pipe(first())
