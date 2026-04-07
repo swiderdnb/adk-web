@@ -9,8 +9,8 @@
   </div>
 }
 
-@if (appName() != "" && showSidePanel()) {
-<div class="tabs-container" [hidden]="isSessionLoading">
+@if (appName() != "") {
+<div class="tabs-container" [hidden]="isSessionLoading || !showSidePanel()">
   <mat-tab-group
     animationDuration="0ms"
     [(selectedIndex)]="selectedIndex"

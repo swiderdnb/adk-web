@@ -89,6 +89,18 @@ export class EventContentComponent {
     return isComputerUseResponse(input);
   }
 
+  getFilteredStateKeys(stateDelta: any): string[] {
+    if (!stateDelta) return [];
+    return Object.keys(stateDelta).filter(key => key !== '__llm_request_key__');
+  }
+
+  getFilteredStateDelta(stateDelta: any): any {
+    if (!stateDelta) return null;
+    const filtered = {...stateDelta};
+    delete filtered['__llm_request_key__'];
+    return filtered;
+  }
+
   hasWorkflowNodes(): boolean {
     const nodes = this.uiEvent.event?.actions?.agentState?.nodes;
     return !!nodes && Object.keys(nodes).length > 0;

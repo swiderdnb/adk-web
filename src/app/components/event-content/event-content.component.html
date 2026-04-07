@@ -75,11 +75,12 @@
         }
       }
     }
-    @if (uiEvent.stateDelta) {
+    @let stateKeys = getFilteredStateKeys(uiEvent.stateDelta);
+    @if (stateKeys.length > 0) {
     <app-hover-info-button
       [icon]="'data_object'"
-      [text]="'State: ' + Object.keys(uiEvent.stateDelta).join(', ')"
-      [tooltipContent]="uiEvent.stateDelta"
+      [text]="'State: ' + stateKeys.join(', ')"
+      [tooltipContent]="getFilteredStateDelta(uiEvent.stateDelta)"
       [tooltipTitle]="'State Update'"
     ></app-hover-info-button>
     }
