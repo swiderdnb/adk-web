@@ -105,11 +105,11 @@
           matTooltip="Info" matTooltipPosition="right">
           <mat-icon>info</mat-icon>
         </button>
-        <button mat-icon-button (click)="selectedEvalTab.set('cases'); selectedHistoryRun.set(null)" [class.active]="selectedEvalTab() === 'cases'"
+        <button mat-icon-button (click)="selectedEvalTab.set('cases'); selectedEvalCase.set(null); selectedHistoryRun.set(null)" [class.active]="selectedEvalTab() === 'cases'"
           matTooltip="Eval Cases" matTooltipPosition="right">
           <mat-icon>list</mat-icon>
         </button>
-        <button mat-icon-button (click)="selectedEvalTab.set('history'); selectedEvalCase.set(null); getEvaluationResult()" [class.active]="selectedEvalTab() === 'history'"
+        <button mat-icon-button (click)="selectedEvalTab.set('history'); selectedEvalCase.set(null); selectedHistoryRun.set(null); getEvaluationResult()" [class.active]="selectedEvalTab() === 'history'"
           matTooltip="Runs" matTooltipPosition="right">
           <mat-icon>history</mat-icon>
         </button>
