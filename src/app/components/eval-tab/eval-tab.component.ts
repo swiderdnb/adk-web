@@ -31,7 +31,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {BehaviorSubject, of, forkJoin} from 'rxjs';
 import {catchError, first, switchMap} from 'rxjs/operators';
 
-import {DEFAULT_EVAL_METRICS, EvalCase, EvalMetric, Invocation} from '../../core/models/Eval';
+import {DEFAULT_EVAL_METRICS, EvalCase, EvalMetric, Invocation, EvaluationResult} from '../../core/models/Eval';
 import {Session} from '../../core/models/Session';
 import {FeatureFlagService} from '../../core/services/feature-flag.service';
 import {EVAL_SERVICE} from '../../core/services/interfaces/eval';
@@ -49,16 +49,7 @@ export const EVAL_TAB_COMPONENT = new InjectionToken<Type<EvalTabComponent>>(
     'EVAL_TAB_COMPONENT',
 );
 
-interface EvaluationResult {
-  setId: string;
-  evalId: string;
-  finalEvalStatus: number;
-  evalMetricResults: any[];
-  overallEvalMetricResults: any[];
-  evalMetricResultPerInvocation?: any[];
-  sessionId: string;
-  sessionDetails: any;
-}
+
 
 interface UIEvaluationResult {
   isToggled: boolean;

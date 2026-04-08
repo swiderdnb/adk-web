@@ -137,12 +137,7 @@
     <div style="display: flex; align-items: center">
       @let isSessionLoading = uiStateService.isSessionLoading() | async; @if (isSessionLoading ===
       false) {
-      @if (!canEditSession()) {
-      <div class="readonly-chip" [matTooltip]="isViewOnlySession() ? i18n.viewSessionReadOnlyMessage : i18n.cannotEditSessionMessage">
-        <mat-icon>visibility</mat-icon>
-        {{ i18n.readOnlyBadgeLabel }}
-      </div>
-      } } @else {
+ } @else {
       <div class="toolbar-session-text">{{ i18n.loadingSessionLabel }}</div>
       }
     </div>
@@ -519,7 +514,7 @@
 
   <div style="flex-grow: 1;"></div>
 
-  @if (readonlySessionType() === 'Eval Result') {
+  @if (chatType() === 'eval-result') {
   <button mat-button (click)="isSideBySide.set(!isSideBySide())" matTooltip="Compare with expected"
     [style.color]="isSideBySide() ? 'var(--mat-sys-primary)' : 'var(--mat-sys-on-surface-variant)'"
     style="height: 32px; line-height: 32px; padding: 0 12px; border-radius: 16px;">
@@ -542,140 +537,192 @@
   }
 </div>
 
-        @if (isSideBySide()) {
-          <div class="side-by-side-layout">
-            <div class="side-panel-half">
-              <div class="panel-header">Expected</div>
+        @switch (chatType()) {
+          @case ('session') {
+            <app-chat-panel
+              [appName]="appName"
+              [agentReadme]="agentReadme"
+              [hideIntermediateEvents]="hideIntermediateEvents()"
+              [uiEvents]="filteredUiEvents()"
+              (toggleHideIntermediateEvents)="toggleHideIntermediateEvents()"
+              [traceData]="traceData"
+              [isTokenStreamingEnabled]="(isTokenStreamingEnabledObs | async) ?? false"
+              [useSse]="useSse()"
+              (toggleSse)="toggleSse()"
+              [isChatMode]="isChatMode()"
+              [selectedFiles]="selectedFiles"
+              [updatedSessionState]="updatedSessionState()"
+              [agentGraphData]="agentGraphData()"
+              [selectedMessageIndex]="selectedMessageIndex"
+              [isAudioRecording]="isAudioRecording"
+              [micVolume]="micVolume()"
+              [isVideoRecording]="isVideoRecording"
+              [userId]="userId"
+              [sessionId]="sessionId"
+              (clickEvent)="clickEvent($event)"
+              (handleKeydown)="handleKeydown($event.event, $event.message)"
+              (cancelEditMessage)="cancelEditMessage($event)"
+              (saveEditMessage)="saveEditMessage($event)"
+              (openViewImageDialog)="openViewImageDialog($event)"
+              (openBase64InNewTab)="openBase64InNewTab($event.data, $event.mimeType)"
+              (fileSelect)="onFileSelect($event)"
+              (removeFile)="removeFile($event)"
+              (removeStateUpdate)="removeStateUpdate()"
+              (sendMessage)="handleChatInput($event)"
+              (updateState)="updateState()"
+              (toggleAudioRecording)="toggleAudioRecording()"
+              (toggleVideoRecording)="toggleVideoRecording()"
+              (longRunningResponseComplete)="sendMessage($event)"
+              [sessionName]="sessionId"
+              [invocationDisplayMap]="invocationDisplayMap()"
+              [viewMode]="viewMode()"
+              [shouldShowEvent]="shouldShowEventFn"
+            ></app-chat-panel>
+          }
+          @case ('eval-case') {
+            <app-chat-panel
+              [appName]="appName"
+              [agentReadme]="agentReadme"
+              [hideIntermediateEvents]="hideIntermediateEvents()"
+              [uiEvents]="filteredUiEvents()"
+              [isChatMode]="false"
+              [evalCase]="evalCase"
+              [isEvalEditMode]="isEvalEditMode()"
+              [isEvalCaseEditing]="isEvalCaseEditing()"
+              [isEditFunctionArgsEnabled]="(isEditFunctionArgsEnabledObs | async) ?? false"
+              [(userInput)]="userInput"
+              [(userEditEvalCaseMessage)]="userEditEvalCaseMessage"
+              [agentGraphData]="agentGraphData()"
+              [selectedMessageIndex]="selectedMessageIndex"
+              [userId]="userId"
+              [sessionId]="sessionId"
+              (clickEvent)="clickEvent($event)"
+              (handleKeydown)="handleKeydown($event.event, $event.message)"
+              (cancelEditMessage)="cancelEditMessage($event)"
+              (saveEditMessage)="saveEditMessage($event)"
+              (openViewImageDialog)="openViewImageDialog($event)"
+              (openBase64InNewTab)="openBase64InNewTab($event.data, $event.mimeType)"
+              (editEvalCaseMessage)="editEvalCaseMessage($event)"
+              (deleteEvalCaseMessage)="deleteEvalCaseMessage($event.message, $event.index)"
+              (editFunctionArgs)="editFunctionArgs($event)"
+              [sessionName]="sessionId"
+              [invocationDisplayMap]="invocationDisplayMap()"
+              [viewMode]="viewMode()"
+              [shouldShowEvent]="shouldShowEventFn"
+            ></app-chat-panel>
+          }
+          @case ('eval-result') {
+            @if (isSideBySide()) {
+              <div class="side-by-side-layout">
+                <div class="side-panel-half">
+                  <div class="panel-header">Expected</div>
+                  <app-chat-panel
+                    [appName]="appName"
+                    [agentReadme]="agentReadme"
+                    [hideIntermediateEvents]="hideIntermediateEvents()"
+                    [uiEvents]="filteredExpectedUiEvents()"
+                    [isChatMode]="false"
+                    [evalCase]="evalCase"
+                    [isEvalEditMode]="false"
+                    [isEvalCaseEditing]="false"
+                    [isEditFunctionArgsEnabled]="false"
+                    [userInput]="''"
+                    [selectedFiles]="[]"
+                    [updatedSessionState]="null"
+                    [agentGraphData]="agentGraphData()"
+                    [selectedMessageIndex]="-1"
+                    [isAudioRecording]="false"
+                    [micVolume]="0"
+                    [isVideoRecording]="false"
+                    [userId]="userId"
+                    [sessionId]="sessionId"
+                    [sessionName]="sessionId"
+                    [invocationDisplayMap]="invocationDisplayMap()"
+                    [viewMode]="viewMode()"
+                    [shouldShowEvent]="shouldShowEventFn"
+                  ></app-chat-panel>
+                </div>
+                <div class="side-panel-half">
+                  <div class="panel-header">Actual</div>
+                  <app-chat-panel
+                    [appName]="appName"
+                    [agentReadme]="agentReadme"
+                    [hideIntermediateEvents]="hideIntermediateEvents()"
+                    [uiEvents]="filteredUiEvents()"
+                    (toggleHideIntermediateEvents)="toggleHideIntermediateEvents()"
+                    [traceData]="traceData"
+                    [isTokenStreamingEnabled]="(isTokenStreamingEnabledObs | async) ?? false"
+                    [useSse]="useSse()"
+                    (toggleSse)="toggleSse()"
+                    [isChatMode]="false"
+                    [evalCase]="evalCase"
+                    [isEvalEditMode]="isEvalEditMode()"
+                    [isEvalCaseEditing]="isEvalCaseEditing()"
+                    [isEditFunctionArgsEnabled]="(isEditFunctionArgsEnabledObs | async) ?? false"
+                    [(userInput)]="userInput"
+                    [(userEditEvalCaseMessage)]="userEditEvalCaseMessage"
+                    [selectedFiles]="selectedFiles"
+                    [updatedSessionState]="updatedSessionState()"
+                    [agentGraphData]="agentGraphData()"
+                    [selectedMessageIndex]="selectedMessageIndex"
+                    [isAudioRecording]="isAudioRecording"
+                    [micVolume]="micVolume()"
+                    [isVideoRecording]="isVideoRecording"
+                    [userId]="userId"
+                    [sessionId]="sessionId"
+                    (clickEvent)="clickEvent($event)"
+                    (handleKeydown)="handleKeydown($event.event, $event.message)"
+                    (cancelEditMessage)="cancelEditMessage($event)"
+                    (saveEditMessage)="saveEditMessage($event)"
+                    (openViewImageDialog)="openViewImageDialog($event)"
+                    (openBase64InNewTab)="openBase64InNewTab($event.data, $event.mimeType)"
+                    (editEvalCaseMessage)="editEvalCaseMessage($event)"
+                    (deleteEvalCaseMessage)="deleteEvalCaseMessage($event.message, $event.index)"
+                    (editFunctionArgs)="editFunctionArgs($event)"
+                    (fileSelect)="onFileSelect($event)"
+                    (removeFile)="removeFile($event)"
+                    (removeStateUpdate)="removeStateUpdate()"
+                    (sendMessage)="handleChatInput($event)"
+                    (updateState)="updateState()"
+                    (toggleAudioRecording)="toggleAudioRecording()"
+                    (toggleVideoRecording)="toggleVideoRecording()"
+                    (longRunningResponseComplete)="sendMessage($event)"
+                    [sessionName]="sessionId"
+                    [invocationDisplayMap]="invocationDisplayMap()"
+                    [viewMode]="viewMode()"
+                    [shouldShowEvent]="shouldShowEventFn"
+                  ></app-chat-panel>
+                </div>
+              </div>
+            } @else {
               <app-chat-panel
-                [appName]="appName"
-                [agentReadme]="agentReadme"
-                [hideIntermediateEvents]="hideIntermediateEvents()"
-                [uiEvents]="filteredExpectedUiEvents()"
-                [isChatMode]="false"
-                [evalCase]="evalCase"
-                [isEvalEditMode]="false"
-                [isEvalCaseEditing]="false"
-                [isEditFunctionArgsEnabled]="false"
-                [userInput]="''"
-                [selectedFiles]="[]"
-                [updatedSessionState]="null"
-                [agentGraphData]="agentGraphData()"
-                [selectedMessageIndex]="-1"
-                [isAudioRecording]="false"
-                [micVolume]="0"
-                [isVideoRecording]="false"
-                [userId]="userId"
-                [sessionId]="sessionId"
-                [sessionName]="sessionId"
-                [invocationDisplayMap]="invocationDisplayMap()"
-                [viewMode]="viewMode()"
-                [shouldShowEvent]="shouldShowEventFn"
-              ></app-chat-panel>
-            </div>
-            <div class="side-panel-half">
-              <div class="panel-header">Actual</div>
-              <app-chat-panel
-                [appName]="appName"
                 [appName]="appName"
                 [agentReadme]="agentReadme"
                 [hideIntermediateEvents]="hideIntermediateEvents()"
                 [uiEvents]="filteredUiEvents()"
-                (toggleHideIntermediateEvents)="toggleHideIntermediateEvents()"
                 [traceData]="traceData"
-                [isTokenStreamingEnabled]="(isTokenStreamingEnabledObs | async) ?? false"
-                [useSse]="useSse()"
-                (toggleSse)="toggleSse()"
-                [isChatMode]="isChatMode()"
+                [isChatMode]="false"
+                [evalCaseResult]="evalCaseResult()"
+                [showEvalSummary]="true"
                 [evalCase]="evalCase"
-                [isEvalEditMode]="isEvalEditMode()"
-                [isEvalCaseEditing]="isEvalCaseEditing()"
-                [isEditFunctionArgsEnabled]="(isEditFunctionArgsEnabledObs | async) ?? false"
-                [(userInput)]="userInput"
-                [(userEditEvalCaseMessage)]="userEditEvalCaseMessage"
-                [selectedFiles]="selectedFiles"
-                [updatedSessionState]="updatedSessionState()"
                 [agentGraphData]="agentGraphData()"
                 [selectedMessageIndex]="selectedMessageIndex"
-                [isAudioRecording]="isAudioRecording"
-                [micVolume]="micVolume()"
-                [isVideoRecording]="isVideoRecording"
                 [userId]="userId"
                 [sessionId]="sessionId"
-                (clickEvent)="clickEvent($event)"
-                (handleKeydown)="handleKeydown($event.event, $event.message)"
-                (cancelEditMessage)="cancelEditMessage($event)"
-                (saveEditMessage)="saveEditMessage($event)"
-                (openViewImageDialog)="openViewImageDialog($event)"
-                (openBase64InNewTab)="openBase64InNewTab($event.data, $event.mimeType)"
-                (editEvalCaseMessage)="editEvalCaseMessage($event)"
-                (deleteEvalCaseMessage)="deleteEvalCaseMessage($event.message, $event.index)"
-                (editFunctionArgs)="editFunctionArgs($event)"
-                (fileSelect)="onFileSelect($event)"
-                (removeFile)="removeFile($event)"
-                (removeStateUpdate)="removeStateUpdate()"
-                (sendMessage)="handleChatInput($event)"
-                (updateState)="updateState()"
-                (toggleAudioRecording)="toggleAudioRecording()"
-                (toggleVideoRecording)="toggleVideoRecording()"
-                (longRunningResponseComplete)="sendMessage($event)"
                 [sessionName]="sessionId"
                 [invocationDisplayMap]="invocationDisplayMap()"
                 [viewMode]="viewMode()"
                 [shouldShowEvent]="shouldShowEventFn"
               ></app-chat-panel>
+            }
+          }
+          @case ('file') {
+            <div class="file-view-container" style="padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+              <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: var(--mat-sys-on-surface-variant);">insert_drive_file</mat-icon>
+              <h3 style="margin-top: 16px;">File View</h3>
+              <p style="color: var(--mat-sys-on-surface-variant);">File content lost on refresh. Please re-upload the file to view or use it.</p>
             </div>
-          </div>
-        } @else {
-          <app-chat-panel
-            [appName]="appName"
-            [agentReadme]="agentReadme"
-            [hideIntermediateEvents]="hideIntermediateEvents()"
-            [uiEvents]="filteredUiEvents()"
-            (toggleHideIntermediateEvents)="toggleHideIntermediateEvents()"
-            [traceData]="traceData"
-            [isTokenStreamingEnabled]="(isTokenStreamingEnabledObs | async) ?? false"
-            [useSse]="useSse()"
-            (toggleSse)="toggleSse()"
-            [isChatMode]="isChatMode()"
-            [evalCaseResult]="evalCaseResult()"
-            [showEvalSummary]="readonlySessionType() === 'Eval Result'"
-            [evalCase]="evalCase"
-            [isEvalEditMode]="isEvalEditMode()"
-            [isEvalCaseEditing]="isEvalCaseEditing()"
-            [isEditFunctionArgsEnabled]="(isEditFunctionArgsEnabledObs | async) ?? false"
-            [(userInput)]="userInput"
-            [(userEditEvalCaseMessage)]="userEditEvalCaseMessage"
-            [selectedFiles]="selectedFiles"
-            [updatedSessionState]="updatedSessionState()"
-            [agentGraphData]="agentGraphData()"
-            [selectedMessageIndex]="selectedMessageIndex"
-            [isAudioRecording]="isAudioRecording"
-            [micVolume]="micVolume()"
-            [isVideoRecording]="isVideoRecording"
-            [userId]="userId"
-            [sessionId]="sessionId"
-            (clickEvent)="clickEvent($event)"
-            (handleKeydown)="handleKeydown($event.event, $event.message)"
-            (cancelEditMessage)="cancelEditMessage($event)"
-            (saveEditMessage)="saveEditMessage($event)"
-            (openViewImageDialog)="openViewImageDialog($event)"
-            (openBase64InNewTab)="openBase64InNewTab($event.data, $event.mimeType)"
-            (editEvalCaseMessage)="editEvalCaseMessage($event)"
-            (deleteEvalCaseMessage)="deleteEvalCaseMessage($event.message, $event.index)"
-            (editFunctionArgs)="editFunctionArgs($event)"
-            (fileSelect)="onFileSelect($event)"
-            (removeFile)="removeFile($event)"
-            (removeStateUpdate)="removeStateUpdate()"
-            (sendMessage)="handleChatInput($event)"
-            (updateState)="updateState()"
-            (toggleAudioRecording)="toggleAudioRecording()"
-            (toggleVideoRecording)="toggleVideoRecording()"
-            (longRunningResponseComplete)="sendMessage($event)"
-            [sessionName]="sessionId"
-            [invocationDisplayMap]="invocationDisplayMap()"
-            [viewMode]="viewMode()"
-            [shouldShowEvent]="shouldShowEventFn"
-          ></app-chat-panel>
+          }
         }
       }
     </mat-card>

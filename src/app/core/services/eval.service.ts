@@ -116,7 +116,7 @@ export class EvalService implements EvalServiceInterface {
   getEvalResult(appName: string, evalResultId: string) {
     if (this.apiServerDomain != undefined) {
       const url =
-        this.apiServerDomain + `/apps/${appName}/eval_results/${evalResultId}`;
+        this.apiServerDomain + `/apps/${appName}/eval_results/${encodeURIComponent(evalResultId)}`;
       return this.http.get<any>(url, {});
     }
     return new Observable<any>();

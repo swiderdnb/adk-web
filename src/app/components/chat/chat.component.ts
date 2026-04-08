@@ -42,7 +42,7 @@ import { catchError, distinctUntilChanged, filter, first, map, shareReplay, star
 
 import { URLUtil } from '../../../utils/url-util';
 import { AgentRunRequest } from '../../core/models/AgentRunRequest';
-import { EvalCase } from '../../core/models/Eval';
+import { EvalCase, EvaluationResult } from '../../core/models/Eval';
 import { Session, SessionState } from '../../core/models/Session';
 import { Event as AdkEvent, Part } from '../../core/models/types';
 import { UiEvent } from '../../core/models/UiEvent';
@@ -92,6 +92,8 @@ const ROOT_AGENT = 'root_agent';
 export const INITIAL_USER_INPUT_QUERY_PARAM = 'q';
 /** Query parameter for hiding the side panel. */
 export const HIDE_SIDE_PANEL_QUERY_PARAM = 'hideSidePanel';
+
+export type ChatType = 'session' | 'eval-case' | 'eval-result' | 'file';
 
 
 /** A2A data part markers */
@@ -219,6 +221,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   hasEvalCaseChanged = signal(false);
   isEvalEditMode = signal(false);
   isBuilderMode = signal(false);  // Default to builder mode off
+  chatType = signal<ChatType>('session');
+  currentEvalCaseId: string | null = null;
+  currentEvalTimestamp: string | null = null;
   videoElement!: HTMLVideoElement;
   currentMessage = '';
   uiEvents = signal<UiEvent[]>([]);
@@ -752,18 +757,99 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       const queryParams = this.activatedRoute.snapshot.queryParams;
       const sessionUrl = queryParams['session'];
       const userUrl = queryParams['userId'];
+      const evalCaseUrl = queryParams['evalCase'];
+      const evalResultUrl = queryParams['evalResult'];
+      const fileUrl = queryParams['file'];
 
       if (userUrl) {
         this.userId = userUrl;
       }
 
-      if (!sessionUrlEnabled || !sessionUrl) {
-        this.createSessionAndReset();
+      if (evalCaseUrl) {
+        this.chatType.set('eval-case');
+        const parts = evalCaseUrl.split('/');
+        if (parts.length === 2) {
+          const evalSetId = parts[0];
+          const evalCaseId = parts[1];
+          this.evalSetId = evalSetId;
+          this.evalService.getEvalCase(this.appName, evalSetId, evalCaseId).subscribe((evalCase) => {
+            if (evalCase) {
+              this.updateWithSelectedEvalCase(evalCase);
+              setTimeout(() => {
+                const sidePanel = this.sidePanel();
+                sidePanel.switchToEvalTab();
+                sidePanel.selectEvalCase(evalSetId, evalCase);
+              }, 600);
+            }
+          });
+        }
+        return;
+      }
 
+      if (evalResultUrl) {
+        this.chatType.set('eval-result');
+        const parts = evalResultUrl.split('/');
+        console.log('loadSessionByUrlOrReset evalResultUrl parts:', parts);
+        if (parts.length === 3) {
+          const evalSetId = parts[0];
+          const evalId = parts[1];
+          const timestamp = parts[2];
+          this.evalSetId = evalSetId;
+          
+          const runId = `${this.appName}_${evalSetId}_${timestamp}`;
+          console.log('loadSessionByUrlOrReset runId:', runId);
+          this.evalService.getEvalResult(this.appName, runId).subscribe((runResult) => {
+            console.log('loadSessionByUrlOrReset runResult:', runResult);
+            if (runResult) {
+              const evalCaseResult = runResult.evalCaseResults?.find((r: any) => r.evalId === evalId);
+              console.log('loadSessionByUrlOrReset evalCaseResult:', evalCaseResult);
+              if (evalCaseResult) {
+                const sessionId = evalCaseResult.sessionId;
+                
+                this.evalService.getEvalCase(this.appName, evalSetId, evalId).subscribe((evalCase) => {
+                  this.sessionService.getSession(this.userId, this.appName, sessionId).subscribe((sessionRes) => {
+                    this.addEvalCaseResultToEvents(sessionRes, evalCaseResult);
+                    const session = {
+                      id: sessionRes?.id ?? '',
+                      appName: sessionRes?.appName ?? '',
+                      userId: sessionRes?.userId ?? '',
+                      state: sessionRes?.state ?? [],
+                      events: sessionRes?.events ?? [],
+                      isEvalResult: true,
+                      evalCase: evalCase,
+                      evalCaseResult: evalCaseResult,
+                      timestamp: timestamp
+                    } as any;
+                    
+                    this.updateWithSelectedSession(session);
+                    
+                    setTimeout(() => {
+                      const sidePanel = this.sidePanel();
+                      sidePanel.switchToEvalTab();
+                      sidePanel.selectEvalResult(evalSetId, timestamp, evalCase);
+                    }, 600);
+                  });
+                });
+              }
+            }
+          });
+        }
+        return;
+      }
+
+      if (fileUrl) {
+        this.chatType.set('file');
+        return;
+      }
+
+      if (!sessionUrlEnabled || !sessionUrl) {
+        this.chatType.set('session');
+        this.createSessionAndReset();
         return;
       }
 
       if (sessionUrl) {
+        this.chatType.set('session');
         this.sessionId = sessionUrl;
         this.loadSession(sessionUrl, true);
       }
@@ -2131,6 +2217,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.readonlySessionType.set('Eval Result');
       const caseName = (session as any).evalCase?.evalId;
       const runTime = (session as any).timestamp;
+      this.currentEvalCaseId = caseName;
+      this.currentEvalTimestamp = runTime;
       let formattedTime = runTime;
       if (runTime) {
         const numericTimestamp = Number(runTime);
@@ -2156,17 +2244,18 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.evalCaseResult.set(null);
     }
-    if (!(session as any).isEvalResult) {
+    if ((session as any).isEvalResult) {
+      this.chatType.set('eval-result');
+    } else {
+      this.chatType.set('session');
       this.isSideBySide.set(false);
     }
 
-    if (!(session as any).isEvalResult) {
-      this.isSessionUrlEnabledObs.subscribe((enabled) => {
-        if (enabled) {
-          this.updateSelectedSessionUrl();
-        }
-      });
-    }
+    this.isSessionUrlEnabledObs.subscribe((enabled) => {
+      if (enabled) {
+        this.updateSelectedSessionUrl();
+      }
+    });
 
     if (session.events && session.state) {
       session.events.forEach((event: any) => {
@@ -2206,6 +2295,78 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.loadTraceData();
       });
+  }
+
+  private formatToolUses(toolUses: any[]): any[] {
+    if (!toolUses || !Array.isArray(toolUses)) {
+      return [];
+    }
+    const formattedToolUses = [];
+    for (const toolUse of toolUses) {
+      formattedToolUses.push({name: toolUse.name, args: toolUse.args});
+    }
+    return formattedToolUses;
+  }
+
+  private addEvalCaseResultToEvents(
+      res: any, evalCaseResult: EvaluationResult) {
+    const invocationResults = evalCaseResult.evalMetricResultPerInvocation!;
+    let currentInvocationIndex = -1;
+
+    if (invocationResults) {
+      for (let i = 0; i < res.events.length; i++) {
+        const event = res.events[i];
+        if (event.author === 'user') {
+          currentInvocationIndex++;
+        } else {
+          const invocationResult = invocationResults[currentInvocationIndex];
+          let evalStatus = 1;
+          let failedMetric = '';
+          let score = 1;
+          let threshold = 1;
+          
+          if (invocationResult && invocationResult.evalMetricResults) {
+            for (const evalMetricResult of invocationResult.evalMetricResults) {
+              if (evalMetricResult.evalStatus === 2) {
+                evalStatus = 2;
+                failedMetric = evalMetricResult.metricName;
+                score = evalMetricResult.score;
+                threshold = evalMetricResult.threshold;
+                break;
+              }
+            }
+          }
+          
+          event.evalStatus = evalStatus;
+
+          if (invocationResult && (i === res.events.length - 1 ||
+              res.events[i + 1].author === 'user')) {
+            this.addEvalFieldsToBotEvent(
+                event, invocationResult, failedMetric, score, threshold);
+          }
+        }
+      }
+    }
+    return res;
+  }
+
+  private addEvalFieldsToBotEvent(
+      event: any, invocationResult: any, failedMetric: string, score: number,
+      threshold: number) {
+    event.failedMetric = failedMetric;
+    event.evalScore = score;
+    event.evalThreshold = threshold;
+    if (event.failedMetric === 'tool_trajectory_avg_score') {
+      event.actualInvocationToolUses = this.formatToolUses(
+          invocationResult.actualInvocation.intermediateData.toolUses);
+      event.expectedInvocationToolUses = this.formatToolUses(
+          invocationResult.expectedInvocation.intermediateData.toolUses);
+    } else if (event.failedMetric === 'response_match_score') {
+      event.actualFinalResponse =
+          invocationResult.actualInvocation.finalResponse.parts[0].text;
+      event.expectedFinalResponse =
+          invocationResult.expectedInvocation.finalResponse.parts[0]?.text;
+    }
   }
 
   protected updateWithSelectedTest(testName: string, events: any[]) {
@@ -2265,6 +2426,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isViewOnlySession.set(true);
     this.readonlySessionType.set('Eval Case');
     this.readonlySessionName.set(evalCase.evalId);
+
+    this.chatType.set('eval-case');
+    this.isSessionUrlEnabledObs.subscribe((enabled) => {
+      if (enabled) {
+        this.updateSelectedSessionUrl();
+      }
+    });
 
     this.resetEventsAndMessages();
 
@@ -3546,12 +3714,34 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateSelectedSessionUrl() {
+    const type = this.chatType();
+    const queryParams: any = {
+      'userId': this.userId,
+    };
+
+    queryParams['session'] = null;
+    queryParams['evalCase'] = null;
+    queryParams['evalResult'] = null;
+    queryParams['file'] = null;
+
+    switch (type) {
+      case 'session':
+        queryParams['session'] = this.sessionId;
+        break;
+      case 'eval-case':
+        queryParams['evalCase'] = `${this.evalSetId}/${this.evalCase?.evalId}`;
+        break;
+      case 'eval-result':
+        queryParams['evalResult'] = `${this.evalSetId}/${this.currentEvalCaseId}/${this.currentEvalTimestamp}`;
+        break;
+      case 'file':
+        queryParams['file'] = this.readonlySessionName();
+        break;
+    }
+
     const url = this.router
       .createUrlTree([], {
-        queryParams: {
-          'session': this.sessionId,
-          'userId': this.userId,
-        },
+        queryParams: queryParams,
         queryParamsHandling: 'merge',
       })
       .toString();
@@ -3868,6 +4058,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentSessionState = sessionData.state || {};
     this.evalCase = null;
     this.isChatMode.set(true);
+    this.updateSelectedSessionUrl();
+    this.showSessionSelectorDrawer = false;
     this.resetEventsAndMessages();
 
     this.isViewOnlySession.set(true);
@@ -3900,14 +4092,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.readonlySessionName.set('');
     this.evalCase = null;
     
-    if (this.originalSessionId) {
-      this.loadSession(this.originalSessionId);
-    } else {
-      this.sessionId = '';
-      this.resetEventsAndMessages();
-      this.canEditSession.set(true);
-      this.chatPanel()?.canEditSession.set(true);
-    }
+    this.router.navigate([], { queryParams: { session: null, evalCase: null, evalResult: null, file: null }, queryParamsHandling: 'merge' });
+
+    this.createSessionAndReset();
     this.originalSessionId = '';
   }
 
@@ -3924,6 +4111,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.openSnackBar(
           `Session imported successfully (ID: ${res.id})`, 'OK');
         this.sessionTab?.refreshSession();
+        this.showSessionSelectorDrawer = false;
+        this.updateWithSelectedSession(res);
       });
   }
 }

@@ -70,3 +70,14 @@ export declare interface EvalSet {
   evalCases: EvalCase[];
   creationTimestamp: number;
 }
+
+export declare interface EvaluationResult {
+  setId: string;
+  evalId: string;
+  finalEvalStatus: number;
+  evalMetricResults: any[];
+  overallEvalMetricResults: any[];
+  evalMetricResultPerInvocation?: any[];
+  sessionId: string;
+  sessionDetails: any;
+}
