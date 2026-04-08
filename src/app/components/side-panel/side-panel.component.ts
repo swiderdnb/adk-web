@@ -15,15 +15,24 @@
  * limitations under the License.
  */
 
-import {AsyncPipe, NgComponentOutlet} from '@angular/common';
-import {AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, EnvironmentInjector, inject, input, OnInit, output, runInInjectionContext, Type, viewChild, ViewContainerRef} from '@angular/core';
-import {toSignal} from '@angular/core/rxjs-interop';
+import {AsyncPipe, NgComponentOutlet, NgTemplateOutlet} from '@angular/common';
+import {AfterViewInit, ChangeDetectionStrategy, Component, computed, effect, EnvironmentInjector, inject, input, output, runInInjectionContext, signal, Type, viewChild, ViewContainerRef, type WritableSignal} from '@angular/core';
+import {toObservable} from '@angular/core/rxjs-interop';
+import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatMiniFabButton} from '@angular/material/button';
+import {MatOption} from '@angular/material/core';
+import {MatFormField} from '@angular/material/form-field';
+import {MatIcon} from '@angular/material/icon';
+import {MatInput} from '@angular/material/input';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatSelect, MatSelectChange} from '@angular/material/select';
 import {MatTab, MatTabChangeEvent, MatTabGroup, MatTabLabel} from '@angular/material/tabs';
+import {MatTooltip} from '@angular/material/tooltip';
 import {type SafeHtml} from '@angular/platform-browser';
-import {Observable, of} from 'rxjs';
-import {first} from 'rxjs/operators';
+import {NgxJsonViewerModule} from 'ngx-json-viewer';
+import {combineLatest, Observable, of} from 'rxjs';
+import {first, map, startWith, switchMap} from 'rxjs/operators';
 
 import {EvalCase} from '../../core/models/Eval';
 import {Session, SessionState} from '../../core/models/Session';
@@ -34,36 +43,51 @@ import {UI_STATE_SERVICE} from '../../core/services/interfaces/ui-state';
 import {LOGO_COMPONENT} from '../../injection_tokens';
 import {ArtifactTabComponent, getMediaTypeFromMimetype} from '../artifact-tab/artifact-tab.component';
 import {EVAL_TAB_COMPONENT, EvalTabComponent} from '../eval-tab/eval-tab.component';
+import {SessionTabComponent} from '../session-tab/session-tab.component';
 import {StateTabComponent} from '../state-tab/state-tab.component';
+import {ThemeToggle} from '../theme-toggle/theme-toggle';
 import {TraceTabComponent} from '../trace-tab/trace-tab.component';
-import {EventTabComponent} from '../event-tab/event-tab.component';
 
-import {TRACE_SERVICE} from '../../core/services/interfaces/trace';
 import {SidePanelMessagesInjectionToken} from './side-panel.component.i18n';
 
 /**
  * Side panel component.
  */
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-side-panel',
   templateUrl: './side-panel.component.html',
   styleUrls: ['./side-panel.component.scss'],
   standalone: true,
   imports: [
     AsyncPipe,
+    FormsModule,
+    NgComponentOutlet,
+    NgTemplateOutlet,
+    MatTooltip,
     MatTabGroup,
     MatTab,
     MatTabLabel,
+    ThemeToggle,
     TraceTabComponent,
     StateTabComponent,
     ArtifactTabComponent,
-    EventTabComponent,
+    SessionTabComponent,
+    MatPaginator,
+    MatMiniFabButton,
+    MatIcon,
+    NgxJsonViewerModule,
+    MatOption,
+    MatSelect,
+    ReactiveFormsModule,
     MatProgressSpinner,
+    MatFormField,
+    MatInput,
   ],
 })
-export class SidePanelComponent implements AfterViewInit, OnInit {
+export class SidePanelComponent implements AfterViewInit {
   protected readonly Object = Object;
+
   appName = input('');
   userId = input('');
   sessionId = input('');
@@ -75,18 +99,20 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   selectedEventIndex = input<number|undefined>();
   renderedEventGraph = input<SafeHtml|undefined>();
   rawSvgString = input<string|null>(null);
-  selectedEventGraphPath = input<string>('');
   llmRequest = input<LlmRequest|undefined>();
   llmResponse = input<LlmResponse|undefined>();
   showSidePanel = input(false);
-  readonly isApplicationSelectorEnabledObs = input<Observable<boolean>>(of(false));
+  isApplicationSelectorEnabledObs = input<Observable<boolean>>(of(false));
+  apps$ = input<Observable<string[]|undefined>>(of([]));
+  isLoadingApps = input<WritableSignal<boolean>>(signal(false));
+  selectedAppControl = input(new FormControl<string>('', {
+    nonNullable: true,
+  }));
   readonly isBuilderMode = input<boolean>(false);
   readonly disableBuilderIcon = input<boolean>(false);
-  readonly hasSubWorkflows = input<boolean>(false);
-  readonly graphsAvailable = input<boolean>(true);
-  readonly invocationDisplayMap = input<Map<string, string>>(new Map());
 
   readonly closePanel = output<void>();
+  readonly appSelectionChange = output<MatSelectChange>();
   readonly tabChange = output<MatTabChangeEvent>();
   readonly sessionSelected = output<Session>();
   readonly sessionReloaded = output<Session>();
@@ -95,22 +121,15 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly returnToSession = output<boolean>();
   readonly evalNotInstalled = output<string>();
   readonly page = output<PageEvent>();
-  readonly switchToEvent = output<string>();
   readonly closeSelectedEvent = output<void>();
   readonly openImageDialog = output<string|null>();
   readonly openAddItemDialog = output<boolean>();
   readonly enterBuilderMode = output<boolean>();
-  readonly showAgentStructureGraph = output<boolean>();
-  readonly switchToTraceView = output<void>();
-  readonly drillDownNodePath = output<string>();
-  readonly selectEventById = output<string>();
-  readonly jumpToInvocation = output<string>();
 
-  readonly sessionTabComponent = undefined;
+  readonly sessionTabComponent = viewChild(SessionTabComponent);
   readonly evalTabComponent = viewChild(EvalTabComponent);
   readonly evalTabContainer =
       viewChild('evalTabContainer', {read: ViewContainerRef});
-  readonly tabGroup = viewChild(MatTabGroup);
 
   readonly logoComponent: Type<Component>|null = inject(LOGO_COMPONENT, {
     optional: true,
@@ -120,38 +139,6 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
   readonly evalTabComponentClass = inject(EVAL_TAB_COMPONENT, {optional: true});
   private readonly environmentInjector = inject(EnvironmentInjector);
   protected readonly uiStateService = inject(UI_STATE_SERVICE);
-  protected readonly traceService = inject(TRACE_SERVICE);
-  readonly selectedSpan = toSignal(this.traceService.selectedTraceRow$);
-
-  selectedIndex = 0;
-
-  constructor() {
-    effect(() => {
-      const event = this.selectedEvent();
-      const span = this.selectedSpan();
-      const tabGroup = this.tabGroup();
-      if ((event || span) && tabGroup) {
-        // Event tab is index 0. Re-activate it if we select an event and another tab is active.
-        if (tabGroup.selectedIndex !== 0) {
-          this.selectedIndex = 0;
-          window.localStorage.setItem('adk-side-panel-selected-tab', '0');
-        }
-      }
-    });
-  }
-
-  ngOnInit() {
-    const savedTab = window.localStorage.getItem('adk-side-panel-selected-tab');
-    if (savedTab !== null) {
-      this.selectedIndex = parseInt(savedTab, 10);
-    }
-  }
-
-  onTabChange(event: MatTabChangeEvent) {
-    this.tabChange.emit(event);
-    this.selectedIndex = event.index;
-    window.localStorage.setItem('adk-side-panel-selected-tab', event.index.toString());
-  }
 
   // Feature flag references for use in template.
   readonly isAlwaysOnSidePanelEnabledObs =
@@ -168,9 +155,54 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
       this.featureFlagService.isManualStateUpdateEnabled();
   readonly isBidiStreamingEnabledObs =
       this.featureFlagService.isBidiStreamingEnabled;
+  protected readonly isSessionsTabReorderingEnabledObs =
+      this.featureFlagService.isSessionsTabReorderingEnabled();
 
-  readonly filteredSelectedEvent = computed(() => {
-    return this.selectedEvent() as Event | undefined;
+  // Agent search
+  readonly agentSearchControl = new FormControl('', { nonNullable: true });
+  readonly filteredApps$: Observable<string[] | undefined> = toObservable(this.apps$).pipe(
+    switchMap(appsObservable =>
+      combineLatest([
+        appsObservable,
+        this.agentSearchControl.valueChanges.pipe(startWith(''))
+      ])
+    ),
+    map(([apps, searchTerm]) => {
+      if (!apps) {
+        return apps;
+      }
+      if (!searchTerm || searchTerm.trim() === '') {
+        return apps;
+      }
+      const lowerSearch = searchTerm.toLowerCase().trim();
+      return apps.filter(app => app.toLowerCase().startsWith(lowerSearch));
+    })
+  );
+
+  readonly artifactDeltaArray = computed(() => {
+    const artifactDelta = this.selectedEvent()?.actions?.artifactDelta;
+    if (!artifactDelta || Object.keys(artifactDelta).length === 0) {
+      return [];
+    }
+
+    const artifacts: Array<{
+      id: string; versionId: number; data: string; mimeType: string;
+      mediaType: string
+    }> = [];
+    for (const [id, artifactData] of Object.entries(artifactDelta)) {
+      const data = artifactData as {
+        data?: string;
+        mimeType?: string
+      };
+      artifacts.push({
+        id,
+        versionId: 1,
+        data: data.data || '',
+        mimeType: data.mimeType || '',
+        mediaType: getMediaTypeFromMimetype(data.mimeType || ''),
+      });
+    }
+    return artifacts;
   });
 
   ngAfterViewInit() {

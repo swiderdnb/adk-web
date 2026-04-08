@@ -30,7 +30,7 @@ interface ToolCategory {
 }
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-built-in-tool-dialog',
   templateUrl: './built-in-tool-dialog.component.html',
   styleUrl: './built-in-tool-dialog.component.scss',

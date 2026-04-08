@@ -19,21 +19,11 @@ import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component, input} from '@angular/core';
 import {MarkdownModule, provideMarkdown} from 'ngx-markdown';
 
-import 'prismjs';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-yaml';
-
-
 /**
  * Renders markdown text.
  */
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-markdown',
   templateUrl: './markdown.component.html',
   standalone: true,

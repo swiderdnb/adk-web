@@ -27,23 +27,14 @@ export const CHAT_MESSAGES = {
   saveButton: 'Save',
   editEvalCaseTooltip: 'Edit current eval case',
   deleteEvalCaseTooltip: 'Delete current eval case',
-  sessionIdLabel: 'Session',
-  copySessionIdTooltip: 'Copy session ID',
-  sessionIdCopiedMessage: 'Session ID copied',
-  copySessionIdFailedMessage: 'Failed to copy session ID',
+  sessionIdLabel: 'Session ID',
   userIdLabel: 'User ID',
-  editUserIdTooltip: 'Edit user ID',
-  userIdInputPlaceholder: 'Enter user ID',
-  saveUserIdTooltip: 'Save user ID',
-  cancelUserIdEditTooltip: 'Cancel editing user ID',
-  invalidUserIdMessage: 'User ID cannot be empty',
   loadingSessionLabel: 'Loading session...',
   tokenStreamingLabel: 'Token Streaming',
-  moreOptionsTooltip: 'More options',
   createNewSessionTooltip: 'Create a new Session',
   newSessionButton: 'New Session',
-  deleteSessionTooltip: 'Delete session',
-  exportSessionTooltip: 'Export session',
+  deleteSessionTooltip: 'Delete current session',
+  exportSessionTooltip: 'Export current session',
   importSessionTooltip: 'Import session',
   loadingAgentsLabel: 'Loading agents, please wait...',
   welcomeMessage: 'Welcome to ADK!',
@@ -54,6 +45,9 @@ export const CHAT_MESSAGES = {
   cannotEditSessionMessage:
       'Chat is disabled to prevent changes to the end user\'s session.',
   readOnlyBadgeLabel: 'Read-only',
+  disclosureTooltip:
+      'ADK Web is for development purposes. It has access to all the data and should not be used in production.',
+  adkWebDeveloperUiMessage: 'ADK Web Developer UI',
 };
 
 /**

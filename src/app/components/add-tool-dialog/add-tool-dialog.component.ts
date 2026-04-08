@@ -27,7 +27,7 @@ import { MatIcon } from '@angular/material/icon';
 import { TooltipUtil } from '../../../utils/tooltip-util';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-add-tool-dialog',
   templateUrl: './add-tool-dialog.component.html',
   styleUrl: './add-tool-dialog.component.scss',
