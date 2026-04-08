@@ -482,7 +482,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   traceData: any[] = [];
   renderedEventGraph: SafeHtml | undefined;
   rawSvgString: string | null = null;
-  agentGraphData: any = null;
+  agentGraphData = signal<any>(null);
   sessionGraphSvgLight: Record<string, string> = {};
   sessionGraphSvgDark: Record<string, string> = {};
   agentReadme: string = '';
@@ -3394,7 +3394,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.selectApp(app);
         this.agentService.getAppInfo(app).subscribe(info => {
           setTimeout(() => {
-            this.agentGraphData = info;
+            this.agentGraphData.set(info);
             this.agentReadme = info?.readme || '';
           });
         })
