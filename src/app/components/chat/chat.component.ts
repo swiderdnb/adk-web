@@ -83,7 +83,6 @@ import { SessionTabComponent } from '../session-tab/session-tab.component';
 import { SidePanelComponent } from '../side-panel/side-panel.component';
 import { ViewImageDialogComponent } from '../view-image-dialog/view-image-dialog.component';
 import { InlineEditComponent } from '../inline-edit/inline-edit.component';
-import { ChatToolbarComponent } from '../chat-toolbar/chat-toolbar.component';
 
 import { ChatMessagesInjectionToken } from './chat.component.i18n';
 import { SidePanelMessagesInjectionToken } from '../side-panel/side-panel.component.i18n';
@@ -172,7 +171,6 @@ const BIDI_STREAMING_RESTART_WARNING =
     BuilderTabsComponent,
     SessionTabComponent,
     InlineEditComponent,
-    ChatToolbarComponent,
   ],
 })
 export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -322,9 +320,40 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     return Array.from(paths);
   });
 
+  readonly invChipMenuTrigger = viewChild<MatMenuTrigger>('invChipMenuTrigger');
+  readonly nodeChipMenuTrigger = viewChild<MatMenuTrigger>('nodeChipMenuTrigger');
+  readonly addMenuTrigger = viewChild<MatMenuTrigger>('addMenuTrigger');
 
+  openAddFilterMenu(event: Event) {
+    event.stopPropagation();
+    this.addMenuTrigger()?.openMenu();
+  }
 
+  addInvocationIdFilter() {
+    this.invocationIdFilterActive.set(true);
+    setTimeout(() => {
+      this.invChipMenuTrigger()?.openMenu();
+    });
+  }
 
+  addNodePathFilter() {
+    this.nodePathFilterActive.set(true);
+    setTimeout(() => {
+      this.nodeChipMenuTrigger()?.openMenu();
+    });
+  }
+
+  removeInvocationIdFilter(event: Event) {
+    event.stopPropagation();
+    this.invocationIdFilterActive.set(false);
+    this.invocationIdFilter.set('');
+  }
+
+  removeNodePathFilter(event: Event) {
+    event.stopPropagation();
+    this.nodePathFilterActive.set(false);
+    this.nodePathFilter.set('');
+  }
 
   setInvocationIdFilter(id: string) {
     this.invocationIdFilter.set(id);
@@ -334,7 +363,17 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.nodePathFilter.set(path);
   }
 
+  onInvocationMenuClosed() {
+    if (!this.invocationIdFilter()) {
+      this.invocationIdFilterActive.set(false);
+    }
+  }
 
+  onNodePathMenuClosed() {
+    if (!this.nodePathFilter()) {
+      this.nodePathFilterActive.set(false);
+    }
+  }
 
   clearAllFilters(event: Event) {
     event.stopPropagation();
@@ -4052,11 +4091,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     
     this.router.navigate([], { queryParams: { session: null, evalCase: null, evalResult: null, file: null }, queryParamsHandling: 'merge' });
 
-    if (this.originalSessionId) {
-      this.loadSession(this.originalSessionId);
-    } else {
-      this.createSessionAndReset();
-    }
+    this.createSessionAndReset();
     this.originalSessionId = '';
   }
 
