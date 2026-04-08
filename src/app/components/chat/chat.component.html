@@ -79,16 +79,30 @@
           @let isSessionLoadingGroup = uiStateService.isSessionLoading() | async;
           @if (isSessionLoadingGroup === false) {
             <div class="selector-group-divider"></div>
-            <button
-              mat-icon-button
-              class="toolbar-icon-button"
-              (click)="onNewSessionClick()"
-              id="toolbar-new-session-button"
-              [matTooltip]="i18n.createNewSessionTooltip"
-              [disabled]="!sessionId"
-            >
-              <mat-icon>add</mat-icon>
-            </button>
+            @if (uiEvents().length > 0) {
+              <button
+                mat-button
+                class="toolbar-button"
+                (click)="onNewSessionClick()"
+                id="toolbar-new-session-button"
+                [matTooltip]="i18n.createNewSessionTooltip"
+                [disabled]="!sessionId"
+              >
+                <mat-icon>add</mat-icon>
+                <span>{{ i18n.newSessionButton }}</span>
+              </button>
+            } @else {
+              <button
+                mat-icon-button
+                class="toolbar-icon-button"
+                (click)="onNewSessionClick()"
+                id="toolbar-new-session-button"
+                [matTooltip]="i18n.createNewSessionTooltip"
+                [disabled]="!sessionId"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            }
           }
         }
       </div>
