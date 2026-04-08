@@ -40,9 +40,9 @@
       </button>
       @if (!isBuilderMode()) {
         <div class="selector-group-divider"></div>
-        <span [matTooltip]="!graphsAvailable ? 'Agent structure graph is not available for this agent' : 'View Agent Structure Graph'" matTooltipPosition="below">
+        <span [matTooltip]="!graphsAvailable() ? 'Agent structure graph is not available for this agent' : 'View Agent Structure Graph'" matTooltipPosition="below">
           <button mat-icon-button class="toolbar-icon-button"
-            [disabled]="!graphsAvailable"
+            [disabled]="!graphsAvailable()"
             (click)="openAgentStructureGraphDialog()"
             matTooltipPosition="below">
             <mat-icon>account_tree</mat-icon>
@@ -316,7 +316,7 @@
       [llmResponse]="llmResponse"
       [disableBuilderIcon]="disableBuilderSwitch"
       [hasSubWorkflows]="hasSubWorkflows"
-      [graphsAvailable]="graphsAvailable"
+      [graphsAvailable]="graphsAvailable()"
       [invocationDisplayMap]="invocationDisplayMap()"
       [forceGraphTab]="autoSelectLatestEvent"
       (jumpToInvocation)="handleJumpToInvocation($event)"

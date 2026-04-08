@@ -206,7 +206,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     optional: true,
   });
 
-  chatPanel = viewChild.required(ChatPanelComponent);
+  chatPanel = viewChild(ChatPanelComponent);
   canvasComponent = viewChild.required(CanvasComponent);
   sideDrawer = viewChild.required<MatDrawer>('sideDrawer');
   sidePanel = viewChild.required(SidePanelComponent);
@@ -486,7 +486,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionGraphSvgLight: Record<string, string> = {};
   sessionGraphSvgDark: Record<string, string> = {};
   agentReadme: string = '';
-  graphsAvailable: boolean = true;
+  graphsAvailable = signal(true);
   graphsAreV2: boolean = false;
 
   get hasSubWorkflows(): boolean {
@@ -3393,12 +3393,14 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.selectedAppControl.setValue(app, { emitEvent: false });
         this.selectApp(app);
         this.agentService.getAppInfo(app).subscribe(info => {
-          this.agentGraphData = info;
-          this.agentReadme = info?.readme || '';
+          setTimeout(() => {
+            this.agentGraphData = info;
+            this.agentReadme = info?.readme || '';
+          });
         })
         this.sessionGraphSvgLight = {};
         this.sessionGraphSvgDark = {};
-        this.graphsAvailable = true;
+        setTimeout(() => this.graphsAvailable.set(true));
 
         // Try v2 approach first (getAppGraphImage for light mode)
         this.agentService.getAppGraphImage(app, false).pipe(
@@ -3407,7 +3409,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               // V2 endpoint not available, try v1 fallback with light theme
               return this.agentService.getAppGraphDot(app, false).pipe(
                 catchError(() => {
-                  this.graphsAvailable = false;
+                  setTimeout(() => this.graphsAvailable.set(false));
                   return of(null);
                 })
               );
@@ -3442,7 +3444,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                     }
                   }
                   console.log('sessionGraphSvgLight after rendering:', Object.keys(this.sessionGraphSvgLight));
-                  console.log('graphsAvailable:', this.graphsAvailable);
+                  console.log('graphsAvailable:', this.graphsAvailable());
                   if (this.selectedEvent && this.selectedEventIndex !== undefined) {
                     this.updateRenderedGraph();
                   }
@@ -3450,12 +3452,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             } catch (error) {
               console.error('Error rendering light mode graphs:', error);
-              this.graphsAvailable = false;
+              setTimeout(() => this.graphsAvailable.set(false));
             }
           },
           error: (error) => {
             console.error('Error fetching light mode graphs:', error);
-            this.graphsAvailable = false;
+            setTimeout(() => this.graphsAvailable.set(false));
           }
         });
 
@@ -3502,26 +3504,26 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             } catch (error) {
               console.error('Error rendering dark mode graphs:', error);
-              this.graphsAvailable = false;
+              setTimeout(() => this.graphsAvailable.set(false));
             }
           },
           error: (error) => {
             console.error('Error fetching dark mode graphs:', error);
-            this.graphsAvailable = false;
+            setTimeout(() => this.graphsAvailable.set(false));
           }
         });
         this.agentService.getAgentBuilder(app).pipe(
           catchError((error: HttpErrorResponse) => {
-            this.disableBuilderSwitch = true;
+            setTimeout(() => this.disableBuilderSwitch = true);
             this.agentBuilderService.setLoadedAgentData(undefined);
             return of('');
           })
         ).subscribe((res: any) => {
           if (!res || res == '') {
-            this.disableBuilderSwitch = true;
+            setTimeout(() => this.disableBuilderSwitch = true);
             this.agentBuilderService.setLoadedAgentData(undefined);
           } else {
-            this.disableBuilderSwitch = false;
+            setTimeout(() => this.disableBuilderSwitch = false);
             this.agentBuilderService.setLoadedAgentData(res);
           }
         });
