@@ -24,6 +24,7 @@ import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
     changeDetection: ChangeDetectionStrategy.Default,
@@ -40,6 +41,7 @@ import { MatButton } from '@angular/material/button';
         MatDialogActions,
         MatButton,
         MatDialogClose,
+        MatSelectModule,
     ],
 })
 export class NewEvalSetDialogComponentComponent {
@@ -48,6 +50,7 @@ export class NewEvalSetDialogComponentComponent {
   readonly dialogRef = inject(MatDialogRef<NewEvalSetDialogComponentComponent>);
 
   newSetId: string = 'evalset_' + uuidv4().slice(0, 6);
+  executionMode: 'live' | 'replay' = 'live';
 
   constructor() {}
 
@@ -56,7 +59,7 @@ export class NewEvalSetDialogComponentComponent {
       alert('Cannot create eval set with empty id!');
     } else {
       this.evalService
-        .createNewEvalSet(this.data.appName, this.newSetId)
+        .createNewEvalSet(this.data.appName, this.newSetId, this.executionMode)
         .subscribe((res) => {
           this.dialogRef.close(true);
         });

@@ -138,6 +138,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
   displayedColumns: string[] = ['select', 'evalId'];
   evalsets: any[] = [];
   selectedEvalSet = signal<string>('');
+  currentEvalSet = signal<any>(null);
   
   evalHistorySorted = computed(() => {
     const evalHistory = this.appEvaluationResults[this.appName()]?.[this.selectedEvalSet()] || {};
@@ -320,6 +321,15 @@ export class EvalTabComponent implements OnInit, OnChanges {
   selectEvalSet(set: string) {
     this.selectedEvalSet.set(set);
     this.listEvalCases();
+    this.evalService.getEvalSet(this.appName(), set)
+      .pipe(catchError((error) => {
+        console.error('Error fetching eval set details', error);
+        return of(null);
+      }))
+      .subscribe((res) => {
+        this.currentEvalSet.set(res);
+        this.changeDetectorRef.detectChanges();
+      });
   }
 
   clearSelectedEvalSet() {
@@ -328,12 +338,14 @@ export class EvalTabComponent implements OnInit, OnChanges {
       return;
     }
     this.selectedEvalSet.set('');
+    this.currentEvalSet.set(null);
   }
 
   clearAllNavigation() {
     this.selectedEvalSet.set('');
     this.selectedHistoryRun.set(null);
     this.selectedEvalCase.set(null);
+    this.currentEvalSet.set(null);
   }
 
   goToEvalSet() {

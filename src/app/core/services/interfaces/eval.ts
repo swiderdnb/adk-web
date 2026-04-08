@@ -26,7 +26,8 @@ export const EVAL_SERVICE = new InjectionToken<EvalService>('EvalService');
  */
 export declare abstract class EvalService {
   abstract getEvalSets(appName: string): Observable<any>;
-  abstract createNewEvalSet(appName: string, evalSetId: string): Observable<any>;
+  abstract createNewEvalSet(appName: string, evalSetId: string, executionMode?: 'live' | 'replay'): Observable<any>;
+  abstract getEvalSet(appName: string, evalSetId: string): Observable<any>;
   abstract listEvalCases(appName: string, evalSetId: string): Observable<any>;
   abstract addCurrentSession(
     appName: string,
