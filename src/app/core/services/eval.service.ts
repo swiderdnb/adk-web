@@ -42,10 +42,14 @@ export class EvalService implements EvalServiceInterface {
   createNewEvalSet(appName: string, evalSetId: string, executionMode: 'live' | 'replay' = 'live') {
     if (this.apiServerDomain != undefined) {
       const url =
-      this.apiServerDomain + `/apps/${appName}/eval_sets/${evalSetId}`;
+      this.apiServerDomain + `/apps/${appName}/eval-sets`;
     return this.http.post<any>(url, {
-      model_execution_mode: executionMode,
-      tool_execution_mode: executionMode
+      eval_set: {
+        eval_set_id: evalSetId,
+        model_execution_mode: executionMode,
+        tool_execution_mode: executionMode,
+        eval_cases: []
+      }
     });
     }
     return new Observable<any>();
