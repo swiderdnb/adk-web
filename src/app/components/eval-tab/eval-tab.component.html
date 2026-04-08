@@ -43,7 +43,7 @@
       <span class="breadcrumb-item" matTooltip="Runs">Runs</span>
     }
     
-    @if (selectedHistoryRun()) {
+    @if (selectedHistoryRun() && !selectedEvalCase()) {
       <span class="breadcrumb-separator">></span>
       <span class="breadcrumb-item" matTooltip="Run">{{formatTimestamp(selectedHistoryRun()!)}}</span>
     }
@@ -203,7 +203,7 @@
                 <div class="eval-cases-list">
                   @let history = caseHistory();
                   @for (item of history; track item.timestamp; let i = $index) {
-                    <div class="eval-case-row clickable" (click)="getHistorySession(item.result!, item.timestamp)">
+                    <div class="eval-case-row clickable" [class.selected-row]="item.timestamp == selectedHistoryRun()" (click)="getHistorySession(item.result!, item.timestamp)">
                       <div class="eval-case-id">
                         #{{ history.length - i }} {{ formatTimestamp(item.timestamp) }}
                       </div>

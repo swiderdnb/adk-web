@@ -195,6 +195,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
     console.log('selectEvalResult tab available:', !!tab, 'evalCase:', evalCase);
     if (tab) {
       tab.selectEvalSet(evalSetId);
+      tab.selectedHistoryRun.set(timestamp);
       if (evalCase) {
         console.log('selectEvalResult setting cases tab and case');
         tab.selectedEvalTab.set('cases');
@@ -202,7 +203,6 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
       } else {
         console.log('selectEvalResult setting history tab and run');
         tab.selectedEvalTab.set('history');
-        tab.selectedHistoryRun.set(timestamp);
       }
     } else {
       console.log('selectEvalResult deferred to pending');
@@ -276,6 +276,7 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
             if (pending) {
               console.log('initEvalTab applying pendingEvalResultSelection:', pending);
               evalTabComponent.instance.selectEvalSet(pending.evalSetId);
+              evalTabComponent.instance.selectedHistoryRun.set(pending.timestamp);
               if (pending.evalCase) {
                 console.log('initEvalTab setting cases tab and case');
                 evalTabComponent.instance.selectedEvalTab.set('cases');
@@ -283,7 +284,6 @@ export class SidePanelComponent implements AfterViewInit, OnInit {
               } else {
                 console.log('initEvalTab setting history tab and run');
                 evalTabComponent.instance.selectedEvalTab.set('history');
-                evalTabComponent.instance.selectedHistoryRun.set(pending.timestamp);
               }
               this.pendingEvalResultSelection.set(undefined);
             }

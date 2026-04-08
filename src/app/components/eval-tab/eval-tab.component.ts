@@ -152,6 +152,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
     if (!caseObj) return [];
     const evalId = caseObj.evalId;
     const history = this.evalHistorySorted();
+    console.log('[DEBUG] caseHistory history:', history.map(h => h.timestamp), 'selectedHistoryRun:', this.selectedHistoryRun());
     return history.map(run => {
       const result = run.evaluationResults.evaluationResults.find((r: any) => r.evalId === evalId);
       return { timestamp: run.timestamp, result: result };
@@ -571,6 +572,8 @@ export class EvalTabComponent implements OnInit, OnChanges {
   getHistorySession(evalCaseResult: EvaluationResult, timestamp: string) {
     const sessionId = evalCaseResult.sessionId;
     const evalId = evalCaseResult.evalId;
+    
+    this.selectedHistoryRun.set(timestamp);
     
     this.evalService.getEvalCase(this.appName(), this.selectedEvalSet(), evalId)
         .subscribe((evalCase) => {
