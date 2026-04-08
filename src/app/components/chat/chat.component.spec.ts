@@ -703,16 +703,16 @@ describe('ChatComponent', () => {
         expect(component['originalSessionId']).toBe(SESSION_1_ID);
       });
 
-      it('should restore original session on close', () => {
+      it('should create new session on close', () => {
         component.sessionId = SESSION_1_ID;
         component['updateWithSelectedTest']('my-test', []);
         
-        spyOn(component as any, 'loadSession');
+        spyOn(component as any, 'createSessionAndReset');
         
         component['closeReadonlySession']();
         
         expect(component['isViewOnlySession']()).toBeFalse();
-        expect((component as any).loadSession).toHaveBeenCalledWith(SESSION_1_ID);
+        expect((component as any).createSessionAndReset).toHaveBeenCalled();
       });
 
       it('should reset to empty state on close if no original session', () => {

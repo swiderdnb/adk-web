@@ -62,11 +62,13 @@ describe('EvalTabComponent', () => {
       'isEditFunctionArgsEnabled',
       'isSessionUrlEnabled',
       'isA2ACardEnabled',
+      'isEvalV2Enabled',
     ]);
     featureFlagService.isImportSessionEnabled.and.returnValue(of(false));
     featureFlagService.isEditFunctionArgsEnabled.and.returnValue(of(false));
     featureFlagService.isSessionUrlEnabled.and.returnValue(of(false));
     featureFlagService.isA2ACardEnabled.and.returnValue(of(false));
+    featureFlagService.isEvalV2Enabled.and.returnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [MatDialogModule, EvalTabComponent, NoopAnimationsModule],
