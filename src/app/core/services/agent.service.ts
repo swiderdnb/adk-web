@@ -196,12 +196,5 @@ export class AgentService implements AgentServiceInterface {
     return new Observable<any>();
   }
 
-  getAppGraphDot(appName: string, darkMode: boolean): Observable<{ dotSrc?: string }> {
-    if (this.apiServerDomain != undefined) {
-      const url = this.apiServerDomain + `/dev/${appName}/graph`;
-      const params = { dark_mode: darkMode };
-      return this.http.get<{ dotSrc?: string }>(url, { params });
-    }
-    return new Observable<{ dotSrc?: string }>();
-  }
+
 }

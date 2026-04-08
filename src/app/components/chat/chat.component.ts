@@ -491,8 +491,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionGraphSvgLight: Record<string, string> = {};
   sessionGraphSvgDark: Record<string, string> = {};
   agentReadme: string = '';
-  graphsAvailable = signal(true);
-  graphsAreV2: boolean = false;
+  graphsAvailable: boolean = true;
 
   get hasSubWorkflows(): boolean {
     return Object.keys(this.sessionGraphSvgLight).length > 1;
@@ -795,7 +794,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           const evalId = parts[1];
           const timestamp = parts[2];
           this.evalSetId = evalSetId;
-          
+
           const runId = `${this.appName}_${evalSetId}_${timestamp}`;
           console.log('loadSessionByUrlOrReset runId:', runId);
           this.evalService.getEvalResult(this.appName, runId).subscribe((runResult) => {
@@ -805,7 +804,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               console.log('loadSessionByUrlOrReset evalCaseResult:', evalCaseResult);
               if (evalCaseResult) {
                 const sessionId = evalCaseResult.sessionId;
-                
+
                 this.evalService.getEvalCase(this.appName, evalSetId, evalId).subscribe((evalCase) => {
                   this.sessionService.getSession(this.userId, this.appName, sessionId).subscribe((sessionRes) => {
                     this.addEvalCaseResultToEvents(sessionRes, evalCaseResult);
@@ -820,9 +819,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                       evalCaseResult: evalCaseResult,
                       timestamp: timestamp
                     } as any;
-                    
+
                     this.updateWithSelectedSession(session);
-                    
+
                     setTimeout(() => {
                       const sidePanel = this.sidePanel();
                       sidePanel.switchToEvalTab();
@@ -2235,7 +2234,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.expectedUiEvents.set([]);
     }
-    
+
     if ((session as any).evalCaseResult) {
       this.evalCaseResult.set((session as any).evalCaseResult);
     } else {
@@ -2300,13 +2299,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     const formattedToolUses = [];
     for (const toolUse of toolUses) {
-      formattedToolUses.push({name: toolUse.name, args: toolUse.args});
+      formattedToolUses.push({ name: toolUse.name, args: toolUse.args });
     }
     return formattedToolUses;
   }
 
   private addEvalCaseResultToEvents(
-      res: any, evalCaseResult: EvaluationResult) {
+    res: any, evalCaseResult: EvaluationResult) {
     const invocationResults = evalCaseResult.evalMetricResultPerInvocation!;
     let currentInvocationIndex = -1;
 
@@ -2321,7 +2320,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           let failedMetric = '';
           let score = 1;
           let threshold = 1;
-          
+
           if (invocationResult && invocationResult.evalMetricResults) {
             for (const evalMetricResult of invocationResult.evalMetricResults) {
               if (evalMetricResult.evalStatus === 2) {
@@ -2333,13 +2332,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             }
           }
-          
+
           event.evalStatus = evalStatus;
 
           if (invocationResult && (i === res.events.length - 1 ||
-              res.events[i + 1].author === 'user')) {
+            res.events[i + 1].author === 'user')) {
             this.addEvalFieldsToBotEvent(
-                event, invocationResult, failedMetric, score, threshold);
+              event, invocationResult, failedMetric, score, threshold);
           }
         }
       }
@@ -2348,21 +2347,21 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private addEvalFieldsToBotEvent(
-      event: any, invocationResult: any, failedMetric: string, score: number,
-      threshold: number) {
+    event: any, invocationResult: any, failedMetric: string, score: number,
+    threshold: number) {
     event.failedMetric = failedMetric;
     event.evalScore = score;
     event.evalThreshold = threshold;
     if (event.failedMetric === 'tool_trajectory_avg_score') {
       event.actualInvocationToolUses = this.formatToolUses(
-          invocationResult.actualInvocation.intermediateData.toolUses);
+        invocationResult.actualInvocation.intermediateData.toolUses);
       event.expectedInvocationToolUses = this.formatToolUses(
-          invocationResult.expectedInvocation.intermediateData.toolUses);
+        invocationResult.expectedInvocation.intermediateData.toolUses);
     } else if (event.failedMetric === 'response_match_score') {
       event.actualFinalResponse =
-          invocationResult.actualInvocation.finalResponse.parts[0].text;
+        invocationResult.actualInvocation.finalResponse.parts[0].text;
       event.expectedFinalResponse =
-          invocationResult.expectedInvocation.finalResponse.parts[0]?.text;
+        invocationResult.expectedInvocation.finalResponse.parts[0]?.text;
     }
   }
 
@@ -2398,28 +2397,28 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     const savedIsViewOnly = this.isViewOnlySession();
     const savedType = this.readonlySessionType();
     const savedName = this.readonlySessionName();
-    
+
     this.uiEvents.set([]);
     this.eventData = new Map();
-    
+
     this.updateWithSelectedEvalCase(evalCase);
-    
+
     const expectedEvents = this.uiEvents();
-    
+
     this.uiEvents.set(savedUiEvents);
     this.eventData = savedEventData;
     this.chatType.set(savedChatType);
     this.isViewOnlySession.set(savedIsViewOnly);
     this.readonlySessionType.set(savedType);
     this.readonlySessionName.set(savedName);
-    
+
     return expectedEvents;
   }
 
   protected updateWithSelectedEvalCase(evalCase: EvalCase) {
     this.evalCase = evalCase;
     this.chatType.set('eval-case');
-    
+
     this.isViewOnlySession.set(true);
     this.readonlySessionType.set('Eval Case');
     this.readonlySessionName.set(evalCase.evalId);
@@ -2454,13 +2453,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           let toolUseIndex = 0;
           for (const event of invocation.intermediateData.invocationEvents) {
             event.invocationIndex = invocationIndex;
-            
+
             // Check if it's a function call to assign toolUseIndex
             if (event.content?.parts?.[0]?.functionCall) {
               event.toolUseIndex = toolUseIndex;
               toolUseIndex++;
             }
-            
+
             evalCase.events.push(event);
           }
         } else if (invocation.intermediateData?.toolUses) {
@@ -2865,29 +2864,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Check if we're using v1 backend (only root graph, no workflow paths)
-    const isV1Backend = !this.graphsAreV2;
-
-    if (isV1Backend && this.selectedEvent) {
-      // V1 backend: Simple edge/node highlighting for single event only
-      const graphPath = '';
-      let highlightedSvgLight = sessionGraphSvgLight[graphPath];
-      let highlightedSvgDark = sessionGraphSvgDark[graphPath];
-
-      const highlightPairs = this.getV1HighlightPairs(this.selectedEvent);
-      highlightedSvgLight = this.applyV1Highlighting(highlightedSvgLight, highlightPairs, false);
-      highlightedSvgDark = this.applyV1Highlighting(highlightedSvgDark, highlightPairs, true);
-
-      this.selectedEventGraphPath = graphPath;
-      this.eventGraphSvgLight = { ...sessionGraphSvgLight, [graphPath]: highlightedSvgLight };
-      this.eventGraphSvgDark = { ...sessionGraphSvgDark, [graphPath]: highlightedSvgDark };
-      const highlightedSvg = this.themeService.currentTheme() === 'dark' ? highlightedSvgDark : highlightedSvgLight;
-      this.rawSvgString = highlightedSvg;
-      this.renderedEventGraph = this.safeValuesService.bypassSecurityTrustHtml(highlightedSvg);
-      return;
-    }
-
-    // V2 backend: Calculate workflow paths and node names
+    // Calculate workflow paths and node names (defaults to root graph '' if no path)
     let nodePath = overrideNodePath || this.selectedEvent?.nodeInfo?.path;
     if (!overrideNodePath && this.selectedEvent?.author === 'user') {
       nodePath = '__START__';
@@ -2921,6 +2898,15 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     let highlightedSvgLight = sessionGraphSvgLight[graphPath] || sessionGraphSvgLight[''] || '';
     let highlightedSvgDark = sessionGraphSvgDark[graphPath] || sessionGraphSvgDark[''] || '';
+
+    // Apply V1-style highlighting (based on function calls) if applicable
+    if (this.selectedEvent) {
+      const highlightPairs = this.getV1HighlightPairs(this.selectedEvent);
+      if (highlightPairs.length > 0) {
+        highlightedSvgLight = this.applyV1Highlighting(highlightedSvgLight, highlightPairs, false);
+        highlightedSvgDark = this.applyV1Highlighting(highlightedSvgDark, highlightPairs, true);
+      }
+    }
 
     const runNodeNames: string[] = [];
     const allRunNodeNames: string[] = [];
@@ -2969,6 +2955,21 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
               allRunNodeNames.push(evNodeName);
             }
           }
+        }
+      }
+    }
+
+    // Add V1 highlight targets to execution path so V2 logic treats them as visited
+    if (this.selectedEvent) {
+      const highlightPairs = this.getV1HighlightPairs(this.selectedEvent);
+      for (const [from, to] of highlightPairs) {
+        if (to && to !== '') {
+          if (!allRunNodeNames.includes(to)) allRunNodeNames.push(to);
+          if (!runNodeNames.includes(to)) runNodeNames.push(to);
+        }
+        if (from && from !== '') {
+          if (!allRunNodeNames.includes(from)) allRunNodeNames.push(from);
+          if (!runNodeNames.includes(from)) runNodeNames.push(from);
         }
       }
     }
@@ -3031,7 +3032,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const findNodeId = (name: string) => {
       const cleanName = name.toLowerCase();
-      
+
       // First pass: exact match (case insensitive, space normalized)
       for (const [text, id] of nodeNameToId.entries()) {
         const cleanText = text.toLowerCase().replace(/\s+/g, '_');
@@ -3039,7 +3040,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           return id;
         }
       }
-      
+
       // Second pass: includes
       for (const [text, id] of nodeNameToId.entries()) {
         const cleanText = text.toLowerCase().replace(/\s+/g, '_');
@@ -3069,20 +3070,20 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if (targetNodeIds.length > 0 && lastTargetId) {
       const fullSeq = [...targetNodeIds];
       const startNode = Array.from(visitedNodes).find(n => n.toLowerCase() === '__start__');
-      
+
       if (fullSeq.length > 0 && fullSeq[0].toLowerCase() !== '__start__' && startNode) {
         fullSeq.unshift(startNode);
       }
-      
+
       const activeNodeIndex = fullSeq.lastIndexOf(lastTargetId);
-      
+
       if (activeNodeIndex > 0) {
         const src = fullSeq[activeNodeIndex - 1];
         const dst = fullSeq[activeNodeIndex];
-        
+
         const queue: { node: string, path: string[] }[] = [];
         const visited = new Set<string>();
-        
+
         const initialChildren = forwardAdjacencyList.get(src) || [];
         for (const child of initialChildren) {
           const edgeKey = `${src}->${child}`;
@@ -3091,7 +3092,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             visited.add(child);
           }
         }
-        
+
         while (queue.length > 0) {
           const current = queue.shift()!;
           if (current.node === dst) {
@@ -3100,7 +3101,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             }
             break;
           }
-          
+
           const children = forwardAdjacencyList.get(current.node) || [];
           for (const child of children) {
             const edgeKey = `${current.node}->${child}`;
@@ -3287,11 +3288,23 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       const titleElement = nodeElement.querySelector('title');
       const nodeName = titleElement?.textContent?.trim().replace(/^"|"$/g, '') || '';
 
-      const textElements = nodeElement.querySelectorAll('text');
+      const textElements = Array.from(nodeElement.querySelectorAll('text'));
+      const textContent = textElements.map(t => t.textContent?.trim() || '').join('').toLowerCase().replace(/\s+/g, '_');
 
-      if (highlightedNodeNames.has(nodeName)) {
+      let isHighlighted = highlightedNodeNames.has(nodeName);
+      if (!isHighlighted) {
+        for (const name of highlightedNodeNames) {
+          const cleanName = name.toLowerCase().replace(/\s+/g, '_');
+          if (textContent.includes(cleanName)) {
+            isHighlighted = true;
+            break;
+          }
+        }
+      }
+
+      if (isHighlighted) {
         // Highlight this node with dark green
-        const ellipse = nodeElement.querySelector('ellipse, polygon, path');
+        const ellipse = nodeElement.querySelector('ellipse, polygon, path, rect');
         if (ellipse) {
           ellipse.setAttribute('fill', darkGreen);
           ellipse.setAttribute('stroke', darkGreen);
@@ -3559,18 +3572,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.sessionGraphSvgDark = {};
         setTimeout(() => this.graphsAvailable.set(true));
 
-        // Try v2 approach first (getAppGraphImage for light mode)
+        // Fetch graph image (supports both v1 and v2 agents)
         this.agentService.getAppGraphImage(app, false).pipe(
           catchError((error: HttpErrorResponse) => {
-            if (error.status === 404) {
-              // V2 endpoint not available, try v1 fallback with light theme
-              return this.agentService.getAppGraphDot(app, false).pipe(
-                catchError(() => {
-                  setTimeout(() => this.graphsAvailable.set(false));
-                  return of(null);
-                })
-              );
-            }
+            console.error('Error fetching light mode graphs:', error);
+            this.graphsAvailable = false;
             return of(null);
           })
         ).subscribe({
@@ -3578,33 +3584,21 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             try {
               if (res) {
                 console.log('Light mode graph response:', res);
-                // Check if this is v1 response (single dotSrc) or v2 response (path->graph map)
-                if (res.dotSrc && typeof res.dotSrc === 'string') {
-                  // V1 response - render light theme graph
-                  this.graphsAreV2 = false;
-                  this.sessionGraphSvgLight = {};
-                  this.sessionGraphSvgLight[''] = await this.graphService.render(res.dotSrc);
-                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
-                    this.updateRenderedGraph();
+                // Render each path's graph (supports both v1 and v2 responses)
+                this.sessionGraphSvgLight = {};
+                for (const [path, graph] of Object.entries(res)) {
+                  if ((graph as any)?.dotSrc) {
+                    // Normalize path: strip @run_id and skip first segment (root_agent)
+                    const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
+                    const segments = barePath.split('/');
+                    const normalizedPath = segments.length > 1 ? segments.slice(1).join('/') : (segments[0] === 'root_agent' || segments[0] === app ? '' : segments[0]);
+                    this.sessionGraphSvgLight[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
                   }
-                } else {
-                  // V2 response - render each path's graph
-                  this.graphsAreV2 = true;
-                  this.sessionGraphSvgLight = {};
-                  for (const [path, graph] of Object.entries(res)) {
-                    if ((graph as any)?.dotSrc) {
-                      // Normalize path: strip @run_id and skip first segment (root_agent)
-                      const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
-                      const segments = barePath.split('/');
-                      const normalizedPath = segments.length > 1 ? segments.slice(1).join('/') : (segments[0] === 'root_agent' || segments[0] === app ? '' : segments[0]);
-                      this.sessionGraphSvgLight[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
-                    }
-                  }
-                  console.log('sessionGraphSvgLight after rendering:', Object.keys(this.sessionGraphSvgLight));
-                  console.log('graphsAvailable:', this.graphsAvailable());
-                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
-                    this.updateRenderedGraph();
-                  }
+                }
+                console.log('sessionGraphSvgLight after rendering:', Object.keys(this.sessionGraphSvgLight));
+                console.log('graphsAvailable:', this.graphsAvailable);
+                if (this.selectedEvent && this.selectedEventIndex !== undefined) {
+                  this.updateRenderedGraph();
                 }
               }
             } catch (error) {
@@ -3618,45 +3612,29 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         });
 
-        // For dark mode, try v2 first, then v1 fallback with dark theme
+        // Fetch dark mode graph image
         this.agentService.getAppGraphImage(app, true).pipe(
           catchError((error: HttpErrorResponse) => {
-            if (error.status === 404) {
-              // V1 fallback - fetch dark theme graph
-              return this.agentService.getAppGraphDot(app, true).pipe(
-                catchError(() => of(null))
-              );
-            }
+            console.error('Error fetching dark mode graphs:', error);
             return of(null);
           })
         ).subscribe({
           next: async (res) => {
             try {
               if (res) {
-                if (res.dotSrc && typeof res.dotSrc === 'string') {
-                  // V1 response
-                  this.graphsAreV2 = false;
-                  this.sessionGraphSvgDark = {};
-                  this.sessionGraphSvgDark[''] = await this.graphService.render(res.dotSrc);
-                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
-                    this.updateRenderedGraph();
+                // Render each path's graph
+                this.sessionGraphSvgDark = {};
+                for (const [path, graph] of Object.entries(res)) {
+                  if ((graph as any)?.dotSrc) {
+                    // Normalize path: strip @run_id and skip first segment (root_agent)
+                    const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
+                    const segments = barePath.split('/');
+                    const normalizedPath = segments.length > 1 ? segments.slice(1).join('/') : (segments[0] === 'root_agent' || segments[0] === app ? '' : segments[0]);
+                    this.sessionGraphSvgDark[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
                   }
-                } else {
-                  // V2 response
-                  this.graphsAreV2 = true;
-                  this.sessionGraphSvgDark = {};
-                  for (const [path, graph] of Object.entries(res)) {
-                    if ((graph as any)?.dotSrc) {
-                      // Normalize path: strip @run_id and skip first segment (root_agent)
-                      const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
-                      const segments = barePath.split('/');
-                      const normalizedPath = segments.length > 1 ? segments.slice(1).join('/') : (segments[0] === 'root_agent' || segments[0] === app ? '' : segments[0]);
-                      this.sessionGraphSvgDark[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
-                    }
-                  }
-                  if (this.selectedEvent && this.selectedEventIndex !== undefined) {
-                    this.updateRenderedGraph();
-                  }
+                }
+                if (this.selectedEvent && this.selectedEventIndex !== undefined) {
+                  this.updateRenderedGraph();
                 }
               }
             } catch (error) {
@@ -3854,12 +3832,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.safeValuesService.windowOpen(window, url, '_blank');
   }
 
-  openViewImageDialog(data: string | null | {images: string[], currentIndex: number, urls?: string[], coordinates?: ({x: number, y: number} | null)[]}) {
+  openViewImageDialog(data: string | null | { images: string[], currentIndex: number, urls?: string[], coordinates?: ({ x: number, y: number } | null)[] }) {
     let imageData: string | null = null;
     let images: string[] | undefined = undefined;
     let currentIndex: number | undefined = undefined;
     let urls: string[] | undefined = undefined;
-    let coordinates: ({x: number, y: number} | null)[] | undefined = undefined;
+    let coordinates: ({ x: number, y: number } | null)[] | undefined = undefined;
 
     if (typeof data === 'string' || data === null) {
       imageData = data;
@@ -3900,8 +3878,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log(res);
         const meta = (res.state as any)?.['__session_metadata__'] || (this.currentSessionState as any)?.['__session_metadata__'];
         const displayName = meta?.displayName;
-        const filename = (displayName && displayName.trim()) 
-          ? `${displayName.trim().replace(/[/\\?%*:|"<>]/g, '_')}.json` 
+        const filename = (displayName && displayName.trim())
+          ? `${displayName.trim().replace(/[/\\?%*:|"<>]/g, '_')}.json`
           : `session-${this.sessionId}.json`;
         this.downloadService.downloadObjectAsJson(res, filename);
       });
@@ -4022,7 +4000,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private doViewSession(sessionData: Session, filename: string) {
     const fileApp = sessionData.appName;
-    
+
     if (fileApp && fileApp !== this.appName) {
       this.apps$.pipe(take(1)).subscribe(apps => {
         if (apps?.includes(fileApp)) {
@@ -4088,7 +4066,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.readonlySessionType.set('');
     this.readonlySessionName.set('');
     this.evalCase = null;
-    
+
     this.router.navigate([], { queryParams: { session: null, evalCase: null, evalResult: null, file: null }, queryParamsHandling: 'merge' });
 
     this.createSessionAndReset();
