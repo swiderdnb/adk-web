@@ -86,6 +86,11 @@
   box-shadow: none;
   border-radius: 12px 0 0 0;
 
+  app-chat-panel {
+    flex: 1;
+    min-height: 0;
+  }
+
   &.no-side-panel {
     border-radius: 0;
   }
