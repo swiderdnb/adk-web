@@ -19,7 +19,7 @@ import { inject, Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable, of, pipe } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { A2A_CARD, EDIT_FUNCTION_ARGS, FeatureFlagService as FeatureFlagServiceInterface, IMPORT_SESSION, SESSION_URL, TESTS } from './interfaces/feature-flag';
+import { A2A_CARD, EDIT_FUNCTION_ARGS, EVAL_V2, FeatureFlagService as FeatureFlagServiceInterface, IMPORT_SESSION, SESSION_URL, TESTS } from './interfaces/feature-flag';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +67,12 @@ export class FeatureFlagService implements FeatureFlagServiceInterface {
 
   isEvalEnabled(): Observable<boolean> {
     return of(true);
+  }
+
+  isEvalV2Enabled(): Observable<boolean> {
+    return this.route.queryParams.pipe(
+      map((params) => params[EVAL_V2] === 'true'),
+    );
   }
 
   isTestsEnabled(): Observable<boolean> {

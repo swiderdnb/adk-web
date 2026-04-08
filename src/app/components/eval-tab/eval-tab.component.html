@@ -20,6 +20,10 @@
       <mat-icon>home</mat-icon>
     </button>
     
+    @if (selectedEvalSet() === '') {
+      <span class="breadcrumb-item" style="font-weight: 500; color: var(--mat-sys-on-surface);">Eval Sets</span>
+    }
+    
     @if (selectedEvalSet() !== '') {
       <span class="breadcrumb-separator">></span>
       @if (selectedEvalTab() === 'history' || selectedHistoryRun() || selectedEvalCase()) {

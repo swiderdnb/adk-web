@@ -19,6 +19,7 @@ import {ChangeDetectionStrategy, Component, inject} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import {uuidv4} from 'uuidv7';
 import {EVAL_SERVICE} from '../../../../core/services/interfaces/eval';
+import {FEATURE_FLAG_SERVICE} from '../../../../core/services/interfaces/feature-flag';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatFormField } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
@@ -46,20 +47,27 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class NewEvalSetDialogComponentComponent {
   private readonly evalService = inject(EVAL_SERVICE);
+  private readonly featureFlagService = inject(FEATURE_FLAG_SERVICE);
   readonly data: {appName: string, defaultName?: string} = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<NewEvalSetDialogComponentComponent>);
 
   newSetId: string = this.data.defaultName || ('evalset_' + uuidv4().slice(0, 6));
   executionMode: 'live' | 'replay' = 'live';
+  isEvalV2Enabled: boolean = false;
 
-  constructor() {}
+  constructor() {
+    this.featureFlagService.isEvalV2Enabled().subscribe((enabled) => {
+      this.isEvalV2Enabled = enabled;
+    });
+  }
 
   createNewEvalSet() {
     if (!this.newSetId || this.newSetId == '') {
       alert('Cannot create eval set with empty id!');
     } else {
+      const executionMode = this.isEvalV2Enabled ? this.executionMode : undefined;
       this.evalService
-        .createNewEvalSet(this.data.appName, this.newSetId, this.executionMode)
+        .createNewEvalSet(this.data.appName, this.newSetId, executionMode)
         .subscribe((res) => {
           this.dialogRef.close(true);
         });

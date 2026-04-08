@@ -1454,6 +1454,15 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (event) {
       uiEvent.event = event;
+      if (event.invocationIndex !== undefined) {
+        uiEvent.invocationIndex = event.invocationIndex;
+      }
+      if (event.toolUseIndex !== undefined) {
+        uiEvent.toolUseIndex = event.toolUseIndex;
+      }
+      if (event.finalResponsePartIndex !== undefined) {
+        uiEvent.finalResponsePartIndex = event.finalResponsePartIndex;
+      }
     }
 
     if (part.text) {
@@ -2263,39 +2272,68 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.appendEventRow(event, false);
       }
     } else {
+      evalCase.events = [];
       let invocationIndex = 0;
 
       for (const invocation of evalCase.conversation) {
         if (invocation.userContent?.parts) {
-          for (const part of invocation.userContent.parts) {
-            this.storeMessage(part, null, 'user');
-          }
+          evalCase.events.push({
+            author: 'user',
+            content: invocation.userContent,
+            invocationIndex,
+          });
         }
 
-        if (invocation.intermediateData?.toolUses) {
+        if (invocation.intermediateData?.invocationEvents) {
+          let toolUseIndex = 0;
+          for (const event of invocation.intermediateData.invocationEvents) {
+            event.invocationIndex = invocationIndex;
+            
+            // Check if it's a function call to assign toolUseIndex
+            if (event.content?.parts?.[0]?.functionCall) {
+              event.toolUseIndex = toolUseIndex;
+              toolUseIndex++;
+            }
+            
+            evalCase.events.push(event);
+          }
+        } else if (invocation.intermediateData?.toolUses) {
           let toolUseIndex = 0;
           for (const toolUse of invocation.intermediateData.toolUses) {
-            const functionCallPart = {
-              functionCall: { name: toolUse.name, args: toolUse.args },
-            };
-            this.storeMessage(
-              functionCallPart, null, 'bot', invocationIndex, { toolUseIndex });
+            evalCase.events.push({
+              author: 'bot',
+              content: {
+                parts: [{
+                  functionCall: { name: toolUse.name, args: toolUse.args },
+                }],
+              },
+              invocationIndex,
+              toolUseIndex,
+            });
             toolUseIndex++;
 
-            const functionResponsePart = { functionResponse: { name: toolUse.name } };
-            this.storeMessage(functionResponsePart, null, 'bot');
+            evalCase.events.push({
+              author: 'bot',
+              content: {
+                parts: [{ functionResponse: { name: toolUse.name } }],
+              },
+              invocationIndex,
+            });
           }
         }
 
         if (invocation.finalResponse?.parts) {
-          let finalResponsePartIndex = 0;
-          for (const part of invocation.finalResponse.parts) {
-            this.storeMessage(
-              part, null, 'bot', invocationIndex, { finalResponsePartIndex });
-            finalResponsePartIndex++;
-          }
+          evalCase.events.push({
+            author: 'bot',
+            content: invocation.finalResponse,
+            invocationIndex,
+          });
         }
         invocationIndex++;
+      }
+
+      for (const event of evalCase.events) {
+        this.appendEventRow(event, false);
       }
     }
   }

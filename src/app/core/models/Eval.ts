@@ -52,6 +52,7 @@ export declare interface Content {
 export declare interface IntermediateData {
   toolUses: any[];
   intermediateResponses: any[];
+  invocationEvents?: any[];
 }
 
 export declare interface EvalCase {

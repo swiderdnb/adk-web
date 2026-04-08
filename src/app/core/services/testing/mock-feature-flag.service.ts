@@ -54,6 +54,9 @@ export class MockFeatureFlagService implements FeatureFlagService {
   isEvalEnabledResponse = new ReplaySubject<boolean>(1);
   isEvalEnabled = jasmine.createSpy('isEvalEnabled')
                       .and.returnValue(this.isEvalEnabledResponse);
+  isEvalV2EnabledResponse = new ReplaySubject<boolean>(1);
+  isEvalV2Enabled = jasmine.createSpy('isEvalV2Enabled')
+                       .and.returnValue(this.isEvalV2EnabledResponse);
   isTokenStreamingEnabledResponse = new ReplaySubject<boolean>(1);
   isTokenStreamingEnabled =
       jasmine.createSpy('isTokenStreamingEnabled')

@@ -32,6 +32,7 @@ export class UiEvent {
   evalThreshold?: number;
   invocationIndex?: number;
   finalResponsePartIndex?: number;
+  toolUseIndex?: number;
   error?: {
     errorCode?: string;
     errorMessage?: string;
