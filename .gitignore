@@ -37,3 +37,4 @@ adk-env/
 adk-samples/
 
 venv/
+.vscode/
