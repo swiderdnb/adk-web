@@ -216,7 +216,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   evalTab = viewChild(EvalTabComponent);
   appSearchInput = viewChild<ElementRef<HTMLInputElement>>('appSearchInput');
 
-  isChatMode = signal(true);
+  canChat = computed(() => this.chatType() === 'session');
   isEvalCaseEditing = signal(false);
   hasEvalCaseChanged = signal(false);
   isEvalEditMode = signal(false);
@@ -906,6 +906,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private createSessionAndReset() {
     this.resetToNewSession();
+    this.chatType.set('session');
     this.isViewOnlySession.set(false);
     this.isViewOnlyAppNameMismatch.set(false);
     this.canEditSession.set(true);
@@ -1419,9 +1420,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    if (e?.evalStatus) {
-      this.isChatMode.set(false);
-    }
+
 
     let message: any = {
       role,
@@ -2054,7 +2053,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   protected handleTabChange(event: any) {
-    if (!this.isChatMode()) {
+    if (!this.canChat()) {
       this.resetEditEvalCaseVars();
       this.handleReturnToSession(true);
     }
@@ -2063,7 +2062,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected handleReturnToSession(event: boolean) {
     this.sessionTab?.getSession(this.sessionId);
     this.evalTab()?.resetEvalCase();
-    this.isChatMode.set(true);
+    this.chatType.set('session');
   }
 
   protected handleEvalNotInstalled(errorMsg: string) {
@@ -2208,12 +2207,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.sessionId = session.id;
     this.currentSessionState = session.state || {};
     this.evalCase = null;
-    this.isChatMode.set(true);
     this.resetEventsAndMessages();
 
     if ((session as any).isEvalResult) {
       this.isViewOnlySession.set(true);
-      this.isChatMode.set(false);
       this.readonlySessionType.set('Eval Result');
       const caseName = (session as any).evalCase?.evalId;
       const runTime = (session as any).timestamp;
@@ -2380,7 +2377,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.sessionId = testName;
     this.currentSessionState = {};
     this.evalCase = null;
-    this.isChatMode.set(true);
+    this.chatType.set('session');
     this.resetEventsAndMessages();
 
     events.forEach((event: any) => {
@@ -2397,7 +2394,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   private buildUiEventsFromEvalCase(evalCase: EvalCase): UiEvent[] {
     const savedUiEvents = this.uiEvents();
     const savedEventData = this.eventData;
-    const savedIsChatMode = this.isChatMode();
+    const savedChatType = this.chatType();
     const savedIsViewOnly = this.isViewOnlySession();
     const savedType = this.readonlySessionType();
     const savedName = this.readonlySessionName();
@@ -2411,7 +2408,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     
     this.uiEvents.set(savedUiEvents);
     this.eventData = savedEventData;
-    this.isChatMode.set(savedIsChatMode);
+    this.chatType.set(savedChatType);
     this.isViewOnlySession.set(savedIsViewOnly);
     this.readonlySessionType.set(savedType);
     this.readonlySessionName.set(savedName);
@@ -2421,7 +2418,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected updateWithSelectedEvalCase(evalCase: EvalCase) {
     this.evalCase = evalCase;
-    this.isChatMode.set(false);
+    this.chatType.set('eval-case');
     
     this.isViewOnlySession.set(true);
     this.readonlySessionType.set('Eval Case');
@@ -4057,7 +4054,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.sessionId = `File: ${filename}`;
     this.currentSessionState = sessionData.state || {};
     this.evalCase = null;
-    this.isChatMode.set(true);
+    this.chatType.set('session');
     this.updateSelectedSessionUrl();
     this.showSessionSelectorDrawer = false;
     this.resetEventsAndMessages();
