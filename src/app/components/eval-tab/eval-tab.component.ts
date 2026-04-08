@@ -422,19 +422,23 @@ export class EvalTabComponent implements OnInit, OnChanges {
           let failedMetric = '';
           let score = 1;
           let threshold = 1;
-          for (const evalMetricResult of invocationResult.evalMetricResults) {
-            if (evalMetricResult.evalStatus === 2) {
-              evalStatus = 2;
-              failedMetric = evalMetricResult.metricName;
-              score = evalMetricResult.score;
-              threshold = evalMetricResult.threshold;
-              break;
+          
+          if (invocationResult && invocationResult.evalMetricResults) {
+            for (const evalMetricResult of invocationResult.evalMetricResults) {
+              if (evalMetricResult.evalStatus === 2) {
+                evalStatus = 2;
+                failedMetric = evalMetricResult.metricName;
+                score = evalMetricResult.score;
+                threshold = evalMetricResult.threshold;
+                break;
+              }
             }
           }
+          
           event.evalStatus = evalStatus;
 
-          if (i === res.events.length - 1 ||
-              res.events[i + 1].author === 'user') {
+          if (invocationResult && (i === res.events.length - 1 ||
+              res.events[i + 1].author === 'user')) {
             this.addEvalFieldsToBotEvent(
                 event, invocationResult, failedMetric, score, threshold);
           }
