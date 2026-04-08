@@ -344,15 +344,17 @@ export class EvalTabComponent implements OnInit, OnChanges {
   selectEvalSet(set: string) {
     this.selectedEvalSet.set(set);
     this.listEvalCases();
-    this.evalService.getEvalSet(this.appName(), set)
-      .pipe(catchError((error) => {
-        console.error('Error fetching eval set details', error);
-        return of(null);
-      }))
-      .subscribe((res) => {
-        this.currentEvalSet.set(res);
-        this.changeDetectorRef.detectChanges();
-      });
+    if (this.isEvalV2Enabled()) {
+      this.evalService.getEvalSet(this.appName(), set)
+        .pipe(catchError((error) => {
+          console.error('Error fetching eval set details', error);
+          return of(null);
+        }))
+        .subscribe((res) => {
+          this.currentEvalSet.set(res);
+          this.changeDetectorRef.detectChanges();
+        });
+    }
   }
 
   clearSelectedEvalSet() {
