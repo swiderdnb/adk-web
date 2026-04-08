@@ -26,58 +26,67 @@
     <!-- Input card -->
     <div class="request-card">
       <!-- Data view buttons -->
-      @if (hasPayload() || hasResponseSchema()) {
-      <div class="data-buttons">
-        @if (hasPayload()) {
-        <app-hover-info-button
-          icon="code"
-          text="payload"
-          [tooltipContent]="getPayloadJson()"
-          tooltipTitle="Payload">
-        </app-hover-info-button>
-        }
-        @if (hasResponseSchema()) {
-        <app-hover-info-button
-          icon="view_headline"
-          text="response schema"
-          [tooltipContent]="getResponseSchemaJson()"
-          tooltipTitle="Response Schema">
-        </app-hover-info-button>
-        }
-      </div>
+      @if (formFields.length > 0) {
+        <div class="tabs-header">
+          <div class="tab-link" [class.active]="activeTab === 'form'" (click)="setActiveTab('form')">Form</div>
+          <div class="tab-link" [class.active]="activeTab === 'json'" (click)="setActiveTab('json')">JSON</div>
+          <div class="tab-link" [class.active]="activeTab === 'payload'" (click)="setActiveTab('payload')">Payload</div>
+          <div class="tab-link" [class.active]="activeTab === 'response schema'" (click)="setActiveTab('response schema')">Schema</div>
+        </div>
       }
 
       <!-- Input field -->
       <div class="input-container">
         @if (formFields.length > 0) {
-          <div class="schema-form grid-layout">
-            @for (field of formFields; track field.key) {
-              <div class="grid-label">
-                {{field.title}}@if(field.required){ *}
-              </div>
-              <div class="grid-value">
-                @if (field.type === 'boolean') {
-                  <input type="checkbox" [id]="field.key" [(ngModel)]="formModel[field.key]" />
-                  @if (field.description) {
-                    <div class="field-description">{{field.description}}</div>
-                  }
-                } @else {
-                  @if (field.type === 'number' || field.type === 'integer') {
-                    <input type="number" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
-                  } @else {
-                    <input type="text" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
-                  }
-                  @if (field.description) {
-                    <div class="field-description">{{field.description}}</div>
-                  }
+          <div class="tabs-content">
+            @if (activeTab === 'form') {
+              <div class="schema-form grid-layout">
+                @for (field of formFields; track field.key) {
+                  <div class="grid-label">
+                    {{field.title}}@if(field.required){ *}
+                  </div>
+                  <div class="grid-value">
+                    @if (field.type === 'boolean') {
+                      <input type="checkbox" [id]="field.key" [(ngModel)]="formModel[field.key]" />
+                      @if (field.description) {
+                        <div class="field-description">{{field.description}}</div>
+                      }
+                    } @else {
+                      @if (field.type === 'number' || field.type === 'integer') {
+                        <input type="number" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
+                      } @else {
+                        <input type="text" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
+                      }
+                      @if (field.description) {
+                        <div class="field-description">{{field.description}}</div>
+                      }
+                    }
+                  </div>
                 }
+                <div class="grid-submit">
+                  <button mat-raised-button color="primary" (click)="onSend()" class="form-submit-button">
+                    Submit
+                  </button>
+                </div>
+              </div>
+            } @else if (activeTab === 'json') {
+              <div class="json-view">
+                <textarea [(ngModel)]="formModelJson" (ngModelChange)="onJsonInputChange($event)" class="json-textarea"></textarea>
+              </div>
+              <div class="grid-submit">
+                <button mat-raised-button color="primary" (click)="onSend()" class="form-submit-button">
+                  Submit
+                </button>
+              </div>
+            } @else if (activeTab === 'payload') {
+              <div class="json-view">
+                <pre>{{getPayloadJson()}}</pre>
+              </div>
+            } @else if (activeTab === 'response schema') {
+              <div class="json-view">
+                <pre>{{getResponseSchemaJson()}}</pre>
               </div>
             }
-            <div class="grid-submit">
-              <button mat-raised-button color="primary" (click)="onSend()" class="form-submit-button">
-                Submit
-              </button>
-            </div>
           </div>
         } @else {
           <input class="response-input" [(ngModel)]="functionCall.userResponse" (keydown.enter)="onSend()"
@@ -93,58 +102,67 @@
   <!-- Input card without message box wrapper -->
   <div class="request-card-standalone">
     <!-- Data view buttons -->
-    @if (hasPayload() || hasResponseSchema()) {
-    <div class="data-buttons">
-      @if (hasPayload()) {
-      <app-hover-info-button
-        icon="code"
-        text="payload"
-        [tooltipContent]="getPayloadJson()"
-        tooltipTitle="Payload">
-      </app-hover-info-button>
-      }
-      @if (hasResponseSchema()) {
-      <app-hover-info-button
-        icon="view_headline"
-        text="response schema"
-        [tooltipContent]="getResponseSchemaJson()"
-        tooltipTitle="Response Schema">
-      </app-hover-info-button>
-      }
-    </div>
+    @if (formFields.length > 0) {
+      <div class="tabs-header">
+        <div class="tab-link" [class.active]="activeTab === 'form'" (click)="setActiveTab('form')">Form</div>
+        <div class="tab-link" [class.active]="activeTab === 'json'" (click)="setActiveTab('json')">JSON</div>
+        <div class="tab-link" [class.active]="activeTab === 'payload'" (click)="setActiveTab('payload')">Payload</div>
+        <div class="tab-link" [class.active]="activeTab === 'response schema'" (click)="setActiveTab('response schema')">Schema</div>
+      </div>
     }
 
     <!-- Input field -->
     <div class="input-container">
       @if (formFields.length > 0) {
-        <div class="schema-form grid-layout">
-          @for (field of formFields; track field.key) {
-            <div class="grid-label">
-              {{field.title}}@if(field.required){ *}
-            </div>
-            <div class="grid-value">
-              @if (field.type === 'boolean') {
-                <input type="checkbox" [id]="field.key" [(ngModel)]="formModel[field.key]" />
-                @if (field.description) {
-                  <div class="field-description">{{field.description}}</div>
-                }
-              } @else {
-                @if (field.type === 'number' || field.type === 'integer') {
-                  <input type="number" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
-                } @else {
-                  <input type="text" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
-                }
-                @if (field.description) {
-                  <div class="field-description">{{field.description}}</div>
-                }
+        <div class="tabs-content">
+          @if (activeTab === 'form') {
+            <div class="schema-form grid-layout">
+              @for (field of formFields; track field.key) {
+                <div class="grid-label">
+                  {{field.title}}@if(field.required){ *}
+                </div>
+                <div class="grid-value">
+                  @if (field.type === 'boolean') {
+                    <input type="checkbox" [id]="field.key" [(ngModel)]="formModel[field.key]" />
+                    @if (field.description) {
+                      <div class="field-description">{{field.description}}</div>
+                    }
+                  } @else {
+                    @if (field.type === 'number' || field.type === 'integer') {
+                      <input type="number" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
+                    } @else {
+                      <input type="text" [id]="field.key" [(ngModel)]="formModel[field.key]" class="form-input" />
+                    }
+                    @if (field.description) {
+                      <div class="field-description">{{field.description}}</div>
+                    }
+                  }
+                </div>
               }
+              <div class="grid-submit">
+                <button mat-raised-button color="primary" (click)="onSend()" class="form-submit-button">
+                  Submit
+                </button>
+              </div>
+            </div>
+          } @else if (activeTab === 'json') {
+            <div class="json-view">
+              <textarea [(ngModel)]="formModelJson" (ngModelChange)="onJsonInputChange($event)" class="json-textarea"></textarea>
+            </div>
+            <div class="grid-submit">
+              <button mat-raised-button color="primary" (click)="onSend()" class="form-submit-button">
+                Submit
+              </button>
+            </div>
+          } @else if (activeTab === 'payload') {
+            <div class="json-view">
+              <pre>{{getPayloadJson()}}</pre>
+            </div>
+          } @else if (activeTab === 'response schema') {
+            <div class="json-view">
+              <pre>{{getResponseSchemaJson()}}</pre>
             </div>
           }
-          <div class="grid-submit">
-            <button mat-raised-button color="primary" (click)="onSend()" class="form-submit-button">
-              Submit
-            </button>
-          </div>
         </div>
       } @else {
         <input class="response-input" [(ngModel)]="functionCall.userResponse" (keydown.enter)="onSend()"

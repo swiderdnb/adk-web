@@ -21,10 +21,11 @@ import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 
 
+
     import {AgentRunRequest} from '../../core/models/AgentRunRequest';
     import {MarkdownComponent} from '../markdown/markdown.component';
 
-import {HoverInfoButtonComponent} from '../hover-info-button/hover-info-button.component';
+
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
@@ -37,7 +38,8 @@ import {HoverInfoButtonComponent} from '../hover-info-button/hover-info-button.c
     MatButton,
     MatIcon,
     MarkdownComponent,
-    HoverInfoButtonComponent,
+
+
 
   ],
 })
@@ -51,6 +53,8 @@ export class LongRunningResponseComponent implements OnChanges {
 
   formModel: any = {};
   formFields: any[] = [];
+  activeTab: string = 'form';
+  formModelJson: string = '';
 
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -67,22 +71,82 @@ export class LongRunningResponseComponent implements OnChanges {
     if (schema && schema.type === 'object' && schema.properties) {
       for (const key of Object.keys(schema.properties)) {
         const prop = schema.properties[key];
+        let type = prop.type;
+        
+        if (!type && prop.anyOf) {
+          // Find the first non-null type
+          const nonNullType = prop.anyOf.find((t: any) => t.type !== 'null');
+          if (nonNullType) {
+            type = nonNullType.type;
+          }
+        }
+
         this.formFields.push({
           key: key,
-          type: prop.type,
+          type: type,
           title: prop.title || key,
           description: prop.description || '',
           required: schema.required?.includes(key) || false
         });
         // Initialize model
-        if (prop.type === 'boolean') {
+        if (type === 'boolean') {
           this.formModel[key] = false;
-        } else if (prop.type === 'number' || prop.type === 'integer') {
+        } else if (type === 'number' || type === 'integer') {
           this.formModel[key] = null;
         } else {
           this.formModel[key] = '';
         }
       }
+    }
+  }
+
+  getCleanedFormModel(): any {
+    const schema = this.functionCall?.args?.response_schema;
+    if (!schema || schema.type !== 'object' || !schema.properties) {
+      return this.formModel;
+    }
+    const cleaned = {...this.formModel};
+    for (const key of Object.keys(schema.properties)) {
+      const prop = schema.properties[key];
+      const value = cleaned[key];
+      if (value !== null && value !== undefined && value !== '') {
+        let type = prop.type;
+        if (!type && prop.anyOf) {
+          const nonNullType = prop.anyOf.find((t: any) => t.type !== 'null');
+          if (nonNullType) {
+            type = nonNullType.type;
+          }
+        }
+        
+        if (type === 'integer') {
+          cleaned[key] = parseInt(value, 10);
+        } else if (type === 'number') {
+          cleaned[key] = parseFloat(value);
+        }
+      } else {
+        cleaned[key] = null;
+      }
+    }
+    return cleaned;
+  }
+
+  updateFormModelJson() {
+    this.formModelJson = JSON.stringify(this.getCleanedFormModel(), null, 2);
+  }
+
+  onJsonInputChange(newValue: string) {
+    try {
+      const parsed = JSON.parse(newValue);
+      this.formModel = parsed;
+    } catch (e) {
+      // Ignore invalid JSON
+    }
+  }
+
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+    if (tab === 'json') {
+      this.updateFormModelJson();
     }
   }
 
@@ -125,8 +189,9 @@ export class LongRunningResponseComponent implements OnChanges {
     const hasSchema = schema && schema.type === 'object' && schema.properties;
 
     if (hasSchema && this.formFields.length > 0) {
-      responseValue = this.formModel;
-      this.functionCall.userResponse = JSON.stringify(this.formModel);
+      const cleanedModel = this.getCleanedFormModel();
+      responseValue = cleanedModel;
+      this.functionCall.userResponse = JSON.stringify(cleanedModel);
       this.functionCall.sentUserResponse = this.functionCall.userResponse;
     } else {
       if (!this.functionCall.userResponse ||
