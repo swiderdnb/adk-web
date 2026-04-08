@@ -241,10 +241,28 @@ export class EvalTabComponent implements OnInit, OnChanges {
     }
   }
 
+  getNextDefaultEvalSetName(): string {
+    const pattern = /^eval_set_(\d+)$/;
+    let maxNum = 0;
+    for (const set of this.evalsets) {
+      if (typeof set === 'string') {
+        const match = set.match(pattern);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNum) {
+            maxNum = num;
+          }
+        }
+      }
+    }
+    return `eval_set_${maxNum + 1}`;
+  }
+
   openNewEvalSetDialog() {
+    const defaultName = this.getNextDefaultEvalSetName();
     const dialogRef = this.dialog.open(NewEvalSetDialogComponentComponent, {
       width: '600px',
-      data: {appName: this.appName()},
+      data: {appName: this.appName(), defaultName: defaultName},
     });
 
     dialogRef.afterClosed().subscribe((needRefresh) => {

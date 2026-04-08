@@ -46,10 +46,10 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class NewEvalSetDialogComponentComponent {
   private readonly evalService = inject(EVAL_SERVICE);
-  readonly data: {appName: string} = inject(MAT_DIALOG_DATA);
+  readonly data: {appName: string, defaultName?: string} = inject(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<NewEvalSetDialogComponentComponent>);
 
-  newSetId: string = 'evalset_' + uuidv4().slice(0, 6);
+  newSetId: string = this.data.defaultName || ('evalset_' + uuidv4().slice(0, 6));
   executionMode: 'live' | 'replay' = 'live';
 
   constructor() {}
