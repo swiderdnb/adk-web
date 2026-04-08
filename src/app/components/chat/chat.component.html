@@ -638,7 +638,7 @@
             (toggleSse)="toggleSse()"
             [isChatMode]="isChatMode()"
             [evalCaseResult]="evalCaseResult()"
-            [showEvalSummary]="true"
+            [showEvalSummary]="readonlySessionType() === 'Eval Result'"
             [evalCase]="evalCase"
             [isEvalEditMode]="isEvalEditMode()"
             [isEvalCaseEditing]="isEvalCaseEditing()"

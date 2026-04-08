@@ -2144,26 +2144,17 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isViewOnlySession.set(false);
     }
 
-    this.featureFlagService.isEvalV2Enabled()
-      .pipe(first())
-      .subscribe((isEvalV2Enabled) => {
-        if (isEvalV2Enabled) {
-          if ((session as any).evalCase) {
-            this.expectedUiEvents.set(this.buildUiEventsFromEvalCase((session as any).evalCase));
-          } else {
-            this.expectedUiEvents.set([]);
-          }
-          
-          if ((session as any).evalCaseResult) {
-            this.evalCaseResult.set((session as any).evalCaseResult);
-          } else {
-            this.evalCaseResult.set(null);
-          }
-        } else {
-          this.expectedUiEvents.set([]);
-          this.evalCaseResult.set(null);
-        }
-      });
+    if ((session as any).evalCase) {
+      this.expectedUiEvents.set(this.buildUiEventsFromEvalCase((session as any).evalCase));
+    } else {
+      this.expectedUiEvents.set([]);
+    }
+    
+    if ((session as any).evalCaseResult) {
+      this.evalCaseResult.set((session as any).evalCaseResult);
+    } else {
+      this.evalCaseResult.set(null);
+    }
     if (!(session as any).isEvalResult) {
       this.isSideBySide.set(false);
     }
