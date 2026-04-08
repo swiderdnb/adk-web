@@ -42,6 +42,7 @@ export const EVAL_TAB_MESSAGES = {
   addSessionToSetButtonPrefix: 'From Current Session',
   deleteEvalCaseTooltip: 'Delete eval case',
   editEvalCaseTooltip: 'Edit eval case',
+  deleteEvalSetTooltip: 'Delete eval set',
 };
 
 

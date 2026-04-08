@@ -60,4 +60,8 @@ export declare abstract class EvalService {
     evalSetId: string,
     evalCaseId: string,
   ): Observable<any>;
+  abstract deleteEvalSet(
+    appName: string,
+    evalSetId: string,
+  ): Observable<any>;
 }

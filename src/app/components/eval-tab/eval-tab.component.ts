@@ -626,6 +626,36 @@ export class EvalTabComponent implements OnInit, OnChanges {
         });
   }
 
+  confirmDeleteEvalSet(event: Event, evalSetId: string) {
+    event.stopPropagation();
+    const dialogData: DeleteSessionDialogData = {
+      title: 'Confirm delete',
+      message: `Are you sure you want to delete eval set ${evalSetId}?`,
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+    };
+
+    const dialogRef = this.dialog.open(DeleteSessionDialogComponent, {
+      width: '600px',
+      data: dialogData,
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.deleteEvalSet(evalSetId);
+      }
+    });
+  }
+
+  deleteEvalSet(evalSetId: string) {
+    this.evalService
+        .deleteEvalSet(this.appName(), evalSetId)
+        .subscribe((res) => {
+          this.getEvalSet();
+          this.changeDetectorRef.detectChanges();
+        });
+  }
+
   protected getEvaluationResult(navigateToLatest = false) {
     this.evalService.listEvalResults(this.appName())
         .pipe(

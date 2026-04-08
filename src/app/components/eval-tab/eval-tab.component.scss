@@ -227,6 +227,10 @@
 
   &:hover {
     background-color: var(--mat-sys-surface-container-low, #f5f5f5);
+    
+    .delete-btn {
+      opacity: 1;
+    }
   }
 
   .eval-set-left {
@@ -245,12 +249,20 @@
     color: var(--mat-sys-on-surface);
   }
 
-  .eval-set-right {
+  .delete-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    color: var(--mat-sys-outline);
+
+    &:hover {
+      color: var(--mat-sys-error);
+    }
+
     mat-icon {
-      color: var(--mat-sys-outline);
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 20px !important;
+      width: 20px !important;
+      height: 20px !important;
+      line-height: 20px !important;
     }
   }
 }

@@ -146,4 +146,9 @@ export class EvalService implements EvalServiceInterface {
         `/apps/${appName}/eval_sets/${evalSetId}/evals/${evalCaseId}`;
     return this.http.delete<any>(url, {});
   }
+
+  deleteEvalSet(appName: string, evalSetId: string) {
+    const url = this.apiServerDomain + `/apps/${appName}/eval_sets/${evalSetId}`;
+    return this.http.delete<any>(url, {});
+  }
 }

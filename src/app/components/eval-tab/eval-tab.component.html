@@ -87,7 +87,9 @@
         <div class="eval-set-name">{{set}}</div>
       </div>
       <div class="eval-set-right">
-        <mat-icon>chevron_right</mat-icon>
+        <button mat-icon-button class="delete-btn" (click)="confirmDeleteEvalSet($event, set)" [matTooltip]="i18n.deleteEvalSetTooltip">
+          <mat-icon>delete</mat-icon>
+        </button>
       </div>
     </div>
     }
