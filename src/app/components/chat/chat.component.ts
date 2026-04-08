@@ -491,7 +491,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionGraphSvgLight: Record<string, string> = {};
   sessionGraphSvgDark: Record<string, string> = {};
   agentReadme: string = '';
-  graphsAvailable: boolean = true;
+  graphsAvailable = signal<boolean>(true);
 
   get hasSubWorkflows(): boolean {
     return Object.keys(this.sessionGraphSvgLight).length > 1;
@@ -3576,7 +3576,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         this.agentService.getAppGraphImage(app, false).pipe(
           catchError((error: HttpErrorResponse) => {
             console.error('Error fetching light mode graphs:', error);
-            this.graphsAvailable = false;
+            this.graphsAvailable.set(false);
             return of(null);
           })
         ).subscribe({
@@ -3596,7 +3596,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                   }
                 }
                 console.log('sessionGraphSvgLight after rendering:', Object.keys(this.sessionGraphSvgLight));
-                console.log('graphsAvailable:', this.graphsAvailable);
+                console.log('graphsAvailable:', this.graphsAvailable());
                 if (this.selectedEvent && this.selectedEventIndex !== undefined) {
                   this.updateRenderedGraph();
                 }
