@@ -2127,6 +2127,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if ((session as any).isEvalResult) {
       this.isViewOnlySession.set(true);
+      this.isChatMode.set(false);
       this.readonlySessionType.set('Eval Result');
       const caseName = (session as any).evalCase?.evalId;
       const runTime = (session as any).timestamp;
