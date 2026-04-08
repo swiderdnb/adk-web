@@ -29,7 +29,7 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {MatSelectModule} from '@angular/material/select';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {BehaviorSubject, of, forkJoin} from 'rxjs';
-import {catchError, switchMap} from 'rxjs/operators';
+import {catchError, first, switchMap} from 'rxjs/operators';
 
 import {DEFAULT_EVAL_METRICS, EvalCase, EvalMetric, Invocation} from '../../core/models/Eval';
 import {Session} from '../../core/models/Session';
@@ -180,6 +180,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
 
   evalRunning = signal(false);
   evalMetrics: EvalMetric[] = DEFAULT_EVAL_METRICS;
+  isEvalV2Enabled = signal(false);
 
   // Key: evalSetId
   // Value: EvaluationResult[]
@@ -210,7 +211,11 @@ export class EvalTabComponent implements OnInit, OnChanges {
       this.getEvaluationResult();
     }
   }
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.flagService.isEvalV2Enabled()
+      .pipe(first())
+      .subscribe((enabled) => this.isEvalV2Enabled.set(enabled));
+  }
 
   selectNewEvalCase(evalCases: string[]) {
     let caseToSelect = this.deletedEvalCaseIndex;
