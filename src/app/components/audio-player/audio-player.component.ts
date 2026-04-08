@@ -18,7 +18,7 @@
 import {ChangeDetectionStrategy, Component, ElementRef, input, OnChanges, SimpleChanges, viewChild} from '@angular/core';
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'app-audio-player',
     templateUrl: './audio-player.component.html',
     styleUrls: ['./audio-player.component.scss'],

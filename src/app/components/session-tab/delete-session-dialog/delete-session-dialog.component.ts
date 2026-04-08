@@ -34,7 +34,7 @@ export interface DeleteSessionDialogData {
  * Dialog component to confirm deleting a session.
  */
 @Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'app-delete-session-dialog',
     templateUrl: './delete-session-dialog.component.html',
     styleUrls: ['./delete-session-dialog.component.scss'],

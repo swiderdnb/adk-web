@@ -34,7 +34,7 @@ export interface EvalConfigData {
 }
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'app-run-eval-config-dialog',
     templateUrl: './run-eval-config-dialog.component.html',
     styleUrls: ['./run-eval-config-dialog.component.scss'],

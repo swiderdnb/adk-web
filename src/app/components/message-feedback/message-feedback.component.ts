@@ -31,7 +31,7 @@ import {Feedback, FEEDBACK_SERVICE} from '../../core/services/interfaces/feedbac
 import {MessageFeedbackMessagesInjectionToken} from './message-feedback.component.i18n';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: 'app-message-feedback',
   templateUrl: './message-feedback.component.html',
   styleUrl: './message-feedback.component.scss',

@@ -38,7 +38,7 @@ import { AsyncPipe } from "@angular/common";
 import { BuilderAssistantComponent } from "../builder-assistant/builder-assistant.component";
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   selector: "app-canvas",
   templateUrl: "./canvas.component.html",
   styleUrl: "./canvas.component.scss",
