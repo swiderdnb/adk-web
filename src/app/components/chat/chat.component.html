@@ -615,23 +615,46 @@
           @case ('eval-result') {
             @if (evalCaseResult()) {
               @let result = evalCaseResult();
-              <div class="eval-result-summary" style="margin: 16px; padding: 12px 16px; border-radius: 8px; background: var(--mat-sys-surface-container); border: 1px solid var(--mat-sys-outline-variant); display: flex; align-items: center; gap: 32px;">
+              <div class="eval-result-summary"
+                style="margin: 0; padding: 8px 24px; background: var(--mat-sys-surface-container); border-bottom: 1px solid var(--mat-sys-outline-variant); display: flex; align-items: center;">
                 @if (result.overallEvalMetricResults?.length) {
-                  <div style="display: flex; gap: 24px; align-items: center;">
+                  <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
                     @for (metric of result.overallEvalMetricResults; track metric.metricName) {
-                      <div style="display: flex; flex-direction: column; gap: 2px;">
-                        <span style="color: var(--mat-sys-on-surface-variant); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">{{ metric.metricName }}</span>
-                        <div style="display: flex; gap: 12px; align-items: baseline;">
-                          <span>
-                            <span style="color: var(--mat-sys-on-surface-variant); font-size: 12px;">Actual: </span>
-                            <span [style.color]="metric.evalStatus == 1 ? 'var(--app-color-success)' : 'var(--app-color-error)'" style="font-size: 14px; font-weight: 600;">
-                              {{ metric.score | number:'1.2-2' }}
-                            </span>
+                      <div class="metric-block"
+                        [style.border]="metric.evalStatus == 1 ? '1px solid #2e7d32' : '1px solid var(--mat-sys-error)'"
+                        style="position: relative; display: flex; flex-direction: column; gap: 2px; background: var(--mat-sys-surface-container-high); padding: 6px 12px; border-radius: 6px; flex-shrink: 0; cursor: pointer;">
+                        <span style="color: var(--mat-sys-on-surface-variant); font-size: 11px; font-weight: 500;">{{ metric.metricName
+                          }}</span>
+                        <div style="display: flex; align-items: baseline; gap: 4px;">
+                          <span [style.color]="metric.evalStatus == 1 ? '#2e7d32' : 'var(--mat-sys-error)'"
+                            style="font-size: 16px; font-weight: 600;">
+                            {{ metric.score != null ? (metric.score | number:'1.2-2') : '?' }}
                           </span>
-                          <span>
-                            <span style="color: var(--mat-sys-on-surface-variant); font-size: 12px;">Threshold: </span>
-                            <span style="font-size: 14px; font-weight: 500; color: var(--mat-sys-on-surface);">{{ metric.threshold | number:'1.2-2' }}</span>
+                          <span style="color: var(--mat-sys-on-surface-variant); font-size: 14px; font-weight: 500;">
+                            / {{ metric.threshold | number:'1.2-2' }}
                           </span>
+                        </div>
+                        
+                        <!-- Tooltip -->
+                        <div class="metric-tooltip">
+                          <div class="tooltip-title">{{ metric.metricName }}</div>
+                          <div class="tooltip-grid">
+                            <div class="tooltip-item"><span class="tooltip-label">Actual:</span> <span class="tooltip-value"
+                                [style.color]="metric.evalStatus == 1 ? '#2e7d32' : 'var(--mat-sys-error)'">{{ metric.score != null ?
+                                (metric.score | number:'1.2-2') : '?' }}</span></div>
+                            <div class="tooltip-item"><span class="tooltip-label">Threshold:</span> <span class="tooltip-value">{{
+                                metric.threshold | number:'1.2-2' }}</span></div>
+                            <div class="tooltip-item"><span class="tooltip-label">Min:</span> <span class="tooltip-value">{{
+                                getMetricMin(metric.metricName) }}</span></div>
+                            <div class="tooltip-item"><span class="tooltip-label">Max:</span> <span class="tooltip-value">{{
+                                getMetricMax(metric.metricName) }}</span></div>
+                          </div>
+                          @let desc = getMetricDescription(metric.metricName);
+                          @if (desc) {
+                          <div class="tooltip-desc"
+                            style="margin-top: 8px; border-top: 1px solid var(--mat-sys-outline-variant); padding-top: 6px; margin-bottom: 0;">
+                            {{ desc }}</div>
+                          }
                         </div>
                       </div>
                     }

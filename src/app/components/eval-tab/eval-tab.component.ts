@@ -16,7 +16,7 @@
  */
 
 import {SelectionModel} from '@angular/cdk/collections';
-import {NgClass} from '@angular/common';
+import {DecimalPipe, NgClass} from '@angular/common';
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, InjectionToken, input, OnChanges, OnInit, output, signal, SimpleChanges, Type, viewChildren} from '@angular/core';
 import {MatButton, MatIconButton} from '@angular/material/button';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
@@ -95,6 +95,7 @@ interface AppEvaluationResult {
     MatCheckbox,
     MatCellDef,
     MatCell,
+    DecimalPipe,
     NgClass,
     MatHeaderRowDef,
     MatHeaderRow,

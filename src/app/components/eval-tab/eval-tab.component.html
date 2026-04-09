@@ -284,8 +284,9 @@
                         @if (currentHistoryMetrics().length > 0) {
                         <div class="status-card__metrics">
                           @for (evalMetric of currentHistoryMetrics(); track evalMetric) {
-                          <span class="status-card__metric"> {{ evalMetric.metricName }}:
-                            {{ evalMetric.threshold }}
+                          <span class="status-card__metric">
+                            <span class="status-card__metric-name" [matTooltip]="evalMetric.metricName">{{ evalMetric.metricName }}</span>:
+                            <span class="status-card__metric-value">{{ evalMetric.threshold | number:'1.2-2' }}</span>
                           </span>
                           }
                         </div>
