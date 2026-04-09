@@ -19,10 +19,12 @@ import {ChangeDetectionStrategy, Component, Inject} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 
-import {EvalMetric} from '../../../core/models/Eval';
+import {EvalMetric, MetricsInfo} from '../../../core/models/Eval';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatButton } from '@angular/material/button';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { CommonModule } from '@angular/common';
 
 /**
  * @interface EvalConfigData
@@ -31,6 +33,7 @@ import { MatButton } from '@angular/material/button';
  */
 export interface EvalConfigData {
   evalMetrics: EvalMetric[];
+  metricsInfo: MetricsInfo[];
 }
 
 @Component({
@@ -48,6 +51,8 @@ export interface EvalConfigData {
         MatSliderThumb,
         MatDialogActions,
         MatButton,
+        MatCheckbox,
+        CommonModule,
     ],
 })
 export class RunEvalConfigDialogComponent {
@@ -55,62 +60,101 @@ export class RunEvalConfigDialogComponent {
   evalForm: FormGroup;
 
   evalMetrics: EvalMetric[] = [];
+  metricsInfo: MetricsInfo[] = [];
 
-  /**
-   * @constructor
-   * @param {MatDialogRef<RunEvalConfigDialogComponent>} dialogRef - Reference
-   *     to the dialog opened.
-   * @param {FormBuilder} fb - Angular's FormBuilder for creating reactive
-   *     forms.
-   * @param {EvalConfigData} data - Data injected into the dialog (e.g., initial
-   *     values).
-   */
   constructor(
       public dialogRef: MatDialogRef<RunEvalConfigDialogComponent>,
       private fb: FormBuilder,
       @Inject(MAT_DIALOG_DATA) public data: EvalConfigData) {
-    this.evalMetrics = this.data.evalMetrics;
+    this.evalMetrics = this.data.evalMetrics || [];
+    this.metricsInfo = this.data.metricsInfo || [];
 
-    // Initialize the form with controls and validators
-    this.evalForm = this.fb.group({
-      tool_trajectory_avg_score_threshold: [
-        this.getEvalMetricThresholdFromData('tool_trajectory_avg_score'),
-        [Validators.required, Validators.min(0), Validators.max(1)]
-      ],
-      response_match_score_threshold: [
-        this.getEvalMetricThresholdFromData('response_match_score'),
-        [Validators.required, Validators.min(0), Validators.max(1)]
-      ]
+    // Initialize the form
+    this.evalForm = this.fb.group({});
+
+    // Dynamically add controls for each metric
+    this.metricsInfo.forEach(metric => {
+      const existingMetric = this.evalMetrics.find(m => m.metricName === metric.metricName);
+      const isSelected = !!existingMetric;
+      const threshold = existingMetric ? existingMetric.threshold : this.getDefaultThreshold(metric);
+
+      this.evalForm.addControl(`${metric.metricName}_selected`, this.fb.control(isSelected));
+      
+      const interval = metric.metricValueInfo.interval;
+      this.evalForm.addControl(`${metric.metricName}_threshold`, this.fb.control(threshold, [
+        Validators.required,
+        Validators.min(interval.minValue),
+        Validators.max(interval.maxValue)
+      ]));
+    });
+
+    // Fallback if metricsInfo is empty, add the hardcoded ones to avoid empty UI if backend fails
+    if (this.metricsInfo.length === 0) {
+      this.addDefaultControls();
+    }
+  }
+
+  private addDefaultControls() {
+    const defaultMetrics = [
+      { name: 'tool_trajectory_avg_score', min: 0, max: 1, default: 1 },
+      { name: 'response_match_score', min: 0, max: 1, default: 0.7 }
+    ];
+
+    defaultMetrics.forEach(m => {
+      const existingMetric = this.evalMetrics.find(em => em.metricName === m.name);
+      const isSelected = !!existingMetric;
+      const threshold = existingMetric ? existingMetric.threshold : m.default;
+
+      this.evalForm.addControl(`${m.name}_selected`, this.fb.control(isSelected));
+      this.evalForm.addControl(`${m.name}_threshold`, this.fb.control(threshold, [
+        Validators.required,
+        Validators.min(m.min),
+        Validators.max(m.max)
+      ]));
     });
   }
 
-  private getEvalMetricThresholdFromData(metricName: string): number {
-    return this.evalMetrics.find((metric) => metric.metricName === metricName)
-               ?.threshold ??
-        0;
+  private getDefaultThreshold(metric: MetricsInfo): number {
+    if (metric.metricName === 'tool_trajectory_avg_score') return 1.0;
+    if (metric.metricName === 'response_match_score') return 0.7;
+    return metric.metricValueInfo.interval.maxValue;
   }
 
   onStart(): void {
     if (this.evalForm.valid) {
-      const {
-        tool_trajectory_avg_score_threshold,
-        response_match_score_threshold
-      } = this.evalForm.value;
+      const resultMetrics: EvalMetric[] = [];
 
-      for (const metric of this.evalMetrics) {
-        if (metric.metricName === 'tool_trajectory_avg_score') {
-          metric.threshold = tool_trajectory_avg_score_threshold;
-        } else if (metric.metricName === 'response_match_score') {
-          metric.threshold = response_match_score_threshold;
-        }
+      if (this.metricsInfo.length > 0) {
+        this.metricsInfo.forEach(metric => {
+          const isSelected = this.evalForm.get(`${metric.metricName}_selected`)?.value;
+          if (isSelected) {
+            const threshold = this.evalForm.get(`${metric.metricName}_threshold`)?.value;
+            resultMetrics.push({
+              metricName: metric.metricName,
+              threshold: threshold
+            });
+          }
+        });
+      } else {
+        // Fallback if metricsInfo was empty
+        const defaultMetrics = ['tool_trajectory_avg_score', 'response_match_score'];
+        defaultMetrics.forEach(name => {
+          const isSelected = this.evalForm.get(`${name}_selected`)?.value;
+          if (isSelected) {
+            const threshold = this.evalForm.get(`${name}_threshold`)?.value;
+            resultMetrics.push({
+              metricName: name,
+              threshold: threshold
+            });
+          }
+        });
       }
 
-      this.dialogRef.close(this.evalMetrics);
+      this.dialogRef.close(resultMetrics);
     }
   }
 
   onCancel(): void {
-    this.dialogRef.close(
-        null);  // Return null or undefined to indicate cancellation
+    this.dialogRef.close(null);
   }
 }

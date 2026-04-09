@@ -14,34 +14,73 @@
  limitations under the License.
 -->
 <div class="dialog-container">
-  <h2 mat-dialog-title class="dialog-title">EVALUATION METRIC</h2>
+  <h2 mat-dialog-title class="dialog-title">EVALUATION METRICS</h2>
   <mat-dialog-content>
     <form [formGroup]="evalForm" class="eval-form">
-      <div class="metric-row">
-        <div class="metric-name">Tool trajectory avg score: </div>
-        <div class="flex-1 pl-4">
-          <mat-slider min="0" max="1" step="0.1" thumbLabel class="threshold-slider">
-            <input matSliderThumb formControlName="tool_trajectory_avg_score_threshold" />
-          </mat-slider>
-          <!-- Display current threshold value -->
-          <span class="threshold-value">
-            {{ evalForm.controls['tool_trajectory_avg_score_threshold'].value }}
-          </span>
+      
+      <!-- Dynamic Metrics -->
+      <div *ngIf="metricsInfo.length > 0">
+        <div *ngFor="let metric of metricsInfo" class="metric-container">
+          <div class="metric-header">
+            <mat-checkbox [formControlName]="metric.metricName + '_selected'">
+              <span class="metric-title">{{ metric.metricName }}</span>
+            </mat-checkbox>
+            
+            <div class="metric-slider-container inline-slider" *ngIf="evalForm.get(metric.metricName + '_selected')?.value">
+              <span class="slider-label">Threshold:</span>
+              <mat-slider [min]="metric.metricValueInfo.interval.minValue" [max]="metric.metricValueInfo.interval.maxValue" step="0.1" thumbLabel class="threshold-slider">
+                <input matSliderThumb [formControlName]="metric.metricName + '_threshold'" />
+              </mat-slider>
+              <span class="threshold-value">
+                {{ evalForm.controls[metric.metricName + '_threshold'].value }}
+              </span>
+            </div>
+          </div>
+          <div class="metric-description">{{ metric.description }}</div>
         </div>
       </div>
 
-      <div class="metric-row">
-        <div class="metric-name">Response match score: </div>
-        <div class="flex-1 pl-4">
-          <mat-slider min="0" max="1" step="0.1" thumbLabel class="threshold-slider">
-            <input matSliderThumb formControlName="response_match_score_threshold" />
-          </mat-slider>
-          <!-- Display current threshold value -->
-          <span class="threshold-value">
-            {{ evalForm.controls['response_match_score_threshold'].value }}
-          </span>
+      <!-- Fallback if metricsInfo is empty -->
+      <div *ngIf="metricsInfo.length === 0">
+        <!-- Hardcoded Tool Trajectory -->
+        <div class="metric-container">
+          <div class="metric-header">
+            <mat-checkbox formControlName="tool_trajectory_avg_score_selected">
+              <span class="metric-title">Tool trajectory avg score</span>
+            </mat-checkbox>
+            
+            <div class="metric-slider-container inline-slider" *ngIf="evalForm.get('tool_trajectory_avg_score_selected')?.value">
+              <span class="slider-label">Threshold:</span>
+              <mat-slider min="0" max="1" step="0.1" thumbLabel class="threshold-slider">
+                <input matSliderThumb formControlName="tool_trajectory_avg_score_threshold" />
+              </mat-slider>
+              <span class="threshold-value">
+                {{ evalForm.controls['tool_trajectory_avg_score_threshold'].value }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardcoded Response Match -->
+        <div class="metric-container">
+          <div class="metric-header">
+            <mat-checkbox formControlName="response_match_score_selected">
+              <span class="metric-title">Response match score</span>
+            </mat-checkbox>
+            
+            <div class="metric-slider-container inline-slider" *ngIf="evalForm.get('response_match_score_selected')?.value">
+              <span class="slider-label">Threshold:</span>
+              <mat-slider min="0" max="1" step="0.1" thumbLabel class="threshold-slider">
+                <input matSliderThumb formControlName="response_match_score_threshold" />
+              </mat-slider>
+              <span class="threshold-value">
+                {{ evalForm.controls['response_match_score_threshold'].value }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
+
     </form>
   </mat-dialog-content>
 

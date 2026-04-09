@@ -1,24 +1,70 @@
-build.dialog-container {
+.dialog-container {
   border-radius: 12px;
-  padding: 18px;
-  width:500px;
+  padding: 12px;
+  width: 680px;
   box-shadow: 0 8px 16px var(--run-eval-config-dialog-container-box-shadow-color);
 }
 
-.metric-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+.metric-container {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--run-eval-config-dialog-border-color, #e0e0e0);
 }
 
-.metric-name {
-  width: 250px;
+.metric-container:last-child {
+  border-bottom: none;
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  .metric-title {
+    font-weight: 600;
+    font-size: 1.1em;
+  }
+  
+  .metric-description {
+    font-size: 0.9em;
+    color: var(--run-eval-config-dialog-description-color, #666);
+    margin-left: 28px;
+    /* Align with checkbox text */
+    margin-bottom: 4px;
+}
+
+.metric-slider-container {
+  display: flex;
+  align-items: center;
+  margin-left: 28px;
+  /* Align with checkbox text */
+}
+
+.inline-slider {
+  margin-left: 20px;
+  flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  .slider-label {
+    margin-right: 10px;
+    font-size: 0.9em;
+  }
+  
+  .threshold-slider {
+    max-width: 150px;
+    flex: 1;
 }
 
 .threshold-value {
-  margin-left: 20px;
+  margin-left: 10px;
+  min-width: 30px;
+  text-align: right;
 }
-
 
 h2[mat-dialog-title] {
   color: var(--mdc-dialog-supporting-text-color) !important;

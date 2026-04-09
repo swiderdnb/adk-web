@@ -36,6 +36,21 @@ export const DEFAULT_EVAL_METRICS: EvalMetric[] = [
   }
 ];
 
+export declare interface MetricValueInfo {
+  interval: {
+    minValue: number;
+    openAtMin: boolean;
+    maxValue: number;
+    openAtMax: boolean;
+  };
+}
+
+export declare interface MetricsInfo {
+  metricName: string;
+  description: string;
+  metricValueInfo: MetricValueInfo;
+}
+
 export declare interface Invocation {
   invocationId: string;
   userContent: Content;

@@ -39,6 +39,14 @@ export class EvalService implements EvalServiceInterface {
     return new Observable<any>();
   }
 
+  getMetricsInfo(appName: string) {
+    if (this.apiServerDomain != undefined) {
+      const url = this.apiServerDomain + `/apps/${appName}/metrics-info`;
+      return this.http.get<any>(url);
+    }
+    return new Observable<any>();
+  }
+
   createNewEvalSet(appName: string, evalSetId: string, executionMode: 'live' | 'replay' = 'live') {
     if (this.apiServerDomain != undefined) {
       const url =
