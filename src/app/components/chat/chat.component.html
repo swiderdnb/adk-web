@@ -209,9 +209,11 @@
         </div>
         <mat-divider
           [vertical]="true"
+          class="toolbar-actions-divider"
           style="margin-left: 8px; margin-right: 8px; height: 22px"
         ></mat-divider>
-        <div style="display: flex; align-items: center">
+        <div class="toolbar-action-buttons" style="display: flex; align-items: center">
+          @if (isNewSessionButtonEnabledObs | async) {
           <div
             (click)="onNewSessionClick()"
             id="toolbar-new-session-button"
@@ -220,6 +222,7 @@
             <mat-icon>add</mat-icon>
             {{ i18n.newSessionButton }}
           </div>
+          }
           @if (isDeleteSessionEnabledObs | async) {
           <span
             class="material-symbols-outlined toolbar-icon"

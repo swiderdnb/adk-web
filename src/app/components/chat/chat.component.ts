@@ -17,7 +17,7 @@
 
 import {AsyncPipe, DOCUMENT, NgClass} from '@angular/common';
 import {HttpErrorResponse} from '@angular/common/http';
-import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, inject, Injectable, OnDestroy, OnInit, Renderer2, signal, viewChild, WritableSignal} from '@angular/core';
+import {AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, HostListener, inject, Injectable, OnDestroy, OnInit, output, Renderer2, signal, viewChild, WritableSignal} from '@angular/core';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatButton, MatFabButton} from '@angular/material/button';
@@ -306,6 +306,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.featureFlagService.isUserIdOnToolbarEnabled();
   readonly isDeveloperUiDisclaimerEnabledObs: Observable<boolean> =
       this.featureFlagService.isDeveloperUiDisclaimerEnabled();
+  readonly isNewSessionButtonEnabledObs: Observable<boolean> =
+      this.featureFlagService.isNewSessionButtonEnabled();
+
+  // Output to signal whether the chat is empty (no messages).
+  readonly isChatEmpty = computed(() => this.messages().length === 0);
+  readonly chatEmptyChange = output<boolean>();
 
   // Trace detail
   bottomPanelVisible = false;
@@ -314,7 +320,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   // Builder
   disableBuilderSwitch = false;
 
-  constructor() {}
+  constructor() {
+    effect(() => {
+      this.chatEmptyChange.emit(this.isChatEmpty());
+    });
+  }
 
   ngOnInit(): void {
     this.syncSelectedAppFromUrl();

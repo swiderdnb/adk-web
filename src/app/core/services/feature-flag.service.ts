@@ -134,4 +134,8 @@ export class FeatureFlagService implements FeatureFlagServiceInterface {
   isMoreOptionsButtonHidden(): Observable<boolean> {
     return of(false);
   }
+
+  isNewSessionButtonEnabled(): Observable<boolean> {
+    return of(true);
+  }
 }

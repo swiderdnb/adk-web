@@ -119,4 +119,8 @@ export class MockFeatureFlagService implements FeatureFlagService {
   isMoreOptionsButtonHidden =
       jasmine.createSpy('isMoreOptionsButtonHidden')
           .and.returnValue(this.isMoreOptionsButtonHiddenResponse);
+  isNewSessionButtonEnabledResponse = new ReplaySubject<boolean>(1);
+  isNewSessionButtonEnabled =
+      jasmine.createSpy('isNewSessionButtonEnabled')
+          .and.returnValue(this.isNewSessionButtonEnabledResponse);
 }

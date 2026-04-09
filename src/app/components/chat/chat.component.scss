@@ -536,6 +536,10 @@ button {
   align-items: center;
 }
 
+.toolbar-actions-divider:has(+ .toolbar-action-buttons:empty) {
+  display: none;
+}
+
 .toolbar-sse-toggle {
   @include mat.slide-toggle-overrides(
     (
