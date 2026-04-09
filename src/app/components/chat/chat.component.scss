@@ -309,7 +309,6 @@
 
 .new-session-button {
   margin-top: 0px;
-  margin-left: 50px;
   width: 130px;
   height: 28px;
   font-size: 14px;
@@ -759,7 +758,8 @@ app-canvas {
   height: 100%;
   flex-shrink: 0;
   white-space: nowrap;
-  width: 220px;
+  width: auto;
+  max-width: 220px;
   overflow: hidden;
   transition: background-color 0.15s ease;
   position: relative;
@@ -789,6 +789,16 @@ app-canvas {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
+  }
+}
+
+.new-session-button {
+  width: auto !important;
+  
+  &.icon-only {
+    width: 32px !important;
+    padding: 0 !important;
+    justify-content: center;
   }
 }
 

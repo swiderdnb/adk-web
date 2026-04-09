@@ -78,30 +78,28 @@
         @if (!evalCase) {
           @let isSessionLoadingGroup = uiStateService.isSessionLoading() | async;
           @if (isSessionLoadingGroup === false) {
-            <div class="selector-group-divider"></div>
-            @if (uiEvents().length > 0) {
-              <button
-                mat-button
-                class="toolbar-button"
-                (click)="onNewSessionClick()"
-                id="toolbar-new-session-button"
-                [matTooltip]="i18n.createNewSessionTooltip"
-                [disabled]="!sessionId"
-              >
-                <mat-icon>add</mat-icon>
-                <span>{{ i18n.newSessionButton }}</span>
-              </button>
-            } @else {
-              <button
-                mat-icon-button
-                class="toolbar-icon-button"
-                (click)="onNewSessionClick()"
-                id="toolbar-new-session-button"
-                [matTooltip]="i18n.createNewSessionTooltip"
-                [disabled]="!sessionId"
-              >
-                <mat-icon>add</mat-icon>
-              </button>
+            @if (sessionId) {
+              <div class="selector-group-divider"></div>
+              @if (uiEvents().length > 0) {
+                <button
+                  class="selector-button new-session-button"
+                  (click)="onNewSessionClick()"
+                  id="toolbar-new-session-button"
+                  [matTooltip]="i18n.createNewSessionTooltip"
+                >
+                  <mat-icon fontSet="material-symbols-outlined">add_comment</mat-icon>
+                  <span>{{ i18n.newSessionButton }}</span>
+                </button>
+              } @else {
+                <button
+                  class="selector-button new-session-button icon-only"
+                  (click)="onNewSessionClick()"
+                  id="toolbar-new-session-button"
+                  [matTooltip]="i18n.createNewSessionTooltip"
+                >
+                  <mat-icon fontSet="material-symbols-outlined">add_comment</mat-icon>
+                </button>
+              }
             }
           }
         }
