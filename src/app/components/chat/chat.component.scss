@@ -901,7 +901,7 @@ app-canvas {
   }
 
   &.selected {
-    background-color: var(--mat-sys-secondary-container, #e8def8);
+    background-color: var(--mat-sys-secondary-container, #d7e3f7);
     font-weight: 500;
   }
 }
@@ -967,7 +967,7 @@ app-canvas {
   line-height: 20px;
   letter-spacing: 0.25px;
   font-family: 'Google Sans', sans-serif;
-  color: var(--mat-sys-on-surface, #1d1b20);
+  color: var(--mat-sys-on-surface, #1a1c20);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
