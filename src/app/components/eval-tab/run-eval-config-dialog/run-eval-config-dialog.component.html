@@ -24,7 +24,7 @@
           <div class="metric-header">
             <mat-checkbox [formControlName]="metric.metricName + '_selected'">
               <div style="display: flex; flex-direction: column;">
-                <span class="metric-title">{{ metric.metricName }}</span>
+                <span class="metric-title" [matTooltip]="metric.metricName">{{ metric.metricName | formatMetricName }}</span>
                 <span class="metric-description">{{ metric.description }}</span>
               </div>
             </mat-checkbox>
@@ -52,7 +52,7 @@
         <div class="metric-container">
           <div class="metric-header">
             <mat-checkbox formControlName="tool_trajectory_avg_score_selected">
-              <span class="metric-title">Tool trajectory avg score</span>
+              <span class="metric-title" [matTooltip]="'tool_trajectory_avg_score'">{{ 'tool_trajectory_avg_score' | formatMetricName }}</span>
             </mat-checkbox>
             
             <div class="metric-slider-container inline-slider" [style.visibility]="evalForm.get('tool_trajectory_avg_score_selected')?.value ? 'visible' : 'hidden'">
@@ -75,7 +75,7 @@
         <div class="metric-container">
           <div class="metric-header">
             <mat-checkbox formControlName="response_match_score_selected">
-              <span class="metric-title">Response match score</span>
+              <span class="metric-title" [matTooltip]="'response_match_score'">{{ 'response_match_score' | formatMetricName }}</span>
             </mat-checkbox>
             
             <div class="metric-slider-container inline-slider" [style.visibility]="evalForm.get('response_match_score_selected')?.value ? 'visible' : 'hidden'">

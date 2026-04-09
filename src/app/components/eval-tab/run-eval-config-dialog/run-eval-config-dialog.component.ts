@@ -25,6 +25,8 @@ import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
+import { MatTooltip } from '@angular/material/tooltip';
+import { FormatMetricNamePipe } from '../format-metric-name.pipe';
 
 /**
  * @interface EvalConfigData
@@ -53,6 +55,8 @@ export interface EvalConfigData {
         MatButton,
         MatCheckbox,
         CommonModule,
+        MatTooltip,
+        FormatMetricNamePipe,
     ],
 })
 export class RunEvalConfigDialogComponent {

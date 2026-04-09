@@ -83,6 +83,7 @@ import { SessionTabComponent } from '../session-tab/session-tab.component';
 import { SidePanelComponent } from '../side-panel/side-panel.component';
 import { ViewImageDialogComponent } from '../view-image-dialog/view-image-dialog.component';
 import { InlineEditComponent } from '../inline-edit/inline-edit.component';
+import { FormatMetricNamePipe } from '../eval-tab/format-metric-name.pipe';
 
 import { ChatMessagesInjectionToken } from './chat.component.i18n';
 import { SidePanelMessagesInjectionToken } from '../side-panel/side-panel.component.i18n';
@@ -172,6 +173,7 @@ const BIDI_STREAMING_RESTART_WARNING =
     BuilderTabsComponent,
     SessionTabComponent,
     InlineEditComponent,
+    FormatMetricNamePipe,
   ],
 })
 export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {

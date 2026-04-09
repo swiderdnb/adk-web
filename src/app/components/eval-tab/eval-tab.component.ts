@@ -44,6 +44,7 @@ import {NewEvalSetDialogComponentComponent} from './new-eval-set-dialog/new-eval
 import {RunEvalConfigDialogComponent} from './run-eval-config-dialog/run-eval-config-dialog.component';
 import {DeleteSessionDialogComponent, DeleteSessionDialogData} from '../session-tab/delete-session-dialog/delete-session-dialog.component';
 import {InfoTable} from '../info-table/info-table';
+import { FormatMetricNamePipe } from './format-metric-name.pipe';
 
 export const EVAL_TAB_COMPONENT = new InjectionToken<Type<EvalTabComponent>>(
     'EVAL_TAB_COMPONENT',
@@ -106,6 +107,7 @@ interface AppEvaluationResult {
     InfoTable,
     MatSelectModule,
     MatFormFieldModule,
+    FormatMetricNamePipe,
   ],
 })
 export class EvalTabComponent implements OnInit, OnChanges {
