@@ -40,28 +40,28 @@
         <table app-info-table>
           <tr>
             <td>Event ID</td>
-            <td class="id-text"><span class="id-cell"><span>{{ selectedEvent()?.id }}</span><button mat-icon-button
+            <td class="id-text"><span class="id-cell"><span [matTooltip]="selectedEvent()?.id || ''">{{ selectedEvent()?.id }}</span><button mat-icon-button
                   class="copy-id-button" (click)="copyToClipboard(selectedEvent()?.id)" matTooltip="Copy"><mat-icon>{{
                     copiedId === selectedEvent()?.id ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
           <tr>
             <td>Invocation ID</td>
-            <td class="id-text"><span class="id-cell"><span>{{ selectedEvent()?.invocationId || 'N/A' }}</span><button
+            <td class="id-text"><span class="id-cell"><span [matTooltip]="selectedEvent()?.invocationId || ''">{{ selectedEvent()?.invocationId || 'N/A' }}</span><button
                   mat-icon-button class="copy-id-button" (click)="copyToClipboard(selectedEvent()?.invocationId)"
                   matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()?.invocationId ? 'check' : 'content_copy'
                     }}</mat-icon></button></span></td>
           </tr>
           <tr>
             <td>Branch</td>
-            <td><span class="value-cell"><span>{{ selectedEvent()?.branch || 'N/A' }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()?.branch)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()?.branch ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
+            <td><span class="value-cell"><span [matTooltip]="selectedEvent()?.branch || ''">{{ selectedEvent()?.branch || 'N/A' }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()?.branch)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()?.branch ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
           <tr>
             <td>Timestamp</td>
-            <td><span class="value-cell"><span>{{ formatTime(selectedEvent()?.timestamp) }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(formatTime(selectedEvent()?.timestamp), 'timestamp')" matTooltip="Copy"><mat-icon>{{ copiedId === 'timestamp' ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
+            <td><span class="value-cell"><span [matTooltip]="formatTime(selectedEvent()?.timestamp)">{{ formatTime(selectedEvent()?.timestamp) }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(formatTime(selectedEvent()?.timestamp), 'timestamp')" matTooltip="Copy"><mat-icon>{{ copiedId === 'timestamp' ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
           <tr>
             <td>Author</td>
-            <td><span class="value-cell"><span>{{ selectedEvent()?.author }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()?.author)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()?.author ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
+            <td><span class="value-cell"><span [matTooltip]="selectedEvent()?.author || ''">{{ selectedEvent()?.author }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()?.author)" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()?.author ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
         </table>
 
@@ -69,11 +69,11 @@
         <table app-info-table title="Node Info">
           <tr>
             <td>Node Path</td>
-            <td><span class="value-cell"><span>{{ selectedEvent()!.nodeInfo!['path'] || 'N/A' }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()!.nodeInfo!['path'])" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()!.nodeInfo!['path'] ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
+            <td><span class="value-cell"><span [matTooltip]="selectedEvent()!.nodeInfo!['path'] || ''">{{ selectedEvent()!.nodeInfo!['path'] || 'N/A' }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()!.nodeInfo!['path'])" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()!.nodeInfo!['path'] ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
           <tr>
             <td>Run ID</td>
-            <td class="id-text"><span class="id-cell"><span>{{ selectedEvent()!.nodeInfo!['runId'] || 'N/A'
+            <td class="id-text"><span class="id-cell"><span [matTooltip]="selectedEvent()!.nodeInfo!['runId'] || ''">{{ selectedEvent()!.nodeInfo!['runId'] || 'N/A'
                   }}</span><button mat-icon-button class="copy-id-button"
                   (click)="copyToClipboard(selectedEvent()!.nodeInfo!['run_id'])" matTooltip="Copy"><mat-icon>{{
                     copiedId === selectedEvent()!.nodeInfo!['run_id'] ? 'check' : 'content_copy'
@@ -97,7 +97,7 @@
           @if (selectedEvent()!.nodeInfo!['messageAsOutput'] !== undefined) {
           <tr>
             <td>Message As Output</td>
-            <td><span class="value-cell"><span>{{ selectedEvent()!.nodeInfo!['messageAsOutput'] }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()!.nodeInfo!['messageAsOutput'])" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()!.nodeInfo!['messageAsOutput'] ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
+            <td><span class="value-cell"><span [matTooltip]="selectedEvent()!.nodeInfo!['messageAsOutput']?.toString() || ''">{{ selectedEvent()!.nodeInfo!['messageAsOutput'] }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()!.nodeInfo!['messageAsOutput'])" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()!.nodeInfo!['messageAsOutput'] ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
           }
         </table>
@@ -117,7 +117,7 @@
                 </button>
               </div>
               } @else {
-              <span class="value-cell"><span>{{ $any(selectedEvent()!.actions)[key] }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard($any(selectedEvent()!.actions)[key]?.toString())" matTooltip="Copy"><mat-icon>{{ copiedId === $any(selectedEvent()!.actions)[key]?.toString() ? 'check' : 'content_copy' }}</mat-icon></button></span>
+              <span class="value-cell"><span [matTooltip]="$any(selectedEvent()!.actions)[key]?.toString() || ''">{{ $any(selectedEvent()!.actions)[key] }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard($any(selectedEvent()!.actions)[key]?.toString())" matTooltip="Copy"><mat-icon>{{ copiedId === $any(selectedEvent()!.actions)[key]?.toString() ? 'check' : 'content_copy' }}</mat-icon></button></span>
               }
             </td>
           </tr>
@@ -191,7 +191,7 @@
             <td>{{ span.name }}</td>
             <td>
               <span class="id-cell"><a href="javascript:void(0)" (click)="switchToSpan(span)"
-                  class="span-link id-text">{{ span.span_id }}</a><button mat-icon-button class="copy-id-button"
+                  class="span-link id-text" [matTooltip]="span.span_id">{{ span.span_id }}</a><button mat-icon-button class="copy-id-button"
                   (click)="copyToClipboard(span.span_id)" matTooltip="Copy"><mat-icon>{{ copiedId === span.span_id ?
                     'check' : 'content_copy' }}</mat-icon></button></span>
             </td>
@@ -214,10 +214,10 @@
                   @if (key === 'promptTokensDetails' || key === 'promptTokenDetails' || key === 'candidatesTokenDetails' ||
                   key === 'candidatesTokensDetails' || key === 'cacheTokensDetails') {
                   @for (detail of selectedEvent()!.usageMetadata[key]; track detail.modality) {
-                  <div>{{ detail.modality }}: {{ detail.tokenCount }}</div>
+                  <div [matTooltip]="detail.modality + ': ' + detail.tokenCount">{{ detail.modality }}: {{ detail.tokenCount }}</div>
                   }
                   } @else {
-                  {{ selectedEvent()!.usageMetadata[key] }}
+                  <span [matTooltip]="selectedEvent()!.usageMetadata[key]?.toString() || ''">{{ selectedEvent()!.usageMetadata[key] }}</span>
                   }
                 </span>
                 <button mat-icon-button class="copy-value-button" (click)="isObject(selectedEvent()!.usageMetadata[key]) ? copyJsonToClipboard(selectedEvent()!.usageMetadata[key], 'usage.' + key) : copyToClipboard(selectedEvent()!.usageMetadata[key]?.toString(), 'usage.' + key)" matTooltip="Copy"><mat-icon>{{ copiedId === 'usage.' + key ? 'check' : 'content_copy' }}</mat-icon></button>

@@ -131,21 +131,21 @@
             <table app-info-table>
               <tr>
                 <td>Name</td>
-                <td>{{ selectedEvalSet() }}</td>
+                <td><span [matTooltip]="selectedEvalSet()">{{ selectedEvalSet() }}</span></td>
               </tr>
               @if (isEvalV2Enabled()) {
               <tr>
                 <td>Execution Mode</td>
-                <td>{{ currentEvalSet()?.model_execution_mode || 'N/A' }}</td>
+                <td><span [matTooltip]="currentEvalSet()?.model_execution_mode || 'N/A'">{{ currentEvalSet()?.model_execution_mode || 'N/A' }}</span></td>
               </tr>
               }
               <tr>
                 <td>Total Cases</td>
-                <td>{{ evalCases.length }}</td>
+                <td><span [matTooltip]="evalCases.length.toString()">{{ evalCases.length }}</span></td>
               </tr>
               <tr>
                 <td>Total Runs</td>
-                <td>{{ getEvalHistoryOfCurrentSetSorted().length }}</td>
+                <td><span [matTooltip]="getEvalHistoryOfCurrentSetSorted().length.toString()">{{ getEvalHistoryOfCurrentSetSorted().length }}</span></td>
               </tr>
             </table>
           </div>
