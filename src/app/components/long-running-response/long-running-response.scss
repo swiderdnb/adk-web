@@ -38,6 +38,7 @@
 
 .message-content {
   flex: 1;
+  font-size: 12px;
 }
 
 
@@ -75,9 +76,11 @@
 
   .response-input {
     flex: 1;
-    border: none;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 4px;
+    padding: 4px 8px;
+    background: var(--mat-sys-surface-container);
     outline: none;
-    background: transparent;
     font-size: 12px;
     font-family: inherit;
     color: var(--mat-sys-on-surface);
