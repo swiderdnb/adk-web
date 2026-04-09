@@ -613,6 +613,32 @@
             ></app-chat-panel>
           }
           @case ('eval-result') {
+            @if (evalCaseResult()) {
+              @let result = evalCaseResult();
+              <div class="eval-result-summary" style="margin: 16px; padding: 12px 16px; border-radius: 8px; background: var(--mat-sys-surface-container); border: 1px solid var(--mat-sys-outline-variant); display: flex; align-items: center; gap: 32px;">
+                @if (result.overallEvalMetricResults?.length) {
+                  <div style="display: flex; gap: 24px; align-items: center;">
+                    @for (metric of result.overallEvalMetricResults; track metric.metricName) {
+                      <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="color: var(--mat-sys-on-surface-variant); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">{{ metric.metricName }}</span>
+                        <div style="display: flex; gap: 12px; align-items: baseline;">
+                          <span>
+                            <span style="color: var(--mat-sys-on-surface-variant); font-size: 12px;">Actual: </span>
+                            <span [style.color]="metric.evalStatus == 1 ? 'var(--app-color-success)' : 'var(--app-color-error)'" style="font-size: 14px; font-weight: 600;">
+                              {{ metric.score | number:'1.2-2' }}
+                            </span>
+                          </span>
+                          <span>
+                            <span style="color: var(--mat-sys-on-surface-variant); font-size: 12px;">Threshold: </span>
+                            <span style="font-size: 14px; font-weight: 500; color: var(--mat-sys-on-surface);">{{ metric.threshold | number:'1.2-2' }}</span>
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
             @if (isSideBySide()) {
               <div class="side-by-side-layout">
                 <div class="side-panel-half">
@@ -703,8 +729,6 @@
                 [uiEvents]="filteredUiEvents()"
                 [traceData]="traceData"
                 [isChatMode]="false"
-                [evalCaseResult]="evalCaseResult()"
-                [showEvalSummary]="true"
                 [evalCase]="evalCase"
                 [agentGraphData]="agentGraphData()"
                 [selectedMessageIndex]="selectedMessageIndex"

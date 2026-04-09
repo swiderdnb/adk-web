@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { AsyncPipe, DOCUMENT, NgClass, NgComponentOutlet } from '@angular/common';
+import { AsyncPipe, DOCUMENT, DecimalPipe, NgClass, NgComponentOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, ElementRef, effect, HostListener, inject, Injectable, OnDestroy, OnInit, Renderer2, signal, Type, viewChild, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -164,6 +164,7 @@ const BIDI_STREAMING_RESTART_WARNING =
     MatInput,
     MatProgressSpinner,
     AsyncPipe,
+    DecimalPipe,
     ChatPanelComponent,
     AgentStructureGraphDialogComponent,
     SidePanelComponent,
