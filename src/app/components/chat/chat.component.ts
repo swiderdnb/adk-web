@@ -3587,6 +3587,13 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private syncSelectedAppFromUrl() {
+    // Optimistically select app from URL to avoid waiting for listApps
+    const initialApp = this.activatedRoute.snapshot.queryParams['app'];
+    if (initialApp) {
+      this.selectedAppControl.setValue(initialApp, { emitEvent: false });
+      this.selectApp(initialApp);
+    }
+
     combineLatest([
       this.activatedRoute.queryParams, this.apps$
     ]).subscribe(([params, apps]) => {
@@ -3597,8 +3604,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           return;
         }
 
-        this.selectedAppControl.setValue(app, { emitEvent: false });
-        this.selectApp(app);
+        if (app !== this.appName) {
+          this.selectedAppControl.setValue(app, { emitEvent: false });
+          this.selectApp(app);
+        }
         this.agentService.getAppInfo(app).subscribe(info => {
           setTimeout(() => {
             this.agentGraphData.set(info);
