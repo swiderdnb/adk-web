@@ -526,6 +526,36 @@ export class EvalTabComponent implements OnInit, OnChanges {
     return result.filter((r: any) => r.finalEvalStatus == 2).length;
   }
 
+  private getMetricsCounts(evalRes: any): {passed: number, total: number} {
+    if (!evalRes) return {passed: 0, total: 0};
+    
+    let passed = 0;
+    let total = 0;
+    
+    if (evalRes.evalMetricResults && evalRes.evalMetricResults.length > 0) {
+      passed = evalRes.evalMetricResults.filter((r: any) => r.evalStatus === 1).length;
+      total = evalRes.evalMetricResults.length;
+    } else if (evalRes.evalMetricResultPerInvocation) {
+      for (const inv of evalRes.evalMetricResultPerInvocation) {
+        if (inv.evalMetricResults) {
+          passed += inv.evalMetricResults.filter((r: any) => r.evalStatus === 1).length;
+          total += inv.evalMetricResults.length;
+        }
+      }
+    }
+    return {passed, total};
+  }
+
+  protected getMetricsScore(evalRes: any): string {
+    const {passed, total} = this.getMetricsCounts(evalRes);
+    return `${passed}/${total}`;
+  }
+
+  protected isMetricsSucceed(evalRes: any): boolean {
+    const {passed, total} = this.getMetricsCounts(evalRes);
+    return passed === total;
+  }
+
   protected formatTimestamp(timestamp: number|string): string {
     const numericTimestamp = Number(timestamp);
 

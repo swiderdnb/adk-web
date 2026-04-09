@@ -393,11 +393,13 @@
 
   &__metric {
     width: 160px;
-      display: flex;
-      align-items: center;
-      color: var(--mat-sys-on-surface);
+    display: flex;
+    align-items: center;
+    color: var(--mat-sys-on-surface);
     margin-right: 12px;
     margin-bottom: 4px;
+  }
+
   &__metric-name {
     overflow: hidden;
     text-overflow: ellipsis;

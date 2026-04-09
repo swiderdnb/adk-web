@@ -209,11 +209,10 @@
                       </div>
                       <div class="spacer"></div>
                       <div class="status-card__summary" style="width: 50px; text-align: center;">
-                        @if (item.result?.finalEvalStatus == 1) {
-                          <span class="status-card__passed" style="font-family: monospace;">{{ i18n.passStatusCaps }}</span>
-                        } @else {
-                          <span class="status-card__failed" style="font-family: monospace;">{{ i18n.failStatusCaps }}</span>
-                        }
+                        <span [ngClass]="isMetricsSucceed(item.result) ? 'status-card__passed': 'status-card__failed'"
+                          style="font-family: monospace;">
+                          {{ getMetricsScore(item.result) }}
+                        </span>
                       </div>
                     </div>
                   }
@@ -301,9 +300,9 @@
                     <div class="status-card__history-case" (click)="getHistorySession(evalRes, currentRunId)"
                       style="display: flex; justify-content: space-between; align-items: center;">
                       <span> {{ evalRes.evalId }} </span>
-                      <span [ngClass]="evalRes.finalEvalStatus == 1 ? 'status-card__passed': 'status-card__failed'"
+                      <span [ngClass]="isMetricsSucceed(evalRes) ? 'status-card__passed': 'status-card__failed'"
                         style="font-family: monospace; width: 50px; text-align: center;">
-                        {{ evalRes.finalEvalStatus == 1 ? i18n.passStatusCaps : i18n.failStatusCaps }}
+                        {{ getMetricsScore(evalRes) }}
                       </span>
                     </div>
                     }
