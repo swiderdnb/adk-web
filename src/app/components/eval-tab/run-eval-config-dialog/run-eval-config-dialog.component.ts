@@ -19,7 +19,7 @@ import {ChangeDetectionStrategy, Component, Inject} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
 
-import {EvalMetric, MetricsInfo} from '../../../core/models/Eval';
+import {EvalMetric, MetricsInfo, DEFAULT_EVAL_METRICS} from '../../../core/models/Eval';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { MatButton } from '@angular/material/button';
@@ -118,6 +118,24 @@ export class RunEvalConfigDialogComponent {
     if (metric.metricName === 'tool_trajectory_avg_score') return 1.0;
     if (metric.metricName === 'response_match_score') return 0.7;
     return metric.metricValueInfo.interval.maxValue;
+  }
+
+  onReset(): void {
+    this.metricsInfo.forEach(metric => {
+      const defaultMetric = DEFAULT_EVAL_METRICS.find(m => m.metricName === metric.metricName);
+      const isSelected = !!defaultMetric;
+      const threshold = defaultMetric ? defaultMetric.threshold : this.getDefaultThreshold(metric);
+
+      this.evalForm.get(`${metric.metricName}_selected`)?.setValue(isSelected);
+      this.evalForm.get(`${metric.metricName}_threshold`)?.setValue(threshold);
+    });
+
+    if (this.metricsInfo.length === 0) {
+      DEFAULT_EVAL_METRICS.forEach(m => {
+        this.evalForm.get(`${m.metricName}_selected`)?.setValue(true);
+        this.evalForm.get(`${m.metricName}_threshold`)?.setValue(m.threshold);
+      });
+    }
   }
 
   onStart(): void {

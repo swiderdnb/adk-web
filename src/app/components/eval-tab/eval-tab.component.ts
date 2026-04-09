@@ -208,6 +208,16 @@ export class EvalTabComponent implements OnInit, OnChanges {
     this.flagService.isEvalV2Enabled()
       .pipe(first())
       .subscribe((enabled) => this.isEvalV2Enabled.set(enabled));
+
+    const savedMetrics = localStorage.getItem('adk_eval_metrics_selection');
+    if (savedMetrics) {
+      try {
+        this.evalMetrics = JSON.parse(savedMetrics);
+      } catch (e) {
+        console.error('Error parsing saved eval metrics', e);
+        this.evalMetrics = DEFAULT_EVAL_METRICS;
+      }
+    }
   }
 
   selectNewEvalCase(evalCases: string[]) {
@@ -793,7 +803,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
         dialogRef.afterClosed().subscribe((evalMetrics) => {
           if (!!evalMetrics) {
             this.evalMetrics = evalMetrics;
-
+            localStorage.setItem('adk_eval_metrics_selection', JSON.stringify(evalMetrics));
             this.runEval();
           }
         });
