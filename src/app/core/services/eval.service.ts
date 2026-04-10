@@ -16,8 +16,9 @@
  */
 
 import {HttpClient} from '@angular/common/http';
-import {Injectable, inject} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Injectable, inject, signal} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {tap} from 'rxjs/operators';
 
 import {URLUtil} from '../../../utils/url-util';
 import {EvalCase} from '../models/Eval';
@@ -31,6 +32,9 @@ export class EvalService implements EvalServiceInterface {
 
   apiServerDomain = URLUtil.getApiServerBaseUrl();
 
+  metricsInfo = signal<any[]>([]);
+  private metricsInfoCache = new Map<string, any[]>();
+
   getEvalSets(appName: string) {
     if (this.apiServerDomain != undefined) {
       const url = this.apiServerDomain + `/apps/${appName}/eval_sets`;
@@ -40,9 +44,19 @@ export class EvalService implements EvalServiceInterface {
   }
 
   getMetricsInfo(appName: string) {
+    if (this.metricsInfoCache.has(appName)) {
+      this.metricsInfo.set(this.metricsInfoCache.get(appName)!);
+      return of({metricsInfo: this.metricsInfoCache.get(appName)!});
+    }
     if (this.apiServerDomain != undefined) {
       const url = this.apiServerDomain + `/apps/${appName}/metrics-info`;
-      return this.http.get<any>(url);
+      return this.http.get<any>(url).pipe(
+        tap(res => {
+          const info = res.metricsInfo || [];
+          this.metricsInfoCache.set(appName, info);
+          this.metricsInfo.set(info);
+        })
+      );
     }
     return new Observable<any>();
   }

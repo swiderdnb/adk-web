@@ -274,7 +274,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionIdOfLoadedMessages = '';
   evalCase: EvalCase | null = null;
   evalCaseResult = signal<any | null>(null);
-  metricsInfo = signal<any[]>([]);
+  metricsInfo = this.evalService.metricsInfo;
   updatedEvalCase: EvalCase | null = null;
   evalSetId = '';
   isAudioRecording = false;
@@ -460,7 +460,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   shouldShowEventFn = this.shouldShowEvent.bind(this);
 
   getMetricTooltip(metricName: string, score: any, threshold: any): string {
-    const info = this.metricsInfo().find(m => m.metricName === metricName);
+    const info = this.metricsInfo().find((m: any) => m.metricName === metricName);
     const desc = info?.description || '';
     const min = info?.metricValueInfo?.interval?.minValue ?? '?';
     const max = info?.metricValueInfo?.interval?.maxValue ?? '?';
@@ -471,18 +471,18 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getMetricDescription(metricName: string): string {
-    const info = this.metricsInfo().find(m => m.metricName === metricName);
+    const info = this.metricsInfo().find((m: any) => m.metricName === metricName);
     return info?.description || '';
   }
 
   getMetricMin(metricName: string): string {
-    const info = this.metricsInfo().find(m => m.metricName === metricName);
+    const info = this.metricsInfo().find((m: any) => m.metricName === metricName);
     const val = info?.metricValueInfo?.interval?.minValue;
     return val != null ? val.toFixed(2) : '?';
   }
 
   getMetricMax(metricName: string): string {
-    const info = this.metricsInfo().find(m => m.metricName === metricName);
+    const info = this.metricsInfo().find((m: any) => m.metricName === metricName);
     const val = info?.metricValueInfo?.interval?.maxValue;
     return val != null ? val.toFixed(2) : '?';
   }
@@ -710,11 +710,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.agentService.getApp().subscribe((app) => {
       this.appName = app;
-      if (app) {
-        this.evalService.getMetricsInfo(app).subscribe((res) => {
-          this.metricsInfo.set(res.metricsInfo || []);
-        });
-      }
+      this.evalService.metricsInfo.set([]);
     });
 
 
