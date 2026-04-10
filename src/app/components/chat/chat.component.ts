@@ -3054,7 +3054,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   tryGenerateDynamicGraph(graphPath: string): string | null {
     const eventArray = Array.from(this.eventData.values());
-    const runs: string[] = [];
+    const runs: { run: string, branch?: string }[] = [];
 
     for (const ev of eventArray) {
       const np = ev.nodeInfo?.path;
@@ -3072,7 +3072,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (evGraphPath === graphPath) {
         const lastSegment = segments[segments.length - 1];
-        runs.push(lastSegment);
+        runs.push({ run: lastSegment, branch: ev.branch });
       }
     }
 
@@ -3080,19 +3080,25 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    const uniqueRuns: string[] = [];
-    for (const run of runs) {
-      if (uniqueRuns.length === 0 || uniqueRuns[uniqueRuns.length - 1] !== run) {
-        uniqueRuns.push(run);
+    const uniqueRuns = new Set<string>();
+    const runToBranch = new Map<string, string>();
+
+    for (const r of runs) {
+      uniqueRuns.add(r.run);
+      if (r.branch) {
+        runToBranch.set(r.run, r.branch);
       }
     }
 
-    if (uniqueRuns.length === 0) return null;
+    if (uniqueRuns.size === 0) return null;
 
     let dot = 'digraph G {\n';
     dot += '  rankdir=TB;\n';
     dot += '  node [shape=box, style=filled, fillcolor="#e6f4ea", color="#34a853"];\n';
     
+    // Add START node
+    dot += '  "START" [shape=ellipse, style=filled, fillcolor="#fce8e6", color="#ea4335"];\n';
+
     const groupedRuns = new Map<string, string[]>();
     for (const run of uniqueRuns) {
       const bareName = run.split('@')[0];
@@ -3114,8 +3120,25 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       dot += `  }\n`;
     }
     
-    for (let i = 0; i < uniqueRuns.length - 1; i++) {
-      dot += `  "${uniqueRuns[i]}" -> "${uniqueRuns[i+1]}";\n`;
+    const edges = new Set<string>();
+    for (const run of uniqueRuns) {
+      const branch = runToBranch.get(run);
+      if (branch) {
+        const segments = branch.split('.');
+        if (segments.length >= 2) {
+          const origin = segments[segments.length - 2];
+          const target = segments[segments.length - 1];
+          edges.add(`"${origin}" -> "${target}"`);
+        } else if (segments.length === 1) {
+          edges.add(`"START" -> "${segments[0]}"`);
+        }
+      } else {
+        edges.add(`"START" -> "${run}"`);
+      }
+    }
+
+    for (const edge of edges) {
+      dot += `  ${edge};\n`;
     }
     
     dot += '}';
