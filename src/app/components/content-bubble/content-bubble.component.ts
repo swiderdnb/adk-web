@@ -77,7 +77,7 @@ export class ContentBubbleComponent {
         try {
           return JSON.parse(text);
         } catch (e) {
-          return text;
+          return null;
         }
       }
     }
