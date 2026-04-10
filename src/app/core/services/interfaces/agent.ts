@@ -33,6 +33,7 @@ export abstract class AgentService {
   abstract listApps(): Observable<string[]>;
   abstract getAppInfo(name: string): Observable<any>;
   abstract getAppGraphImage(name: string, darkMode: boolean, node?: string): Observable<any>;
+  abstract getVersion(): Observable<any>;
   getAgentBuilderTmp(agentName: string): Observable<string> {
     console.warn('unimplemented');
     return of('');

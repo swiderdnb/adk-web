@@ -276,6 +276,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   evalCaseResult = signal<any | null>(null);
   metricsInfo = this.evalService.metricsInfo;
   updatedEvalCase: EvalCase | null = null;
+  adkVersion = signal<string>('');
+  versionInfo = signal<any>(null);
   evalSetId = '';
   isAudioRecording = false;
   micVolume = this.audioRecordingService.volumeLevel;
@@ -487,6 +489,19 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     return val != null ? val.toFixed(2) : '?';
   }
 
+  getVersionTooltip(): string {
+    const info = this.versionInfo();
+    if (!info) return '';
+    return `Version: ${info.version} | Language: ${info.language} | Language Version: ${info.language_version}`;
+  }
+
+  getMergedTooltip(): string {
+    const baseTooltip = this.sidePanelI18n.disclosureTooltip || '';
+    const versionTooltip = this.getVersionTooltip();
+    if (!versionTooltip) return baseTooltip;
+    return `${baseTooltip} | ${versionTooltip}`;
+  }
+
   protected readonly filteredUiEvents = computed(() => {
     return this.uiEvents().filter(e => this.shouldShowEvent(e));
   });
@@ -644,6 +659,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.syncSelectedAppFromUrl();
     this.updateSelectedAppUrl();
     this.hideSidePanelIfNeeded();
+
+    this.agentService.getVersion().subscribe((res) => {
+      this.adkVersion.set(res.version || '');
+      this.versionInfo.set(res);
+    });
 
     combineLatest([
       this.agentService.getApp(),

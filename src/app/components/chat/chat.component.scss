@@ -1277,3 +1277,73 @@ app-canvas {
     color: var(--mat-sys-on-surface);
   }
 }
+
+.info-icon-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  &:hover .custom-tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+.custom-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  z-index: 100;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--mat-sys-surface-container-highest);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  padding: 12px;
+  width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
+  white-space: normal;
+
+  .tooltip-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: var(--mat-sys-on-surface);
+  }
+
+  .tooltip-desc {
+    font-size: 11px;
+    color: var(--mat-sys-on-surface-variant);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .tooltip-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    font-size: 11px;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    padding-top: 6px;
+  }
+
+  .tooltip-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  .tooltip-label {
+    color: var(--mat-sys-on-surface-variant);
+    font-weight: 400;
+  }
+
+  .tooltip-value {
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+  }
+}

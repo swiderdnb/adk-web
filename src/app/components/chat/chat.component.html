@@ -24,9 +24,21 @@
         <ng-container *ngComponentOutlet="logoComponent"></ng-container>
       } @else {
         <img src="assets/ADK-512-color.svg" width="20px" height="20px" />
-        <span class="toolbar-logo-text logo-wide">Agent Development Kit</span>
+        <span class="toolbar-logo-text logo-wide">Agent Development Kit@if (adkVersion()) { <span style="color: var(--mat-sys-on-surface-variant); margin-left: 8px; opacity: 0.6;">{{ adkVersion() }}</span>}</span>
         <span class="toolbar-logo-text logo-narrow">ADK</span>
-        <mat-icon class="disclosure-info-icon" [matTooltip]="sidePanelI18n.disclosureTooltip" matTooltipPosition="below">info_outline</mat-icon>
+        <div class="info-icon-container">
+          <mat-icon class="disclosure-info-icon">info_outline</mat-icon>
+          <div class="custom-tooltip">
+            <div class="tooltip-desc">{{ sidePanelI18n.disclosureTooltip }}</div>
+            @if (versionInfo()) {
+              <div class="tooltip-grid">
+                <div class="tooltip-item"><span class="tooltip-label">Version:</span> <span class="tooltip-value">{{ versionInfo().version }}</span></div>
+                <div class="tooltip-item"><span class="tooltip-label">Language:</span> <span class="tooltip-value">{{ versionInfo().language }}</span></div>
+                <div class="tooltip-item"><span class="tooltip-label">Lang Version:</span> <span class="tooltip-value">{{ versionInfo().language_version }}</span></div>
+              </div>
+            }
+          </div>
+        </div>
       }
     </div>
     <div class="selector-group">

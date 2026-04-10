@@ -116,6 +116,14 @@ export class AgentService implements AgentServiceInterface {
     return new Observable<[]>();
   }
 
+  getVersion(): Observable<any> {
+    if (this.apiServerDomain != undefined) {
+      const url = this.apiServerDomain + `/version`;
+      return this.http.get<any>(url);
+    }
+    return new Observable<any>();
+  }
+
   agentBuild(req: any): Observable<boolean> {
     if (this.apiServerDomain != undefined) {
       const url =
