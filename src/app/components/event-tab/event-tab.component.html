@@ -72,14 +72,6 @@
             <td><span class="value-cell"><span [matTooltip]="selectedEvent()!.nodeInfo!['path'] || ''">{{ selectedEvent()!.nodeInfo!['path'] || 'N/A' }}</span><button mat-icon-button class="copy-value-button" (click)="copyToClipboard(selectedEvent()!.nodeInfo!['path'])" matTooltip="Copy"><mat-icon>{{ copiedId === selectedEvent()!.nodeInfo!['path'] ? 'check' : 'content_copy' }}</mat-icon></button></span></td>
           </tr>
           <tr>
-            <td>Run ID</td>
-            <td class="id-text"><span class="id-cell"><span [matTooltip]="selectedEvent()!.nodeInfo!['runId'] || ''">{{ selectedEvent()!.nodeInfo!['runId'] || 'N/A'
-                  }}</span><button mat-icon-button class="copy-id-button"
-                  (click)="copyToClipboard(selectedEvent()!.nodeInfo!['run_id'])" matTooltip="Copy"><mat-icon>{{
-                    copiedId === selectedEvent()!.nodeInfo!['run_id'] ? 'check' : 'content_copy'
-                    }}</mat-icon></button></span></td>
-          </tr>
-          <tr>
             <td>Output For</td>
             <td>
               @if (selectedEvent()!.nodeInfo!['outputFor']) {
