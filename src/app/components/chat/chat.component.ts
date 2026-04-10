@@ -522,6 +522,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   agentGraphData = signal<any>(null);
   sessionGraphSvgLight: Record<string, string> = {};
   sessionGraphSvgDark: Record<string, string> = {};
+  dynamicGraphDot: Record<string, string> = {};
   agentReadme: string = '';
   graphsAvailable = signal<boolean>(true);
 
@@ -2893,7 +2894,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateRenderedGraph(undefined, path);
   }
 
-  updateRenderedGraph(overrideNodePath?: string, overrideGraphPath?: string) {
+  async updateRenderedGraph(overrideNodePath?: string, overrideGraphPath?: string) {
     const sessionGraphSvgLight = this.sessionGraphSvgLight;
     const sessionGraphSvgDark = this.sessionGraphSvgDark;
     if (Object.keys(sessionGraphSvgLight).length === 0 || Object.keys(sessionGraphSvgDark).length === 0) {
@@ -2924,6 +2925,25 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         graphPath = segments.slice(1, -2).join('/');
       } else {
         graphPath = segments.slice(1, -1).join('/');
+      }
+
+      if (graphPath) {
+        const hasBackendGraph = (graphPath in sessionGraphSvgLight) && !(graphPath in this.dynamicGraphDot);
+        if (!hasBackendGraph) {
+          const dynamicDot = this.tryGenerateDynamicGraph(graphPath);
+          if (dynamicDot) {
+            if (this.dynamicGraphDot[graphPath] !== dynamicDot) {
+              try {
+                const svg = await this.graphService.render(dynamicDot);
+                this.sessionGraphSvgLight[graphPath] = svg;
+                this.sessionGraphSvgDark[graphPath] = svg;
+                this.dynamicGraphDot[graphPath] = dynamicDot;
+              } catch (err) {
+                console.error('Failed to render dynamic graph', err);
+              }
+            }
+          }
+        }
       }
 
       while (graphPath && !(graphPath in sessionGraphSvgLight)) {
@@ -2982,14 +3002,19 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             evGraphPath = segments.slice(1, -1).join('/');
           }
 
+          const isDynamic = graphPath in this.dynamicGraphDot;
+          const fullSegments = np ? np.split('/') : [];
+          const fullEvNodeName = fullSegments.length > 0 ? fullSegments[fullSegments.length - 1] : '';
+          const nameToUse = isDynamic ? fullEvNodeName : evNodeName;
+
           if (evGraphPath === graphPath) {
             if (i <= this.selectedEventIndex) {
-              if (runNodeNames.length === 0 || runNodeNames[runNodeNames.length - 1] !== evNodeName) {
-                runNodeNames.push(evNodeName);
+              if (runNodeNames.length === 0 || runNodeNames[runNodeNames.length - 1] !== nameToUse) {
+                runNodeNames.push(nameToUse);
               }
             }
-            if (allRunNodeNames.length === 0 || allRunNodeNames[allRunNodeNames.length - 1] !== evNodeName) {
-              allRunNodeNames.push(evNodeName);
+            if (allRunNodeNames.length === 0 || allRunNodeNames[allRunNodeNames.length - 1] !== nameToUse) {
+              allRunNodeNames.push(nameToUse);
             }
           }
         }
@@ -3024,6 +3049,77 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.rawSvgString = highlightedSvg;
     this.renderedEventGraph = this.safeValuesService.bypassSecurityTrustHtml(highlightedSvg);
+    this.changeDetectorRef.detectChanges();
+  }
+
+  tryGenerateDynamicGraph(graphPath: string): string | null {
+    const eventArray = Array.from(this.eventData.values());
+    const runs: string[] = [];
+
+    for (const ev of eventArray) {
+      const np = ev.nodeInfo?.path;
+      if (!np) continue;
+
+      const segments = np.split('/');
+      const bareSegments = segments.map((s: string) => s.split('@')[0]);
+      
+      let evGraphPath = '';
+      if (bareSegments.length >= 2 && bareSegments[bareSegments.length - 1] === 'call_llm' && bareSegments[bareSegments.length - 2] === ev.author) {
+        evGraphPath = bareSegments.slice(1, -2).join('/');
+      } else {
+        evGraphPath = bareSegments.slice(1, -1).join('/');
+      }
+
+      if (evGraphPath === graphPath) {
+        const lastSegment = segments[segments.length - 1];
+        runs.push(lastSegment);
+      }
+    }
+
+    if (runs.length === 0) {
+      return null;
+    }
+
+    const uniqueRuns: string[] = [];
+    for (const run of runs) {
+      if (uniqueRuns.length === 0 || uniqueRuns[uniqueRuns.length - 1] !== run) {
+        uniqueRuns.push(run);
+      }
+    }
+
+    if (uniqueRuns.length === 0) return null;
+
+    let dot = 'digraph G {\n';
+    dot += '  rankdir=TB;\n';
+    dot += '  node [shape=box, style=filled, fillcolor="#e6f4ea", color="#34a853"];\n';
+    
+    const groupedRuns = new Map<string, string[]>();
+    for (const run of uniqueRuns) {
+      const bareName = run.split('@')[0];
+      if (!groupedRuns.has(bareName)) {
+        groupedRuns.set(bareName, []);
+      }
+      groupedRuns.get(bareName)!.push(run);
+    }
+
+    for (const [bareName, runs] of Array.from(groupedRuns.entries())) {
+      dot += `  subgraph cluster_${bareName} {\n`;
+      dot += `    label="${bareName}";\n`;
+      dot += `    style=dashed;\n`;
+      dot += `    color="#b0b0b0";\n`;
+      for (const run of runs) {
+        const runId = run.split('@')[1] || '';
+        dot += `    "${run}" [label="@${runId}"];\n`;
+      }
+      dot += `  }\n`;
+    }
+    
+    for (let i = 0; i < uniqueRuns.length - 1; i++) {
+      dot += `  "${uniqueRuns[i]}" -> "${uniqueRuns[i+1]}";\n`;
+    }
+    
+    dot += '}';
+    return dot;
   }
 
   highlightExecutionPathInSvg(svgString: string, runNodeNames: string[], allRunNodeNames: string[], theme: 'light' | 'dark' = 'light'): string {
@@ -3616,6 +3712,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         })
         this.sessionGraphSvgLight = {};
         this.sessionGraphSvgDark = {};
+        this.dynamicGraphDot = {};
         setTimeout(() => this.graphsAvailable.set(true));
 
         // Fetch graph image (supports both v1 and v2 agents)
@@ -3632,6 +3729,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                 console.log('Light mode graph response:', res);
                 // Render each path's graph (supports both v1 and v2 responses)
                 this.sessionGraphSvgLight = {};
+                this.dynamicGraphDot = {};
                 for (const [path, graph] of Object.entries(res)) {
                   if ((graph as any)?.dotSrc) {
                     // Normalize path: strip @run_id and skip first segment (root_agent)

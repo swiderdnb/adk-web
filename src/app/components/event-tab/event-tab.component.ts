@@ -285,15 +285,19 @@ export class EventTabComponent {
       }
       
       if (evGraphPath === this.selectedEventGraphPath()) {
-        if (evNodeName !== lastNodeName) {
+        const fullSegments = np.split('/');
+        const fullEvNodeName = fullSegments[fullSegments.length - 1];
+        const currentName = nodeName.includes('@') ? fullEvNodeName : evNodeName;
+
+        if (currentName !== lastNodeName) {
            if (lastNodeName === nodeName && currentTravel.length > 0) {
              travelsForNode.push(currentTravel);
            }
-           lastNodeName = evNodeName;
+           lastNodeName = currentName;
            currentTravel = [];
         }
         
-        if (evNodeName === nodeName) {
+        if (currentName === nodeName) {
            currentTravel.push(ev);
         }
       }
