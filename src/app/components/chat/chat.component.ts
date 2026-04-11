@@ -697,7 +697,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
-        if (apiEvent.interrupted || apiEvent.turnComplete) {
+        if (apiEvent.interrupted || (apiEvent.inputTranscription !== undefined && apiEvent.partial)) {
           this.audioPlayingService.stopAudio();
         }
 
