@@ -64,3 +64,10 @@
   letter-spacing: 0.5px;
 }
 
+.content-bubble.no-bubble {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+

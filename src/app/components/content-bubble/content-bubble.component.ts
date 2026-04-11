@@ -87,6 +87,16 @@ export class ContentBubbleComponent implements OnChanges {
     return null;
   }
 
+  get hasAudio(): boolean {
+    if (this.uiEvent.inlineData?.mediaType === MediaType.AUDIO) {
+      return true;
+    }
+    const parts = this.uiEvent.event?.content?.parts;
+    if (parts) {
+      return parts.some((part: any) => part.fileData && part.fileData.mimeType && part.fileData.mimeType.startsWith('audio/'));
+    }
+    return false;
+  }
 
   audioUrl: string | null = null;
 

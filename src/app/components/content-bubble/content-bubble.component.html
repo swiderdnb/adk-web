@@ -1,6 +1,7 @@
 <div
   class="content-bubble type-{{ type }} role-{{ role }}"
   [class.eval-fail]="evalStatus === 2"
+  [class.no-bubble]="hasAudio"
 >
   @if (type !== 'message' && type !== 'output') {
     <div class="output-chip-header">{{ type }}</div>
