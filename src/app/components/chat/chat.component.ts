@@ -468,7 +468,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     const max = info?.metricValueInfo?.interval?.maxValue ?? '?';
     const scoreStr = score != null ? parseFloat(score).toFixed(2) : '?';
     const threshStr = threshold != null ? parseFloat(threshold).toFixed(2) : '?';
-    
+
     return `${desc ? desc + ' | ' : ''}Actual: ${scoreStr} | Threshold: ${threshStr} | Min: ${min} | Max: ${max}`;
   }
 
@@ -695,13 +695,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       try {
         const apiEvent = JSON.parse(message);
 
-        if (apiEvent.inputTranscription !== undefined) {
-          apiEvent.author = 'user';
-          apiEvent.partial = true;
-        } else if (apiEvent.outputTranscription !== undefined) {
-          apiEvent.author = 'bot';
-          apiEvent.partial = true;
-        }
+
 
         if (apiEvent.interrupted || apiEvent.turnComplete) {
           this.audioPlayingService.stopAudio();
@@ -1153,8 +1147,10 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private appendEventRow(apiEvent: any, reverseOrder: boolean = false) {
-    if (apiEvent.inputTranscription !== undefined || apiEvent.outputTranscription !== undefined) {
-      apiEvent.partial = true;
+    if (apiEvent.inputTranscription !== undefined) {
+      apiEvent.author = 'user';
+    } else if (apiEvent.outputTranscription !== undefined) {
+      apiEvent.author = 'bot';
     }
 
     if (apiEvent.errorMessage) {
@@ -1199,16 +1195,40 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.uiEvents.update(events => {
         let existingIndex = events.findIndex(m => m.event?.id === apiEvent.id && apiEvent.id);
         if (existingIndex < 0 && events.length > 0) {
-          const checkIndex = reverseOrder ? 0 : events.length - 1;
-          const checkEvent = events[checkIndex];
-          if ((checkEvent.event as any)?.partial) {
-            const isLastTranscription = !!((checkEvent.event as any)?.inputTranscription || (checkEvent.event as any)?.outputTranscription);
-            const isCurrentTranscription = !!(apiEvent.inputTranscription || apiEvent.outputTranscription);
+          const isInputTranscription = apiEvent.inputTranscription !== undefined;
+          const isOutputTranscription = apiEvent.outputTranscription !== undefined;
+          const isThought = apiEvent.content?.parts?.some((p: any) => p.thought);
 
-            if (isLastTranscription === isCurrentTranscription) {
-              existingIndex = checkIndex;
+          if (isInputTranscription || isOutputTranscription || isThought) {
+            if (reverseOrder) {
+              for (let i = 0; i < events.length; i++) {
+                const ev = events[i].event as any;
+                if (ev?.partial) {
+                  if (isInputTranscription && ev.inputTranscription !== undefined) { existingIndex = i; break; }
+                  if (isOutputTranscription && ev.outputTranscription !== undefined) { existingIndex = i; break; }
+                  if (isThought && (events[i].thought || ev.content?.parts?.some((p: any) => p.thought))) { existingIndex = i; break; }
+                }
+              }
             } else {
-              existingIndex = -1;
+              for (let i = events.length - 1; i >= 0; i--) {
+                const ev = events[i].event as any;
+                if (ev?.partial) {
+                  if (isInputTranscription && ev.inputTranscription !== undefined) { existingIndex = i; break; }
+                  if (isOutputTranscription && ev.outputTranscription !== undefined) { existingIndex = i; break; }
+                  if (isThought && (events[i].thought || ev.content?.parts?.some((p: any) => p.thought))) { existingIndex = i; break; }
+                }
+              }
+            }
+          } else {
+            const checkIndex = reverseOrder ? 0 : events.length - 1;
+            const checkEvent = events[checkIndex];
+            if ((checkEvent.event as any)?.partial) {
+              const isLastTranscription = !!((checkEvent.event as any)?.inputTranscription || (checkEvent.event as any)?.outputTranscription);
+              const isCurrentTranscription = !!(apiEvent.inputTranscription || apiEvent.outputTranscription);
+
+              if (isLastTranscription === isCurrentTranscription) {
+                existingIndex = checkIndex;
+              }
             }
           }
         }
@@ -3078,7 +3098,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const segments = np.split('/');
       const bareSegments = segments.map((s: string) => s.split('@')[0]);
-      
+
       let evGraphPath = '';
       if (bareSegments.length >= 2 && bareSegments[bareSegments.length - 1] === 'call_llm' && bareSegments[bareSegments.length - 2] === ev.author) {
         evGraphPath = bareSegments.slice(1, -2).join('/');
@@ -3111,7 +3131,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     let dot = 'digraph G {\n';
     dot += '  rankdir=TB;\n';
     dot += '  node [shape=box, style=filled, fillcolor="#e6f4ea", color="#34a853"];\n';
-    
+
     // Add START node
     dot += '  "START" [shape=ellipse, style=filled, fillcolor="#fce8e6", color="#ea4335"];\n';
 
@@ -3135,7 +3155,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       dot += `  }\n`;
     }
-    
+
     const edges = new Set<string>();
     for (const run of uniqueRuns) {
       const branch = runToBranch.get(run);
@@ -3156,7 +3176,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     for (const edge of edges) {
       dot += `  ${edge};\n`;
     }
-    
+
     dot += '}';
     return dot;
   }
