@@ -16,13 +16,32 @@
     <div class="bar" [style.height.px]="4 + micVolume * 14"></div>
   </div>
 }
-<button
-  mat-icon-button
-  (click)="toggleAudioRecording.emit()"
-  class="audio-rec-btn"
-  [class.recording]="isAudioRecording"
-  [matTooltip]="isAudioRecording ? i18n.turnOffMicTooltip : i18n.useMicTooltip"
-  [disabled]="!isBidiStreamingEnabled"
->
-  <mat-icon>{{ isAudioRecording ? 'call_end' : 'call' }}</mat-icon>
-</button>
+<div class="call-btn-container" (mouseenter)="showFlags = true" (mouseleave)="showFlags = false">
+  <button
+    mat-icon-button
+    (click)="onCallClick()"
+    class="audio-rec-btn"
+    [class.recording]="isAudioRecording"
+    [disabled]="!isBidiStreamingEnabled"
+  >
+    <mat-icon>{{ isAudioRecording ? 'call_end' : 'call' }}</mat-icon>
+  </button>
+
+  @if (showFlags && !isAudioRecording) {
+    <div class="flags-panel">
+      <div class="flags-title">Live Flags</div>
+      <div class="flag-item">
+        <mat-checkbox [checked]="flags.proactiveAudio" (change)="flags.proactiveAudio = $event.checked">Proactive Audio</mat-checkbox>
+      </div>
+      <div class="flag-item">
+        <mat-checkbox [checked]="flags.enableAffectiveDialog" (change)="flags.enableAffectiveDialog = $event.checked">Affective Dialog</mat-checkbox>
+      </div>
+      <div class="flag-item">
+        <mat-checkbox [checked]="flags.enableSessionResumption" (change)="flags.enableSessionResumption = $event.checked">Session Resumption</mat-checkbox>
+      </div>
+      <div class="flag-item">
+        <mat-checkbox [checked]="flags.saveLiveBlob" (change)="flags.saveLiveBlob = $event.checked">Save Live Blob</mat-checkbox>
+      </div>
+    </div>
+  }
+</div>

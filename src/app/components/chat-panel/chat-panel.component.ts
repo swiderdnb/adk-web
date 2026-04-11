@@ -51,6 +51,7 @@ import { UI_STATE_SERVICE } from '../../core/services/interfaces/ui-state';
 import { THEME_SERVICE } from '../../core/services/interfaces/theme';
 import { JsonTooltipDirective } from '../../directives/html-tooltip.directive';
 import { WorkflowGraphTooltipDirective } from '../../directives/workflow-graph-tooltip.directive';
+import { LiveFlags } from '../../core/services/interfaces/stream-chat';
 import { A2uiCanvasComponent } from '../a2ui-canvas/a2ui-canvas.component';
 import { MediaType, } from '../artifact-tab/artifact-tab.component';
 import { AudioPlayerComponent } from '../audio-player/audio-player.component';
@@ -147,7 +148,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Output() readonly removeStateUpdate = new EventEmitter<void>();
   @Output() readonly sendMessage = new EventEmitter<Event>();
   @Output() readonly updateState = new EventEmitter<void>();
-  @Output() readonly toggleAudioRecording = new EventEmitter<void>();
+  @Output() readonly toggleAudioRecording = new EventEmitter<LiveFlags>();
   @Output() readonly toggleVideoRecording = new EventEmitter<void>();
   @Output() readonly longRunningResponseComplete = new EventEmitter<AgentRunRequest>();
   @Output() readonly toggleHideIntermediateEvents = new EventEmitter<void>();

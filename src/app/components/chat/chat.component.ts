@@ -57,7 +57,7 @@ import { GRAPH_SERVICE } from '../../core/services/interfaces/graph';
 import { LOCAL_FILE_SERVICE } from '../../core/services/interfaces/localfile';
 import { SAFE_VALUES_SERVICE } from '../../core/services/interfaces/safevalues';
 import { SESSION_SERVICE } from '../../core/services/interfaces/session';
-import { STREAM_CHAT_SERVICE } from '../../core/services/interfaces/stream-chat';
+import { LiveFlags, STREAM_CHAT_SERVICE } from '../../core/services/interfaces/stream-chat';
 import { AUDIO_RECORDING_SERVICE } from '../../core/services/interfaces/audio-recording';
 import { AUDIO_PLAYING_SERVICE } from '../../core/services/interfaces/audio-playing';
 import { STRING_TO_COLOR_SERVICE } from '../../core/services/interfaces/string-to-color';
@@ -1929,12 +1929,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.traceData = [];
   }
 
-  async toggleAudioRecording() {
+  async toggleAudioRecording(flags?: LiveFlags) {
     this.isAudioRecording ? this.stopAudioRecording() :
-      await this.startAudioRecording();
+      await this.startAudioRecording(flags);
   }
 
-  async startAudioRecording() {
+  async startAudioRecording(flags?: LiveFlags) {
     if (this.sessionId && this.sessionHasUsedBidi.has(this.sessionId)) {
       this.openSnackBar(BIDI_STREAMING_RESTART_WARNING, 'OK');
       return;
@@ -1951,6 +1951,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       appName: this.appName,
       userId: this.userId,
       sessionId: this.sessionId,
+      flags: flags,
     });
     this.sessionHasUsedBidi.add(this.sessionId);
   }
