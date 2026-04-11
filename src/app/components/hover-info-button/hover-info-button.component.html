@@ -17,6 +17,7 @@
 <button
   mat-stroked-button
   class="hover-info-button"
+  [class.icon-only]="!text"
   [appJsonTooltip]="tooltipContent"
   [appJsonTooltipTitle]="tooltipTitle"
   [disabled]="disabled"

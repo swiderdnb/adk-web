@@ -38,6 +38,21 @@
     margin-right: 6px !important;
     color: var(--mat-sys-on-surface) !important;
   }
+
+  &.icon-only {
+    padding: 0 !important;
+    min-width: 24px !important;
+    width: 24px !important;
+    justify-content: center;
+
+    mat-icon {
+      margin-right: -8px !important;
+    }
+
+    .mdc-button__label {
+      display: none !important;
+    }
+  }
 }
 
 :host ::ng-deep .hover-info-button {
