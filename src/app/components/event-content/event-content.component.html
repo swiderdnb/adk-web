@@ -1,28 +1,17 @@
-    @if (shouldShowMessageCard(uiEvent) || uiEvent.event.usageMetadata) {
-    <div class="message-row-container">
-      @if (shouldShowMessageCard(uiEvent)) {
-      <app-content-bubble
-        [type]="uiEvent.thought ? 'thought' : 'message'"
-        [role]="uiEvent.role"
-        [evalStatus]="uiEvent.evalStatus"
-        [uiEvent]="uiEvent"
-        [userEditEvalCaseMessage]="userEditEvalCaseMessage"
-        (userEditEvalCaseMessageChange)="userEditEvalCaseMessageChange.emit($event)"
-        (handleKeydown)="handleKeydown.emit($event)"
-        (cancelEditMessage)="cancelEditMessage.emit($event)"
-        (saveEditMessage)="saveEditMessage.emit($event)"
-        (openViewImageDialog)="openViewImageDialog.emit({images: [$event], currentIndex: 0})"
-        (openBase64InNewTab)="openBase64InNewTab.emit($event)"
-      ></app-content-bubble>
-      }
-      @if (uiEvent.event.usageMetadata) {
-      <app-hover-info-button
-        [icon]="'analytics'"
-        [tooltipContent]="uiEvent.event.usageMetadata"
-        [tooltipTitle]="'Tokens Usage'"
-      ></app-hover-info-button>
-      }
-    </div>
+    @if (shouldShowMessageCard(uiEvent)) {
+    <app-content-bubble
+      [type]="uiEvent.thought ? 'thought' : 'message'"
+      [role]="uiEvent.role"
+      [evalStatus]="uiEvent.evalStatus"
+      [uiEvent]="uiEvent"
+      [userEditEvalCaseMessage]="userEditEvalCaseMessage"
+      (userEditEvalCaseMessageChange)="userEditEvalCaseMessageChange.emit($event)"
+      (handleKeydown)="handleKeydown.emit($event)"
+      (cancelEditMessage)="cancelEditMessage.emit($event)"
+      (saveEditMessage)="saveEditMessage.emit($event)"
+      (openViewImageDialog)="openViewImageDialog.emit({images: [$event], currentIndex: 0})"
+      (openBase64InNewTab)="openBase64InNewTab.emit($event)"
+    ></app-content-bubble>
     }
     @if (uiEvent.event.output) {
     <app-content-bubble
@@ -37,7 +26,13 @@
       <app-content-bubble type="transcription" role="bot" [uiEvent]="uiEvent"></app-content-bubble>
     }
     <div class="event-chips-container">
-
+    @if (uiEvent.event.usageMetadata) {
+    <app-hover-info-button
+      [icon]="'analytics'"
+      [tooltipContent]="uiEvent.event.usageMetadata"
+      [tooltipTitle]="'Tokens Usage'"
+    ></app-hover-info-button>
+    }
     @if (uiEvent.event.turnComplete) {
     <app-hover-info-button
       [icon]="'stop_circle'"
