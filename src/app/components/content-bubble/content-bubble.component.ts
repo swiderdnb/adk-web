@@ -1,4 +1,5 @@
-import {Component, EventEmitter, Input, Output, Type, inject} from '@angular/core';
+import { Component, EventEmitter, Input, Output, Type, inject, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
@@ -13,6 +14,8 @@ import {MediaType} from '../artifact-tab/artifact-tab.component';
 import {AudioPlayerComponent} from '../audio-player/audio-player.component';
 import {MARKDOWN_COMPONENT, MarkdownComponentInterface} from '../markdown/markdown.component.interface';
 import {ChatPanelMessagesInjectionToken} from '../chat-panel/chat-panel.component.i18n';
+import { URLUtil } from '../../../utils/url-util';
+import { ARTIFACT_SERVICE } from '../../core/services/interfaces/artifact';
 
 @Component({
   selector: 'app-content-bubble',
@@ -33,7 +36,7 @@ import {ChatPanelMessagesInjectionToken} from '../chat-panel/chat-panel.componen
     'class': 'content-bubble-host'
   }
 })
-export class ContentBubbleComponent {
+export class ContentBubbleComponent implements OnChanges {
   @Input({required: true}) uiEvent!: UiEvent;
   @Input() type: 'message' | 'output' | 'transcription' | 'thought' | 'error' = 'message';
   @Input() role: string = 'bot';
@@ -82,5 +85,121 @@ export class ContentBubbleComponent {
       }
     }
     return null;
+  }
+
+
+  audioUrl: string | null = null;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['uiEvent'] && this.uiEvent) {
+      this.checkAndLoadAudio();
+    }
+  }
+
+  private readonly http = inject(HttpClient);
+  private readonly artifactService = inject(ARTIFACT_SERVICE);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
+  checkAndLoadAudio() {
+    const parts = this.uiEvent.event?.content?.parts;
+    if (parts) {
+      const audioPart = parts.find((part: any) => part.fileData && part.fileData.mimeType && part.fileData.mimeType.startsWith('audio/pcm'));
+      if (audioPart && audioPart.fileData) {
+        this.loadAudio(audioPart.fileData.fileUri);
+      }
+    }
+  }
+
+  loadAudio(uri: string) {
+    if (!uri || !uri.startsWith('artifact://')) return;
+    const parts = uri.substring('artifact://'.length).split('/');
+    const appName = parts[0];
+    const userId = parts[1];
+    const sessionId = parts[2];
+    const rest = parts.slice(3).join('/');
+    const hashIndex = rest.indexOf('#');
+    const artifactName = hashIndex !== -1 ? rest.substring(0, hashIndex) : rest;
+    const versionId = hashIndex !== -1 ? rest.substring(hashIndex + 1) : '0';
+
+    // Strip directory path if present in artifactName
+    const lastSlashIndex = artifactName.lastIndexOf('/');
+    const finalArtifactName = lastSlashIndex !== -1 ? artifactName.substring(lastSlashIndex + 1) : artifactName;
+
+    this.artifactService.getLatestArtifact(userId, appName, sessionId, finalArtifactName).subscribe((response: any) => {
+      let base64Data = '';
+      if (response.inlineData && response.inlineData.data) {
+        base64Data = response.inlineData.data;
+      } else if (response.data) {
+        base64Data = response.data;
+      }
+
+      if (base64Data) {
+        const buffer = this.base64ToArrayBuffer(base64Data);
+        const alignedLength = buffer.byteLength - (buffer.byteLength % 2);
+        const slicedBuffer = buffer.slice(0, alignedLength);
+        const sampleRate = 24000;
+
+        const wavBlob = this.pcmToWav(slicedBuffer, sampleRate, 1);
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          this.audioUrl = reader.result as string;
+          this.changeDetectorRef.detectChanges();
+        };
+        reader.readAsDataURL(wavBlob);
+      }
+    });
+  }
+
+  base64ToArrayBuffer(base64: string): ArrayBuffer {
+    let cleanedBase64 = base64.replace(/\s/g, '');
+    const commaIndex = cleanedBase64.indexOf(',');
+    if (commaIndex !== -1) {
+      cleanedBase64 = cleanedBase64.substring(commaIndex + 1);
+    }
+    cleanedBase64 = cleanedBase64.replace(/-/g, '+').replace(/_/g, '/');
+    while (cleanedBase64.length % 4 !== 0) {
+      cleanedBase64 += '=';
+    }
+    const binaryString = window.atob(cleanedBase64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  buf2hex(buffer: ArrayBuffer): string {
+    return Array.from(new Uint8Array(buffer))
+      .map(x => x.toString(16).padStart(2, '0'))
+      .join(' ');
+  }
+
+  pcmToWav(pcmBuffer: ArrayBuffer, sampleRate: number, numChannels: number): Blob {
+    const header = new ArrayBuffer(44);
+    const view = new DataView(header);
+
+    this.writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + pcmBuffer.byteLength, true);
+    this.writeString(view, 8, 'WAVE');
+    this.writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * numChannels * 2, true);
+    view.setUint16(32, numChannels * 2, true);
+    view.setUint16(34, 16, true);
+    this.writeString(view, 36, 'data');
+    view.setUint32(40, pcmBuffer.byteLength, true);
+
+    return new Blob([header, pcmBuffer], { type: 'audio/wav' });
+  }
+
+  writeString(view: DataView, offset: number, string: string) {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
   }
 }

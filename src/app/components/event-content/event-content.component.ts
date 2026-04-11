@@ -78,7 +78,8 @@ export class EventContentComponent {
         message.text || message.attachments || message.inlineData ||
         message.executableCode || message.codeExecutionResult ||
         message.a2uiData || message.renderedContent || message.isLoading ||
-        (message.failedMetric && message.evalStatus === 2));
+        (message.failedMetric && message.evalStatus === 2) ||
+        message.event?.content?.parts?.some((part: any) => part.fileData));
   }
 
   isComputerUseClick(input: any): boolean {

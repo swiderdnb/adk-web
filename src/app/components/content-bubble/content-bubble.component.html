@@ -154,7 +154,17 @@
         </div>
         }
       </div>
-    } } @if (uiEvent.failedMetric && uiEvent.evalStatus === 2) {
+    } }
+    @if (uiEvent.event.content.parts) {
+      @for (part of uiEvent.event.content.parts; track part) {
+        @if (part.fileData && part.fileData.mimeType.startsWith('audio/')) {
+          <div class="audio-attachment">
+            <app-audio-player [base64data]="audioUrl || ''"></app-audio-player>
+          </div>
+        }
+      }
+    }
+    @if (uiEvent.failedMetric && uiEvent.evalStatus === 2) {
       <div class="eval-compare-container">
         <div class="actual-expected-compare-container">
           @if (uiEvent.actualInvocationToolUses) {
