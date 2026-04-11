@@ -31,16 +31,16 @@
     <div class="flags-panel">
       <div class="flags-title">Live Flags</div>
       <div class="flag-item">
-        <mat-checkbox [checked]="flags.proactiveAudio" (change)="flags.proactiveAudio = $event.checked">Proactive Audio</mat-checkbox>
+        <mat-checkbox [checked]="flags.proactiveAudio" (change)="flags.proactiveAudio = $event.checked" [matTooltip]="i18n.proactiveAudioTooltip" matTooltipPosition="left">Proactive Audio</mat-checkbox>
       </div>
       <div class="flag-item">
-        <mat-checkbox [checked]="flags.enableAffectiveDialog" (change)="flags.enableAffectiveDialog = $event.checked">Affective Dialog</mat-checkbox>
+        <mat-checkbox [checked]="flags.enableAffectiveDialog" (change)="flags.enableAffectiveDialog = $event.checked" [matTooltip]="i18n.affectiveDialogTooltip" matTooltipPosition="left">Affective Dialog</mat-checkbox>
       </div>
       <div class="flag-item">
-        <mat-checkbox [checked]="flags.enableSessionResumption" (change)="flags.enableSessionResumption = $event.checked">Session Resumption</mat-checkbox>
+        <mat-checkbox [checked]="flags.enableSessionResumption" (change)="flags.enableSessionResumption = $event.checked" [matTooltip]="i18n.sessionResumptionTooltip" matTooltipPosition="left">Session Resumption</mat-checkbox>
       </div>
       <div class="flag-item">
-        <mat-checkbox [checked]="flags.saveLiveBlob" (change)="flags.saveLiveBlob = $event.checked">Save Live Blob</mat-checkbox>
+        <mat-checkbox [checked]="flags.saveLiveBlob" (change)="flags.saveLiveBlob = $event.checked" [matTooltip]="i18n.saveLiveBlobTooltip" matTooltipPosition="left">Save Live Blob</mat-checkbox>
       </div>
     </div>
   }
