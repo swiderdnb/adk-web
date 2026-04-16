@@ -230,7 +230,7 @@ export class EventTabComponent {
       const event = this.selectedEvent();
       
       if (this.forceGraphTab()) {
-        this.selectedDetailTab = 'graph';
+        this.selectedDetailTab = this.graphsAvailable() ? 'graph' : 'event';
       }
 
 
