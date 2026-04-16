@@ -13,10 +13,12 @@
         matTooltip="{{ i18n.infoTabLabel }}" matTooltipPosition="right">
         <mat-icon>info</mat-icon>
       </button>
-      <button mat-icon-button (click)="selectedDetailTab = 'graph'" [class.active]="selectedDetailTab === 'graph'"
-        matTooltip="{{ i18n.graphTabLabel }}" matTooltipPosition="right">
-        <mat-icon>account_tree</mat-icon>
-      </button>
+      @if (graphsAvailable()) {
+        <button mat-icon-button (click)="selectedDetailTab = 'graph'" [class.active]="selectedDetailTab === 'graph'"
+          matTooltip="{{ i18n.graphTabLabel }}" matTooltipPosition="right">
+          <mat-icon>account_tree</mat-icon>
+        </button>
+      }
       <button mat-icon-button (click)="selectedDetailTab = 'request'" [class.active]="selectedDetailTab === 'request'"
         matTooltip="{{ i18n.requestDetailsTabLabel }}" matTooltipPosition="right">
         <mat-icon>input</mat-icon>
