@@ -73,4 +73,16 @@ export class EventRowComponent {
     if (!this.isSelectable) return;
     this.rowClick.emit({event, uiEvent: this.uiEvent, index: this.index});
   }
+
+  get indentationDepth(): number {
+    if (!this.uiEvent.nodePath) return 0;
+    const segments = this.uiEvent.nodePath.split('/').filter(Boolean);
+    const count = segments.length;
+    return count > 2 ? count - 2 : 0;
+  }
+
+  get indentationArray(): number[] {
+    const depth = this.indentationDepth;
+    return depth > 0 ? Array.from({ length: depth }, (_, i) => i) : [];
+  }
 }

@@ -8,6 +8,11 @@
         [nodePath]="uiEvent.nodePath">
       </app-chat-avatar>
     } 
+    @if (uiEvent.role === "bot") {
+      @for (i of indentationArray; track i) {
+        <div class="indentation-line"></div>
+      }
+    }
     <app-event-content
       class="message-content"
       [uiEvent]="uiEvent"

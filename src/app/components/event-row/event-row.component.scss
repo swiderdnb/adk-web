@@ -35,14 +35,13 @@ app-content-bubble + app-content-bubble {
   margin-left: -20px;
   margin-right: -20px;
   padding: 4px 20px;
-  border: 2px solid transparent;
   border-radius: 4px;
 
   transition: all 0.2s ease;
 
   // Hover effect for all rows
   &.selectable:hover {
-    border-color: var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+    box-shadow: inset 0 0 0 2px var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
   }
 
   // Selected row (stays highlighted when side drawer is open)
@@ -259,5 +258,14 @@ app-content-bubble:hover .eval-compare-container {
   color: var(--mat-sys-primary);
   cursor: pointer;
   margin-right: 16px;
+}
+
+.indentation-line {
+  width: 20px;
+  border-left: 1px solid var(--mat-sys-outline-variant);
+  align-self: stretch;
+  opacity: 0.5;
+  margin-top: -4px;
+  margin-bottom: -4px;
 }
 
