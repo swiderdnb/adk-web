@@ -537,6 +537,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   agentGraphData = signal<any>(null);
   sessionGraphSvgLight: Record<string, string> = {};
   sessionGraphSvgDark: Record<string, string> = {};
+  sessionGraphDot: Record<string, string> = {};
   dynamicGraphDot: Record<string, string> = {};
   agentReadme: string = '';
   graphsAvailable = signal<boolean>(true);
@@ -2990,8 +2991,40 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    let highlightedSvgLight = sessionGraphSvgLight[graphPath] || sessionGraphSvgLight[''] || '';
-    let highlightedSvgDark = sessionGraphSvgDark[graphPath] || sessionGraphSvgDark[''] || '';
+    let dot = this.sessionGraphDot[graphPath] || this.sessionGraphDot[''] || '';
+    let modifiedDot = dot;
+    let isModified = false;
+
+    if (this.selectedEvent) {
+      const highlightPairs = this.getV1HighlightPairs(this.selectedEvent);
+      for (const [from, to] of highlightPairs) {
+        // Check if it's a function response (from=function, to=agent)
+        if (from && to && to === this.selectedEvent.author) {
+          const edgeRegex = new RegExp(`("${to}"|${to})\\s*->\\s*("${from}"|${from})`, 'g');
+          if (edgeRegex.test(dot)) {
+            modifiedDot = dot.replace(edgeRegex, `$& [dir=back]`);
+            isModified = true;
+          }
+        }
+      }
+    }
+
+    let highlightedSvgLight = '';
+    let highlightedSvgDark = '';
+
+    if (isModified) {
+      try {
+        highlightedSvgLight = await this.graphService.render(modifiedDot);
+        highlightedSvgDark = highlightedSvgLight; // Fallback to same SVG for dark mode if needed
+      } catch (err) {
+        console.error('Failed to render modified graph', err);
+        highlightedSvgLight = sessionGraphSvgLight[graphPath] || sessionGraphSvgLight[''] || '';
+        highlightedSvgDark = sessionGraphSvgDark[graphPath] || sessionGraphSvgDark[''] || '';
+      }
+    } else {
+      highlightedSvgLight = sessionGraphSvgLight[graphPath] || sessionGraphSvgLight[''] || '';
+      highlightedSvgDark = sessionGraphSvgDark[graphPath] || sessionGraphSvgDark[''] || '';
+    }
 
     // Apply V1-style highlighting (based on function calls) if applicable
     if (this.selectedEvent) {
@@ -3796,6 +3829,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
                     const barePath = path.split('/').map((s: string) => s.split('@')[0]).join('/');
                     const segments = barePath.split('/');
                     const normalizedPath = segments.length > 1 ? segments.slice(1).join('/') : (segments[0] === 'root_agent' || segments[0] === app ? '' : segments[0]);
+                    this.sessionGraphDot[normalizedPath] = (graph as any).dotSrc;
                     this.sessionGraphSvgLight[normalizedPath] = await this.graphService.render((graph as any).dotSrc);
                   }
                 }
