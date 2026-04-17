@@ -166,6 +166,9 @@ describe('ChatComponent', () => {
     mockEvalService = new MockEvalService();
     mockTraceService = new MockTraceService();
     mockAgentService = new MockAgentService();
+    (mockAgentService as any).getVersionResponse = new ReplaySubject<any>(1);
+    (mockAgentService as any).getVersion = jasmine.createSpy('getVersion').and.returnValue((mockAgentService as any).getVersionResponse);
+    (mockAgentService as any).getVersionResponse.next({version: '0.0.0'});
     mockFeatureFlagService = new MockFeatureFlagService();
     mockStringToColorService = new MockStringToColorService();
     mockSafeValuesService = new MockSafeValuesService();
@@ -189,6 +192,7 @@ describe('ChatComponent', () => {
     mockFeatureFlagService.isDeleteSessionEnabledResponse.next(true);
     mockFeatureFlagService.isInfinityMessageScrollingEnabledResponse.next(
         false);
+    mockFeatureFlagService.isNewSessionButtonEnabledResponse.next(true);
 
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
     mockDialog.open.and.returnValue({
@@ -761,6 +765,37 @@ describe('ChatComponent', () => {
         });
       });
     });
+
+    describe('new session button', () => {
+      describe('when isNewSessionButtonEnabled is false', () => {
+        beforeEach(() => {
+          mockFeatureFlagService.isNewSessionButtonEnabledResponse.next(false);
+          fixture.detectChanges();
+        });
+
+        it('should not be visible', () => {
+          const newSessionButton = fixture.debugElement.query(
+              By.css('#toolbar-new-session-button'));
+          expect(newSessionButton).toBeFalsy();
+        });
+      });
+
+      describe('when isNewSessionButtonEnabled is true', () => {
+        beforeEach(() => {
+          mockFeatureFlagService.isNewSessionButtonEnabledResponse.next(true);
+          component.sessionId = 'test-session';
+          fixture.detectChanges();
+        });
+
+        it('should be visible', () => {
+          const newSessionButton = fixture.debugElement.query(
+              By.css('#toolbar-new-session-button'));
+          expect(newSessionButton).toBeTruthy();
+        });
+      });
+    });
+
+
 
     describe('delete session button', () => {
       describe('when isDeleteSessionEnabled is false', () => {

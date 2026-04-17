@@ -958,7 +958,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isViewOnlySession.set(false);
     this.isViewOnlyAppNameMismatch.set(false);
     this.canEditSession.set(true);
-    this.chatPanel()?.canEditSession.set(true);
+    this.chatPanel()?.canEditSession?.set(true);
     this.eventData = new Map<string, any>();
     this.uiEvents.set([]);
     this.artifacts = [];
@@ -2300,7 +2300,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.readonlySessionName.set(caseName && formattedTime ? `${formattedTime} > ${caseName}` : session.id);
       this.canEditSession.set(false);
-      this.chatPanel()?.canEditSession.set(false);
+      this.chatPanel()?.canEditSession?.set(false);
     } else {
       this.isViewOnlySession.set(false);
     }
@@ -2354,7 +2354,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       this.sessionService.canEdit(this.userId, session)
         .pipe(first(), catchError(() => of(true)))
         .subscribe((canEdit) => {
-          this.chatPanel()?.canEditSession.set(canEdit);
+          this.chatPanel()?.canEditSession?.set(canEdit);
           this.canEditSession.set(canEdit);
         });
     }
@@ -2460,7 +2460,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.canEditSession.set(false);
-    this.chatPanel()?.canEditSession.set(false);
+    this.chatPanel()?.canEditSession?.set(false);
     this.isViewOnlySession.set(true);
 
     this.changeDetectorRef.detectChanges();
@@ -4277,7 +4277,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.isViewOnlySession.set(true);
     this.canEditSession.set(false);
-    this.chatPanel()?.canEditSession.set(false);
+    this.chatPanel()?.canEditSession?.set(false);
 
     const mismatch = !!(sessionData.appName && sessionData.appName !== this.appName);
     this.isViewOnlyAppNameMismatch.set(mismatch);

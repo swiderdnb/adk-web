@@ -126,4 +126,8 @@ export class MockFeatureFlagService implements FeatureFlagService {
   isTestsEnabledResponse = new ReplaySubject<boolean>(1);
   isTestsEnabled = jasmine.createSpy('isTestsEnabled')
                        .and.returnValue(this.isTestsEnabledResponse);
+
+  isNewSessionButtonEnabledResponse = new ReplaySubject<boolean>(1);
+  isNewSessionButtonEnabled = jasmine.createSpy('isNewSessionButtonEnabled')
+                                .and.returnValue(this.isNewSessionButtonEnabledResponse);
 }

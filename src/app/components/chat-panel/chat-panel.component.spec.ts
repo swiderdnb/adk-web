@@ -22,7 +22,9 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {By} from '@angular/platform-browser';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 // 1p-ONLY-IMPORTS: import {beforeEach, describe, expect, it}
-import {of} from 'rxjs';
+import {of, ReplaySubject} from 'rxjs';
+import {ARTIFACT_SERVICE} from '../../core/services/interfaces/artifact';
+import {MockArtifactService} from '../../core/services/testing/mock-artifact.service';
 
 import {UiEvent} from '../../core/models/UiEvent';
 import {isComputerUseResponse} from '../../core/models/ComputerUse';
@@ -103,6 +105,7 @@ describe('ChatPanelComponent', () => {
             {provide: FEEDBACK_SERVICE, useValue: mockFeedbackService},
             {provide: SAFE_VALUES_SERVICE, useValue: mockSafeValuesService},
             {provide: THEME_SERVICE, useClass: MockThemeService},
+            {provide: ARTIFACT_SERVICE, useValue: new MockArtifactService()},
           ],
         })
         .compileComponents();

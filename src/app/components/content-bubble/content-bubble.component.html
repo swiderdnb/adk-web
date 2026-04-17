@@ -156,8 +156,8 @@
         }
       </div>
     } }
-    @if (uiEvent.event.content.parts) {
-      @for (part of uiEvent.event.content.parts; track part) {
+    @if (uiEvent.event?.content?.parts) {
+      @for (part of uiEvent.event?.content?.parts; track part) {
         @if (part.fileData && part.fileData.mimeType.startsWith('audio/')) {
           <div class="audio-attachment">
             <app-audio-player [base64data]="audioUrl || ''"></app-audio-player>
