@@ -212,6 +212,9 @@ export class TraceTreeComponent implements OnInit, OnChanges {
     if (name.startsWith('execute_tool ')) {
       return name.substring('execute_tool '.length);
     }
+    if (name.startsWith('invoke_node ')) {
+      return name.substring('invoke_node '.length);
+    }
     return name;
   }
 

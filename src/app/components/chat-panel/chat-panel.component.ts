@@ -373,9 +373,24 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
 
     this.spansByInvocationId = new Map<string, any[]>();
     for (const [key, group] of invocTraces) {
-      const invocId = group.find(
+      let invocId = group.find(
         (item: any) => item.attributes !== undefined && 'gcp.vertex.agent.invocation_id' in item.attributes
       )?.attributes['gcp.vertex.agent.invocation_id'];
+
+      // Fallback 1: Use associated_event_ids
+      if (!invocId) {
+        const associatedEventIds = group.find(
+          (item: any) => item.attributes !== undefined && 'gcp.vertex.agent.associated_event_ids' in item.attributes
+        )?.attributes['gcp.vertex.agent.associated_event_ids'];
+        if (associatedEventIds && associatedEventIds.length > 0) {
+          invocId = associatedEventIds[0];
+        }
+      }
+
+      // Fallback 2: Use trace_id
+      if (!invocId) {
+        invocId = key;
+      }
 
       if (invocId) {
         this.spansByInvocationId.set(invocId, group);
@@ -384,16 +399,17 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   }
 
   isFirstEventForInvocation(uiEvent: UiEvent, index: number): boolean {
-    if (!uiEvent.event?.invocationId) return false;
+    const id = uiEvent.event?.invocationId || uiEvent.event?.id;
+    if (!id) return false;
 
-    // Check if any previous bot event in uiEvents has the same invocationId
+    // Check if any previous bot event in uiEvents has the same invocationId or event ID
     for (let i = index - 1; i >= 0; i--) {
-      const priorEvent = this.uiEvents[i];
-      if (priorEvent.role === 'bot' && priorEvent.event?.invocationId === uiEvent.event?.invocationId) {
+      const prevEvent = this.uiEvents[i];
+      const prevId = prevEvent.event?.invocationId || prevEvent.event?.id;
+      if (prevEvent.role === 'bot' && prevId === id) {
         return false;
       }
     }
-
     return true;
   }
 

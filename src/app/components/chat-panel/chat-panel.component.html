@@ -85,8 +85,8 @@
   <div class="trace-tree-container"
     [style.display]="(viewMode === 'traces') ? '' : 'none'">
     <app-trace-tree
-      [spans]="uiEvent.event.invocationId ? (spansByInvocationId.get(uiEvent.event.invocationId!) || []) : []"
-      [invocationId]="uiEvent.event.invocationId || ''" [uiEvents]="uiEvents"
+      [spans]="spansByInvocationId.get(uiEvent.event.id) || spansByInvocationId.get(uiEvent.event.invocationId!) || []"
+      [invocationId]="uiEvent.event.invocationId || uiEvent.event.id || ''" [uiEvents]="uiEvents"
       [shouldShowEvent]="shouldShowEvent"></app-trace-tree>
   </div>
   }
