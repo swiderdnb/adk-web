@@ -1167,6 +1167,39 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.traceService.setEventData(this.eventData);
 
+    if (apiEvent?.longRunningToolIds && apiEvent.longRunningToolIds.length > 0) {
+      const startIndex = this.longRunningEvents.length;
+      this.getAsyncFunctionsFromParts(
+        apiEvent.longRunningToolIds, apiEvent.content.parts, apiEvent.invocationId);
+
+      // Store event ID for later reference
+      this.functionCallEventId = apiEvent.id;
+
+      // Check all newly added events for OAuth requirements
+      for (let i = startIndex; i < this.longRunningEvents.length; i++) {
+        const func = this.longRunningEvents[i].function;
+        if (func.args.authConfig &&
+          func.args.authConfig.exchangedAuthCredential &&
+          func.args.authConfig.exchangedAuthCredential.oauth2) {
+          // for OAuth
+          const authUri =
+            func.args.authConfig.exchangedAuthCredential.oauth2.authUri;
+          const updatedAuthUri = this.updateRedirectUri(
+            authUri,
+            this.redirectUri,
+          );
+          this.openOAuthPopup(updatedAuthUri)
+            .then((authResponseUrl) => {
+              this.sendOAuthResponse(func, authResponseUrl, this.redirectUri);
+            })
+            .catch((error) => {
+              console.error('OAuth Error:', error);
+            });
+          break;  // Handle one OAuth at a time
+        }
+      }
+    }
+
     if (apiEvent.partial) {
       this.uiEvents.update((events) => {
         if (events.length > 0) {
@@ -1454,38 +1487,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   private storeMessage(
     part: any, e: any, role: string, invocationIndex?: number,
     additionalIndices?: any, prepend: boolean = false) {
-    if (e?.longRunningToolIds && e.longRunningToolIds.length > 0) {
-      const startIndex = this.longRunningEvents.length;
-      this.getAsyncFunctionsFromParts(
-        e.longRunningToolIds, e.content.parts, e.invocationId);
 
-      // Store event ID for later reference
-      this.functionCallEventId = e.id;
-
-      // Check all newly added events for OAuth requirements
-      for (let i = startIndex; i < this.longRunningEvents.length; i++) {
-        const func = this.longRunningEvents[i].function;
-        if (func.args.authConfig &&
-          func.args.authConfig.exchangedAuthCredential &&
-          func.args.authConfig.exchangedAuthCredential.oauth2) {
-          // for OAuth
-          const authUri =
-            func.args.authConfig.exchangedAuthCredential.oauth2.authUri;
-          const updatedAuthUri = this.updateRedirectUri(
-            authUri,
-            this.redirectUri,
-          );
-          this.openOAuthPopup(updatedAuthUri)
-            .then((authResponseUrl) => {
-              this.sendOAuthResponse(func, authResponseUrl, this.redirectUri);
-            })
-            .catch((error) => {
-              console.error('OAuth Error:', error);
-            });
-          break;  // Handle one OAuth at a time
-        }
-      }
-    }
     if (e?.actions && e.actions.artifactDelta) {
       for (const key in e.actions.artifactDelta) {
         if (e.actions.artifactDelta.hasOwnProperty(key)) {

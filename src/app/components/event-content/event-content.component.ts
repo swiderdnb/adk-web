@@ -124,7 +124,7 @@ export class EventContentComponent {
       return false;
     }
     return this.uiEvents.some(event => 
-      event.functionResponses?.some(response => response.id === callId)
+      event.functionResponses?.some(response => response.id === callId && (response.response as any)?.status !== 'pending')
     );
   }
 }
