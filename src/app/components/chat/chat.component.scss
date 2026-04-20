@@ -1278,11 +1278,11 @@ app-canvas {
   }
 }
 
-.info-icon-container {
+.logo-title-container {
   position: relative;
   display: inline-flex;
   align-items: center;
-  cursor: pointer;
+  cursor: default;
 
   &:hover .custom-tooltip {
     visibility: visible;

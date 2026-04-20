@@ -24,10 +24,8 @@
         <ng-container *ngComponentOutlet="logoComponent"></ng-container>
       } @else {
         <img src="assets/ADK-512-color.svg" width="20px" height="20px" />
-        <span class="toolbar-logo-text logo-wide">Agent Development Kit@if (adkVersion()) { <span style="color: var(--mat-sys-on-surface-variant); margin-left: 8px; opacity: 0.6;">{{ adkVersion() }}</span>}</span>
-        <span class="toolbar-logo-text logo-narrow">ADK</span>
-        <div class="info-icon-container">
-          <mat-icon class="disclosure-info-icon">info_outline</mat-icon>
+        <div class="logo-title-container">
+          <span class="toolbar-logo-text logo-wide">Agent Development Kit@if (adkVersion()) { <span style="color: var(--mat-sys-on-surface-variant); margin-left: 8px; opacity: 0.6;">{{ adkVersion() }}</span>}</span>
           <div class="custom-tooltip">
             <div class="tooltip-desc">{{ sidePanelI18n.disclosureTooltip }}</div>
             @if (versionInfo()) {
@@ -39,6 +37,7 @@
             }
           </div>
         </div>
+        <span class="toolbar-logo-text logo-narrow">ADK</span>
       }
     </div>
     <div class="selector-group">
