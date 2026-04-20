@@ -440,6 +440,7 @@
       </div>
       } } @if (appName != "") {
 <div class="chat-sub-toolbar">
+  @if (!(uiEvents().length === 0 && agentReadme)) {
   <mat-button-toggle-group [value]="viewMode()" (change)="onViewModeChange($event.value)" hideSingleSelectionIndicator>
     <mat-button-toggle value="events">Events</mat-button-toggle>
     <mat-button-toggle value="traces">Traces</mat-button-toggle>
@@ -522,6 +523,7 @@
     </button>
     }
   </mat-menu>
+  }
 
   <div style="flex-grow: 1;"></div>
 
