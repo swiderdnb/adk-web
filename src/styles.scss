@@ -34,6 +34,14 @@ html {
   --mat-sys-on-secondary: #203246;
   --mat-sys-secondary-container: #3a485a;
   --mat-sys-on-secondary-container: #d7e3f7;
+
+  // Neutral background overrides to remove tint
+  --mat-sys-background: #121212;
+  --mat-sys-surface: #121212;
+  --mat-sys-surface-container: #1e1e1e;
+  --mat-sys-surface-container-low: #1a1a1a;
+  --mat-sys-surface-container-high: #2a2a2a;
+  --mat-sys-surface-container-highest: #3a3a3a;
 }
 
 // Light theme override
@@ -54,6 +62,14 @@ html.light-theme {
   --mat-sys-on-secondary: #ffffff;
   --mat-sys-secondary-container: #d7e3f7;
   --mat-sys-on-secondary-container: #101c2b;
+
+  // Neutral background overrides to remove tint
+  --mat-sys-background: #ffffff;
+  --mat-sys-surface: #ffffff;
+  --mat-sys-surface-container: #f5f5f5;
+  --mat-sys-surface-container-low: #fafafa;
+  --mat-sys-surface-container-high: #eeeeee;
+  --mat-sys-surface-container-highest: #e0e0e0;
 }
 
 // Dark theme explicit class (for consistency)
@@ -74,6 +90,14 @@ html.dark-theme {
   --mat-sys-on-secondary: #203246;
   --mat-sys-secondary-container: #3a485a;
   --mat-sys-on-secondary-container: #d7e3f7;
+
+  // Neutral background overrides to remove tint
+  --mat-sys-background: #121212;
+  --mat-sys-surface: #121212;
+  --mat-sys-surface-container: #1e1e1e;
+  --mat-sys-surface-container-low: #1a1a1a;
+  --mat-sys-surface-container-high: #2a2a2a;
+  --mat-sys-surface-container-highest: #3a3a3a;
 }
 
 body {
