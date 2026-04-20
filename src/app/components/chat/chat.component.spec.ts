@@ -20,7 +20,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {ChangeDetectionStrategy, Component, ErrorHandler} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import { SnackbarService } from '../../core/services/snackbar.service';
 import {By} from '@angular/platform-browser';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {ActivatedRoute, NavigationEnd, Router, UrlTree} from '@angular/router';
@@ -146,7 +146,7 @@ describe('ChatComponent', () => {
   let mockSafeValuesService: MockSafeValuesService;
   let mockLocalFileService: MockLocalFileService;
   let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let mockSnackBar: jasmine.SpyObj<SnackbarService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockActivatedRoute: Partial<ActivatedRoute>;
   let mockLocation: jasmine.SpyObj<Location>;
@@ -199,7 +199,7 @@ describe('ChatComponent', () => {
       afterClosed: () => of(false),
       close: () => {},
     } as any);
-    mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+    mockSnackBar = jasmine.createSpyObj('SnackbarService', ['open']);
     mockRouter = jasmine.createSpyObj(
         'Router',
         ['navigate', 'createUrlTree', 'parseUrl', 'navigateByUrl'],
@@ -270,7 +270,7 @@ describe('ChatComponent', () => {
             {provide: SAFE_VALUES_SERVICE, useValue: mockSafeValuesService},
             {provide: LOCAL_FILE_SERVICE, useValue: mockLocalFileService},
             {provide: MatDialog, useValue: mockDialog},
-            {provide: MatSnackBar, useValue: mockSnackBar},
+            {provide: SnackbarService, useValue: mockSnackBar},
             {provide: Router, useValue: mockRouter},
             {provide: ActivatedRoute, useValue: mockActivatedRoute},
             {provide: LOCATION_SERVICE, useValue: mockLocation},

@@ -31,7 +31,7 @@ import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarService } from '../../core/services/snackbar.service';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatToolbar } from '@angular/material/toolbar';
 import { SafeHtml } from '@angular/platform-browser';
@@ -179,7 +179,7 @@ const BIDI_STREAMING_RESTART_WARNING =
 export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly i18n = inject(ChatMessagesInjectionToken);
   protected readonly sidePanelI18n = inject(SidePanelMessagesInjectionToken);
-  private readonly _snackBar = inject(MatSnackBar);
+  private readonly _snackbarService = inject(SnackbarService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly agentService = inject(AGENT_SERVICE);
   private readonly artifactService = inject(ARTIFACT_SERVICE);
@@ -2885,7 +2885,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (error: any) => {
         console.error('Error loading agent configuration:', error);
-        this._snackBar.open('Error loading agent configuration', 'OK');
+        this.openSnackBar('Error loading agent configuration', 'OK');
       },
     });
   }
@@ -4058,9 +4058,9 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openSnackBar(message: string, action?: string, duration?: number) {
     if (duration !== undefined) {
-      this._snackBar.open(message, action, { duration });
+      this._snackbarService.open(message, action, { duration });
     } else {
-      this._snackBar.open(message, action);
+      this._snackbarService.open(message, action);
     }
   }
 

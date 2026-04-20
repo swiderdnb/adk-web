@@ -19,7 +19,7 @@ import {Location} from '@angular/common';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatPaginator} from '@angular/material/paginator';
-import {MatSnackBar} from '@angular/material/snack-bar';
+import { SnackbarService } from '../../core/services/snackbar.service';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
 import {By} from '@angular/platform-browser';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
@@ -88,7 +88,7 @@ describe('SidePanelComponent', () => {
   let mockUiStateService: MockUiStateService;
   let mockFeatureFlagService: MockFeatureFlagService;
   let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let mockSnackBar: jasmine.SpyObj<SnackbarService>;
   let mockActivatedRoute: Partial<ActivatedRoute>;
   let mockLocation: jasmine.SpyObj<Location>;
 
@@ -152,7 +152,7 @@ describe('SidePanelComponent', () => {
     mockUiStateService = new MockUiStateService();
     mockFeatureFlagService = new MockFeatureFlagService();
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+    mockSnackBar = jasmine.createSpyObj('SnackbarService', ['open']);
     mockLocation = jasmine.createSpyObj('Location', ['replaceState']);
     mockActivatedRoute = {
       snapshot: {
@@ -197,7 +197,7 @@ describe('SidePanelComponent', () => {
         {provide: UI_STATE_SERVICE, useValue: mockUiStateService},
         {provide: FEATURE_FLAG_SERVICE, useValue: mockFeatureFlagService},
         {provide: MatDialog, useValue: mockDialog},
-        {provide: MatSnackBar, useValue: mockSnackBar},
+        {provide: SnackbarService, useValue: mockSnackBar},
         provideRouter([]),
         {provide: ActivatedRoute, useValue: mockActivatedRoute},
         {provide: Location, useValue: mockLocation},
