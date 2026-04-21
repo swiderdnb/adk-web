@@ -46,7 +46,7 @@ export class ResizableDrawerDirective implements AfterViewInit {
           this.resizeHandle, 'mousedown',
           (event) => this.onResizeHandleMouseDown(event));
     }
-    document.documentElement.style.setProperty('--side-drawer-width', '570px');
+    document.documentElement.style.setProperty('--side-drawer-width', '420px');
 
     this.renderer.setStyle(
         this.el.nativeElement, 'width', 'var(--side-drawer-width)');
@@ -97,6 +97,6 @@ export class ResizableDrawerDirective implements AfterViewInit {
                             .getPropertyValue('--side-drawer-width');
     const parsedWidth = parseFloat(widthString);
 
-    return isNaN(parsedWidth) ? 500 : parsedWidth;
+    return isNaN(parsedWidth) ? 420 : parsedWidth;
   }
 }

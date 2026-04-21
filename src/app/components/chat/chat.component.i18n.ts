@@ -48,7 +48,7 @@ export const CHAT_MESSAGES = {
   viewSessionTooltip: 'View session',
   loadingAgentsLabel: 'Loading agents, please wait...',
   welcomeMessage: 'Welcome to ADK!',
-  selectAgentMessage: 'Select an agent on the left to begin with.',
+  selectAgentMessage: 'Select an agent to begin.',
   failedToLoadAgentsMessage: 'Failed to load agents. To get started, run',
   errorMessageLabel: 'Error message:',
   noAgentsFoundWarning: 'Warning: No agents found in current folder.',
