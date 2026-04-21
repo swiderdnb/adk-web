@@ -159,8 +159,13 @@
                   [checked]="selection.hasValue() && isAllSelected()"
                   [indeterminate]="selection.hasValue() && !isAllSelected()">
                 </mat-checkbox>
-                <button mat-button color="primary" (click)="openEvalConfigDialog()" [disabled]="evalCases.length == 0">
-                  <mat-icon>play_arrow</mat-icon> {{ (isAllSelected() || selection.isEmpty()) ? i18n.runEvaluationButton :
+                <button mat-button color="primary" (click)="openEvalConfigDialog()" [disabled]="evalCases.length == 0 || loadingMetrics()">
+                  @if (loadingMetrics()) {
+                    <mat-progress-spinner mode="indeterminate" [diameter]="20" style="display: inline-block; vertical-align: middle; margin-right: 8px;"></mat-progress-spinner>
+                  } @else {
+                    <mat-icon>play_arrow</mat-icon>
+                  }
+                  {{ (isAllSelected() || selection.isEmpty()) ? i18n.runEvaluationButton :
                   i18n.runSelectedEvaluationButton }}
                 </button>
                 <button mat-button color="accent" (click)="openNewEvalCaseDialog()">

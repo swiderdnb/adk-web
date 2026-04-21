@@ -174,6 +174,7 @@ export class EvalTabComponent implements OnInit, OnChanges {
   selectedHistoryRun = signal<string|null>(null);
 
   evalRunning = signal(false);
+  loadingMetrics = signal(false);
   evalMetrics: EvalMetric[] = DEFAULT_EVAL_METRICS;
   isEvalV2Enabled = signal(false);
 
@@ -787,12 +788,14 @@ export class EvalTabComponent implements OnInit, OnChanges {
   }
 
   protected openEvalConfigDialog() {
+    this.loadingMetrics.set(true);
     this.evalService.getMetricsInfo(this.appName())
       .pipe(catchError((error) => {
         console.error('Error fetching metrics info', error);
         return of({ metricsInfo: [] });
       }))
       .subscribe((res) => {
+        this.loadingMetrics.set(false);
         const dialogRef = this.dialog.open(RunEvalConfigDialogComponent, {
           maxWidth: '90vw',
           maxHeight: '90vh',
