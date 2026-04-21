@@ -342,4 +342,10 @@ button.send-message-btn {
   font-size: 14px;
   line-height: 1.8;
   color: var(--mat-sys-on-surface);
+
+  ::ng-deep {
+    pre code {
+      font-size: 12px !important;
+    }
+  }
 }
