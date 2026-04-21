@@ -25,7 +25,9 @@
       } @else {
         <img src="assets/ADK-512-color.svg" width="20px" height="20px" />
         <div class="logo-title-container">
-          <span class="toolbar-logo-text logo-wide">Agent Development Kit@if (adkVersion()) { <span style="color: var(--mat-sys-on-surface-variant); margin-left: 8px; opacity: 0.6;">{{ adkVersion() }}</span>}</span>
+          <div class="logo-text-wrapper">
+            <span class="toolbar-logo-text logo-wide">Agent Development Kit</span> @if (adkVersion()) { <span class="toolbar-logo-text logo-wide" style="color: var(--mat-sys-outline);"> {{ adkVersion() }}</span>}
+          </div>
           <div class="custom-tooltip">
             <div class="tooltip-desc">{{ sidePanelI18n.disclosureTooltip }}</div>
             @if (versionInfo()) {
