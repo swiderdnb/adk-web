@@ -98,6 +98,33 @@ export class ContentBubbleComponent implements OnChanges {
     return false;
   }
 
+  get noBubble(): boolean {
+    if (this.uiEvent.inlineData) {
+      const mediaType = this.uiEvent.inlineData.mediaType;
+      if (mediaType === MediaType.AUDIO || mediaType === MediaType.IMAGE || mediaType === MediaType.VIDEO) {
+        return true;
+      }
+    }
+    
+    if (this.uiEvent.inlineData?.mimeType) {
+      const mimeType = this.uiEvent.inlineData.mimeType;
+      if (mimeType.startsWith('audio/') || mimeType.startsWith('image/') || mimeType.startsWith('video/')) {
+        return true;
+      }
+    }
+
+    const parts = this.uiEvent.event?.content?.parts;
+    if (parts) {
+      return parts.some((part: any) => 
+        (part.fileData && part.fileData.mimeType && 
+          (part.fileData.mimeType.startsWith('audio/') || 
+           part.fileData.mimeType.startsWith('image/') || 
+           part.fileData.mimeType.startsWith('video/')))
+      );
+    }
+    return false;
+  }
+
   audioUrl: string | null = null;
 
   ngOnChanges(changes: SimpleChanges) {

@@ -36,6 +36,7 @@ const DEFAULT_ARTIFACT_NAME = 'default_artifact_name';
 export enum MediaType {
   IMAGE = 'image',
   AUDIO = 'audio',
+  VIDEO = 'video',
   TEXT = 'text',  // for text/html
   UNSPECIFIED = 'unspecified',
 }
@@ -146,6 +147,18 @@ export class ArtifactTabComponent implements OnChanges {
         .sort((a, b) => {
           return b.versionId - a.versionId;
         });
+  }
+
+  protected getTextContent(dataUrl: string): string {
+    if (!dataUrl) return '';
+    const commaIndex = dataUrl.indexOf(',');
+    if (commaIndex === -1) return '';
+    const base64 = dataUrl.substring(commaIndex + 1);
+    try {
+      return atob(base64);
+    } catch (e) {
+      return 'Failed to decode text content';
+    }
   }
 
   protected onArtifactVersionChange(event: any, index: number) {

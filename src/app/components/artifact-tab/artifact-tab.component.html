@@ -69,6 +69,16 @@
                 <app-audio-player [base64data]="selectedArtifacts[i].data"></app-audio-player>
               </div>
             }
+            @case (MediaType.VIDEO) {
+              <div class="video-player-container" style="max-width: 400px; margin-top: 8px;">
+                <video [src]="selectedArtifacts[i].data" controls style="width: 100%; border-radius: 8px;"></video>
+              </div>
+            }
+            @case (MediaType.TEXT) {
+              <div class="text-artifact-container" style="max-height: 300px; overflow-y: auto; background: var(--mat-sys-surface-container); padding: 12px; border-radius: 8px; margin-top: 8px;">
+                <pre style="margin: 0; white-space: pre-wrap; font-family: monospace; font-size: 12px; color: var(--mat-sys-on-surface);">{{ getTextContent(selectedArtifacts[i].data) }}</pre>
+              </div>
+            }
           }
         </div>
       </div>

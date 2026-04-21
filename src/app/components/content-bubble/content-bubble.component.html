@@ -1,7 +1,7 @@
 <div
   class="content-bubble type-{{ type }} role-{{ role }}"
   [class.eval-fail]="evalStatus === 2"
-  [class.no-bubble]="hasAudio"
+  [class.no-bubble]="noBubble"
 >
   @if (type !== 'message' && type !== 'output') {
     <div class="output-chip-header">{{ type }}</div>
@@ -103,6 +103,10 @@
           <div>
             <app-audio-player [base64data]="uiEvent.inlineData.data"></app-audio-player>
           </div>
+          } @case (MediaType.VIDEO) {
+          <div class="video-player-container" style="max-width: 400px; margin-top: 8px;">
+            <video [src]="uiEvent.inlineData.data" controls style="width: 100%; border-radius: 8px;"></video>
+          </div>
           } @case (MediaType.TEXT) {
           <div>
             <div class="html-artifact-container">
@@ -147,6 +151,10 @@
             [src]="uiEvent.inlineData.data"
             (click)="openViewImageDialog.emit(uiEvent.inlineData.data)"
           />
+        </div>
+        } @else if (uiEvent.inlineData.mimeType.startsWith("video/")) {
+        <div class="video-player-container" style="max-width: 400px; margin-top: 8px;">
+          <video [src]="uiEvent.inlineData.data" controls style="width: 100%; border-radius: 8px;"></video>
         </div>
         } @else {
         <div class="attachment">

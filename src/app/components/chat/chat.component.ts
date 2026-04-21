@@ -1121,7 +1121,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         if (chunkJson.actions) {
-          this.processActionArtifact(chunkJson);
           this.processActionStateDelta(chunkJson);
         }
         this.changeDetectorRef.detectChanges();
@@ -1268,6 +1267,16 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         if (existingIndex >= 0) {
+          const existingEvent = events[existingIndex];
+          
+          // Preserve functionResponses and functionCalls if not present in new event
+          if (!uiEvent.functionResponses || uiEvent.functionResponses.length === 0) {
+            uiEvent.functionResponses = existingEvent.functionResponses;
+          }
+          if (!uiEvent.functionCalls || uiEvent.functionCalls.length === 0) {
+            uiEvent.functionCalls = existingEvent.functionCalls;
+          }
+
           const newEvents = [...events];
           newEvents[existingIndex] = uiEvent;
           return newEvents;
@@ -1278,9 +1287,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (apiEvent.actions?.artifactDelta) {
-      for (const key in apiEvent.actions.artifactDelta) {
-        if (apiEvent.actions.artifactDelta.hasOwnProperty(key)) {
-          this.renderArtifact(key, apiEvent.actions.artifactDelta[key], reverseOrder);
+      const uiEvent = this.uiEvents().find(e => e.event?.id === apiEvent.id);
+      if (uiEvent) {
+        for (const key in apiEvent.actions.artifactDelta) {
+          if (apiEvent.actions.artifactDelta.hasOwnProperty(key)) {
+            this.renderArtifact(key, apiEvent.actions.artifactDelta[key], uiEvent);
+          }
         }
       }
     }
@@ -1335,13 +1347,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     return parts;
   }
 
-  private processActionArtifact(e: AdkEvent) {
-    if (e.actions && e.actions.artifactDelta &&
-      Object.keys(e.actions.artifactDelta).length > 0) {
-      this.storeEvents(null, e);
-      this.storeMessage(null, e, 'bot');
-    }
-  }
+
 
   private processActionStateDelta(e: AdkEvent) {
     if (e.actions && e.actions.stateDelta &&
@@ -1484,126 +1490,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private storeMessage(
-    part: any, e: any, role: string, invocationIndex?: number,
-    additionalIndices?: any, prepend: boolean = false) {
 
-    if (e?.actions && e.actions.artifactDelta) {
-      for (const key in e.actions.artifactDelta) {
-        if (e.actions.artifactDelta.hasOwnProperty(key)) {
-          this.renderArtifact(key, e.actions.artifactDelta[key], prepend);
-        }
-      }
-    }
-
-
-
-    let message: any = {
-      role,
-      evalStatus: e?.evalStatus,
-      failedMetric: e?.failedMetric,
-      evalScore: e?.evalScore,
-      evalThreshold: e?.evalThreshold,
-      actualInvocationToolUses: e?.actualInvocationToolUses,
-      expectedInvocationToolUses: e?.expectedInvocationToolUses,
-      actualFinalResponse: e?.actualFinalResponse,
-      expectedFinalResponse: e?.expectedFinalResponse,
-      invocationIndex: invocationIndex !== undefined ? invocationIndex :
-        undefined,
-      finalResponsePartIndex:
-        additionalIndices?.finalResponsePartIndex !== undefined ?
-          additionalIndices.finalResponsePartIndex :
-          undefined,
-      toolUseIndex: additionalIndices?.toolUseIndex !== undefined ?
-        additionalIndices.toolUseIndex :
-        undefined,
-    };
-
-    // Process the part and add its content to the message
-    if (part) {
-      if (part.inlineData) {
-        const base64Data = this.formatBase64Data(
-          part.inlineData.data, part.inlineData.mimeType);
-        message.inlineData = {
-          displayName: part.inlineData.displayName,
-          data: base64Data,
-          mimeType: part.inlineData.mimeType,
-        };
-      } else if (part.a2ui) {
-        message.a2uiData = this.processA2uiPartIntoMessage(part);
-      } else if (part.text) {
-        message.text = part.text;
-        message.thought = part.thought ? true : false;
-        if (e?.groundingMetadata && e.groundingMetadata.searchEntryPoint &&
-          e.groundingMetadata.searchEntryPoint.renderedContent) {
-          message.renderedContent =
-            e.groundingMetadata.searchEntryPoint.renderedContent;
-        }
-        message.event = e as any;
-      } else if (part.functionCall) {
-        // Enrich function call with long-running metadata if applicable
-        const isLongRunning =
-          e?.longRunningToolIds?.includes(part.functionCall.id);
-        const enrichedFunctionCall = {
-          ...part.functionCall,
-          ...(isLongRunning && {
-            isLongRunning: true,
-            invocationId: e.invocationId,
-            functionCallEventId: e.id,
-            needsResponse: true,
-            responseStatus: 'pending',
-            userResponse: '',
-          }),
-        };
-        message.functionCalls = [enrichedFunctionCall];
-        message.event = e as any;
-      } else if (part.functionResponse) {
-        message.functionResponses = [part.functionResponse];
-        message.event = e as any;
-      } else if (part.executableCode) {
-        message.executableCode = part.executableCode;
-      } else if (part.codeExecutionResult) {
-        message.codeExecutionResult = part.codeExecutionResult;
-        if (e.actions && e.actions.artifact_delta) {
-          for (const key in e.actions.artifact_delta) {
-            if (e.actions.artifact_delta.hasOwnProperty(key)) {
-              this.renderArtifact(key, e.actions.artifact_delta[key], prepend);
-            }
-          }
-        }
-      }
-    }
-
-    if (part && Object.keys(part).length > 0) {
-      if (prepend) {
-        this.uiEvents.update((uiEvents) => [message, ...uiEvents]);
-      } else {
-        this.insertOrUpdateMessage(message);
-      }
-    }
-  }
-
-  private insertOrUpdateMessage(message: any) {
-    this.uiEvents.update((uiEvents) => {
-      // If SSE streaming is enabled and this is a text message with eventId
-      if (this.useSse() && message.text && message.event.id &&
-        message.role === 'bot') {
-        if (uiEvents.length > 0) {
-          const lastIndex = uiEvents.length - 1;
-          const lastMessage = uiEvents[lastIndex];
-          if (lastMessage.event.id === message.event.id && lastMessage.role === 'bot') {
-            const updatedMessages = [...uiEvents];
-            // Replace with the new message to preserve all fields (including inlineData)
-            updatedMessages[lastIndex] = message;
-            return updatedMessages;
-          }
-        }
-      }
-
-      // Default behavior: insert new message
-      return [...uiEvents, message];
-    });
-  }
 
   private formatBase64Data(data: string, mimeType: string) {
     const fixedBase64Data = fixBase64String(data);
@@ -1698,20 +1585,20 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handleArtifactFetchFailure(
-    uiEvent: any, artifactId: string, versionId: string) {
+    uiEvent: any, artifactId: string, versionId: string, err?: any) {
     this.openSnackBar(
       'Failed to fetch artifact data',
       'OK',
     );
     // Remove placeholder message and artifact on failure
-    uiEvent.error = { errorMessage: 'Failed to fetch artifact data' };
+    uiEvent.error = { errorMessage: 'Failed to fetch artifact data' + (err ? ': ' + (err.message || err) : '') };
     this.changeDetectorRef.detectChanges();
     this.artifacts = this.artifacts.filter(
       a => a.id !== artifactId || a.versionId !== versionId);
   }
 
   private renderArtifact(
-    artifactId: string, versionId: string, prepend: boolean = false) {
+    artifactId: string, versionId: string, uiEvent: UiEvent) {
     // If artifact/version already exists, do nothing.
     const artifactExists = this.artifacts.some(
       (artifact) =>
@@ -1721,21 +1608,11 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Add a placeholder message for the artifact
-    // Feed the placeholder with the artifact data after it's fetched
-    let uiEvent = new UiEvent({
-      role: 'bot',
-      event: { id: 'artifact-' + artifactId } as any,
-      inlineData: {
-        data: '',
-        mimeType: 'image/png',
-      },
-    });
-    if (prepend) {
-      this.uiEvents.update((uiEvents) => [uiEvent, ...uiEvents]);
-    } else {
-      this.insertOrUpdateMessage(uiEvent);
-    }
+    // Set placeholder inlineData on the passed uiEvent.
+    uiEvent.inlineData = {
+      data: '',
+      mimeType: 'image/png',
+    };
 
     // Add placeholder artifact.
     const placeholderArtifact = {
@@ -1756,10 +1633,30 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
         versionId,
       )
       .subscribe({
-        next: (res) => {
-          const { mimeType, data } = res.inlineData ?? {};
+        next: (res: any) => {
+          let mimeType = res.mimeType;
+          let data = res.data;
+          
           if (!mimeType || !data) {
-            this.handleArtifactFetchFailure(uiEvent, artifactId, versionId);
+            if (res.inlineData) {
+              mimeType = res.inlineData.mimeType;
+              data = res.inlineData.data;
+            }
+          }
+          
+          if (!mimeType && !data && res.text) {
+            mimeType = 'text/plain';
+            try {
+              data = btoa(unescape(encodeURIComponent(res.text)));
+            } catch (e) {
+              console.error('Failed to encode text to base64', e);
+              this.handleArtifactFetchFailure(uiEvent, artifactId, versionId, { message: 'Failed to encode text data' });
+              return;
+            }
+          }
+          
+          if (!mimeType || !data) {
+            this.handleArtifactFetchFailure(uiEvent, artifactId, versionId, { message: 'Invalid response data: missing mimeType or data or text' });
             return;
           }
           const base64Data = this.formatBase64Data(data, mimeType);
@@ -1792,36 +1689,12 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         },
         error: (err) => {
-          this.handleArtifactFetchFailure(uiEvent, artifactId, versionId);
+          this.handleArtifactFetchFailure(uiEvent, artifactId, versionId, err);
         }
       });
   }
 
-  private storeEvents(part: any, e: any) {
-    let title = '';
-    if (part == null && e.actions.artifactDelta) {
-      title += 'eventAction: artifact';
-    } else if (part) {
-      if (part.text) {
-        title += 'text:' + part.text;
-      } else if (part.functionCall) {
-        title += 'functionCall:' + part.functionCall.name;
-      } else if (part.functionResponse) {
-        title += 'functionResponse:' + part.functionResponse.name;
-      } else if (part.executableCode) {
-        title += 'executableCode:' + part.executableCode.code.slice(0, 10);
-      } else if (part.codeExecutionResult) {
-        title += 'codeExecutionResult:' + part.codeExecutionResult.outcome;
-      } else if (part.errorMessage) {
-        title += 'errorMessage:' + part.errorMessage
-      }
-    }
 
-    e.title = title;
-
-    this.eventData.set(e.id, e);
-    this.eventData = new Map(this.eventData);
-  }
 
   private sendOAuthResponse(
     func: any,
@@ -2335,14 +2208,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
       session.events.forEach((event: any) => {
         this.appendEventRow(event, false);
 
-        const isBot = event.author !== 'user';
-        if (isBot && event.actions?.artifactDelta) {
-          for (const key in event.actions.artifactDelta) {
-            if (event.actions.artifactDelta.hasOwnProperty(key)) {
-              this.renderArtifact(key, event.actions.artifactDelta[key]);
-            }
-          }
-        }
+
       });
 
       this.restorePendingLongRunningCalls();
@@ -4287,14 +4153,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     if (sessionData.events) {
       sessionData.events.forEach((event: any) => {
         this.appendEventRow(event, false);
-        const isBot = event.author !== 'user';
-        if (isBot && event.actions?.artifactDelta) {
-          for (const key in event.actions.artifactDelta) {
-            if (event.actions.artifactDelta.hasOwnProperty(key)) {
-              this.renderArtifact(key, event.actions.artifactDelta[key]);
-            }
-          }
-        }
+
       });
     }
 
