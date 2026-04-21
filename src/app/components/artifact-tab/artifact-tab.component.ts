@@ -193,5 +193,6 @@ export class ArtifactTabComponent implements OnChanges {
    * Opens the base64 data in a new tab.
    */
   private openBase64InNewTab(dataUrl: string, mimeType: string) {
+    this.safeValuesService.openBase64InNewTab(dataUrl, mimeType);
   }
 }

@@ -101,7 +101,7 @@ export class ContentBubbleComponent implements OnChanges {
   get noBubble(): boolean {
     if (this.uiEvent.inlineData) {
       const mediaType = this.uiEvent.inlineData.mediaType;
-      if (mediaType === MediaType.AUDIO || mediaType === MediaType.IMAGE || mediaType === MediaType.VIDEO) {
+      if (mediaType === MediaType.AUDIO || mediaType === MediaType.IMAGE || mediaType === MediaType.VIDEO || mediaType === MediaType.TEXT) {
         return true;
       }
     }
@@ -123,6 +123,18 @@ export class ContentBubbleComponent implements OnChanges {
       );
     }
     return false;
+  }
+
+  protected getTextContent(dataUrl: string): string {
+    if (!dataUrl) return '';
+    const commaIndex = dataUrl.indexOf(',');
+    if (commaIndex === -1) return '';
+    const base64 = dataUrl.substring(commaIndex + 1);
+    try {
+      return atob(base64);
+    } catch (e) {
+      return 'Failed to decode text content';
+    }
   }
 
   audioUrl: string | null = null;

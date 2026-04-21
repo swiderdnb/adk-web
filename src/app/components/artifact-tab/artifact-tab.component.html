@@ -75,9 +75,21 @@
               </div>
             }
             @case (MediaType.TEXT) {
-              <div class="text-artifact-container" style="max-height: 300px; overflow-y: auto; background: var(--mat-sys-surface-container); padding: 12px; border-radius: 8px; margin-top: 8px;">
-                <pre style="margin: 0; white-space: pre-wrap; font-family: monospace; font-size: 12px; color: var(--mat-sys-on-surface);">{{ getTextContent(selectedArtifacts[i].data) }}</pre>
-              </div>
+              @if (selectedArtifacts[i].mimeType === 'text/html') {
+                <div class="html-artifact-container" style="display: flex; align-items: center; gap: 4px; margin-top: 8px;">
+                  <mat-icon style="color: #1a73e8; font-size: 18px; width: 18px; height: 18px;">description</mat-icon>
+                  <a
+                    style="color: #1a73e8; text-decoration: underline; cursor: pointer; font-weight: 500; font-size: 14px;"
+                    (click)="openArtifact(selectedArtifacts[i].data, selectedArtifacts[i].mimeType)"
+                  >
+                    {{ getArtifactName(artifactId) }}
+                  </a>
+                </div>
+              } @else {
+                <div class="text-artifact-container" style="max-height: 300px; overflow-y: auto; background: var(--mat-sys-surface-container); padding: 12px; border-radius: 8px; margin-top: 8px;">
+                  <pre style="margin: 0; white-space: pre-wrap; font-family: monospace; font-size: 12px; color: var(--mat-sys-on-surface);">{{ getTextContent(selectedArtifacts[i].data) }}</pre>
+                </div>
+              }
             }
           }
         </div>
