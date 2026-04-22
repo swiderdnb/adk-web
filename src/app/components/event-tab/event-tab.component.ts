@@ -188,13 +188,13 @@ export class EventTabComponent {
     };
   });
 
-  private _selectedDetailTab: 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata' = 'event';
+  private _selectedDetailTab: 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata' | 'state' = 'event';
   
   get selectedDetailTab() {
     return this._selectedDetailTab;
   }
   
-  set selectedDetailTab(tab: 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata') {
+  set selectedDetailTab(tab: 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata' | 'state') {
     this._selectedDetailTab = tab;
     localStorage.setItem('adk-event-tab-selected-tab', tab);
     if (tab === 'graph') {
@@ -232,10 +232,47 @@ export class EventTabComponent {
     this.traceService.selectedRow(span);
   }
 
+  readonly stateChanges = computed(() => {
+    const ev = this.selectedEvent();
+    if (!ev) return [];
+
+    const allEvents = Array.from(this.eventDataMap().values());
+    allEvents.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+    const state: Record<string, any> = {};
+    const changes: Array<{ key: string; oldValue: any; newValue: any }> = [];
+
+    for (const currentEvent of allEvents) {
+      const delta = currentEvent.actions?.stateDelta;
+      if (currentEvent.id === ev.id) {
+        if (delta) {
+          for (const key of Object.keys(delta)) {
+            if (key === '__llm_request_key__') continue;
+            changes.push({
+              key,
+              oldValue: state[key] !== undefined ? state[key] : 'N/A',
+              newValue: delta[key],
+            });
+          }
+        }
+        break;
+      }
+      if (delta) {
+        for (const key of Object.keys(delta)) {
+          if (key !== '__llm_request_key__') {
+            state[key] = delta[key];
+          }
+        }
+      }
+    }
+
+    return changes;
+  });
+
   constructor() {
     const savedTab = localStorage.getItem('adk-event-tab-selected-tab');
-    if (savedTab && ['event', 'raw', 'request', 'response', 'graph', 'metadata'].includes(savedTab)) {
-      this._selectedDetailTab = savedTab as 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata';
+    if (savedTab && ['event', 'raw', 'request', 'response', 'graph', 'metadata', 'state'].includes(savedTab)) {
+      this._selectedDetailTab = savedTab as 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata' | 'state';
     }
 
     effect(() => {

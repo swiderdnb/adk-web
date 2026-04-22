@@ -372,3 +372,48 @@ audio, video {
     color: var(--mat-sys-on-secondary-container) !important;
   }
 }
+
+.state-change-card {
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.state-change-header {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--mat-sys-primary);
+  padding-bottom: 4px;
+}
+
+.state-change-values {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.state-value-block {
+  flex: 1;
+  min-width: 200px;
+  background-color: var(--mat-sys-surface-container-highest);
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.state-value-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.state-value-content {
+  font-family: 'Google Sans Mono', monospace;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface);
+  word-break: break-all;
+}

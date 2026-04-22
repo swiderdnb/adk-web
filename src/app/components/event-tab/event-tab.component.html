@@ -31,6 +31,10 @@
         matTooltip="Usage Metadata" matTooltipPosition="right">
         <mat-icon>analytics</mat-icon>
       </button>
+      <button mat-icon-button (click)="selectedDetailTab = 'state'" [class.active]="selectedDetailTab === 'state'"
+        matTooltip="State Changes" matTooltipPosition="right">
+        <mat-icon>published_with_changes</mat-icon>
+      </button>
       <button mat-icon-button (click)="selectedDetailTab = 'raw'" [class.active]="selectedDetailTab === 'raw'"
         matTooltip="Raw JSON" matTooltipPosition="right">
         <mat-icon>data_object</mat-icon>
@@ -252,6 +256,43 @@
         <button mat-icon-button class="floating-copy-button" (click)="copyJsonToClipboard(filteredSelectedEvent(), 'raw')" matTooltip="Copy JSON">
           <mat-icon>{{ copiedId === 'raw' ? 'check' : 'content_copy' }}</mat-icon>
         </button>
+      </div>
+      }
+      @if (selectedDetailTab === 'state') {
+      <div class="info-tables-container">
+        @if (stateChanges().length > 0) {
+          @for (change of stateChanges(); track change.key) {
+          <div class="state-change-card">
+            <div class="state-change-header">{{ change.key }}</div>
+            <div class="state-change-values">
+              <div class="state-value-block">
+                <div class="state-value-label">Old Value</div>
+                <div class="state-value-content">
+                  @if (isObject(change.oldValue)) {
+                  <ngx-json-viewer [json]="change.oldValue"></ngx-json-viewer>
+                  } @else {
+                  <span>{{ change.oldValue }}</span>
+                  }
+                </div>
+              </div>
+              <div class="state-value-block">
+                <div class="state-value-label">New Value</div>
+                <div class="state-value-content">
+                  @if (isObject(change.newValue)) {
+                  <ngx-json-viewer [json]="change.newValue"></ngx-json-viewer>
+                  } @else {
+                  <span>{{ change.newValue }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+        } @else {
+        <div class="empty-state">
+          No state changes in this event.
+        </div>
+        }
       </div>
       }
       @if (selectedDetailTab === 'graph') {
