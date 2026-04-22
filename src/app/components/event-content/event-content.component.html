@@ -85,12 +85,15 @@
     ></app-hover-info-button>
     }
     @if (uiEvent.artifactDelta) {
-    <app-hover-info-button
-      [icon]="'attachment'"
-      [text]="'Artifact'"
-      [tooltipContent]="uiEvent.artifactDelta"
-      [tooltipTitle]="'Artifact'"
-    ></app-hover-info-button>
+      @let artifactKeys = Object.keys(uiEvent.artifactDelta);
+      @if (artifactKeys.length > 0) {
+        <app-hover-info-button
+          [icon]="'attachment'"
+          [text]="'Artifact: ' + artifactKeys.join(', ')"
+          [tooltipContent]="uiEvent.artifactDelta"
+          [tooltipTitle]="'Artifact'"
+        ></app-hover-info-button>
+      }
     }
     @if (uiEvent.error) {
     <app-content-bubble
