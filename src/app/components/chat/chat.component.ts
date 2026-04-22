@@ -2621,8 +2621,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const meta = this.currentSessionState?.['__session_metadata__'] as any;
     if (meta?.displayName) {
-      const shortId = this.sessionId.substring(0, 4);
-      return `[${shortId}] ${meta.displayName}`;
+      return meta.displayName;
     }
     return this.sessionId;
   }
