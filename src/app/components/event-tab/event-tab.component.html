@@ -198,7 +198,7 @@
       @if (selectedDetailTab === 'metadata') {
       <div class="info-tables-container">
         @if (selectedEvent()?.usageMetadata && Object.keys(selectedEvent()!.usageMetadata).length > 0) {
-        <table app-info-table title="Usage Metadata">
+        <table app-info-table title="Usage Summary for Event">
           @for (key of Object.keys(selectedEvent()!.usageMetadata); track key) {
           <tr>
             <td>{{ key }}</td>
@@ -221,8 +221,29 @@
           }
         </table>
         } @else {
-          <div class="request-response-empty-state">Select an LLM response to see usage metadata.</div>
+        <table app-info-table title="Usage Summary for Event">
+          <tr>
+            <td colspan="2" style="text-align: center; padding: 20px; color: var(--mat-sys-on-surface-variant);">
+              Select an LLM response to see usage metadata.
+            </td>
+          </tr>
+        </table>
         }
+
+        <table app-info-table title="Usage Summary for Session">
+          <tr>
+            <td>Total Prompt Tokens</td>
+            <td>{{ sessionUsageMetadata()['Prompt Tokens'] }}</td>
+          </tr>
+          <tr>
+            <td>Total Candidates Tokens</td>
+            <td>{{ sessionUsageMetadata()['Candidates Tokens'] }}</td>
+          </tr>
+          <tr>
+            <td>Total Tokens</td>
+            <td>{{ sessionUsageMetadata()['Total Tokens'] }}</td>
+          </tr>
+        </table>
       </div>
       }
       @if (selectedDetailTab === 'raw') {

@@ -162,6 +162,32 @@ export class EventTabComponent {
     return flatSpans.filter(s => s.attributes && s.attributes['gcp.vertex.agent.event_id'] === ev.id);
   });
 
+  readonly sessionUsageMetadata = computed(() => {
+    const allEvents = Array.from(this.eventDataMap().values());
+    let totalPromptTokens = 0;
+    let totalCandidatesTokens = 0;
+    let totalTokens = 0;
+
+    allEvents.forEach(ev => {
+      const metadata = ev.usageMetadata;
+      if (metadata) {
+        const prompt = metadata.promptTokenCount ?? metadata.promptTokens ?? 0;
+        const candidates = metadata.candidatesTokenCount ?? metadata.candidatesTokens ?? 0;
+        const total = metadata.totalTokenCount ?? metadata.totalTokens ?? 0;
+
+        totalPromptTokens += Number(prompt);
+        totalCandidatesTokens += Number(candidates);
+        totalTokens += Number(total);
+      }
+    });
+
+    return {
+      'Prompt Tokens': totalPromptTokens,
+      'Candidates Tokens': totalCandidatesTokens,
+      'Total Tokens': totalTokens
+    };
+  });
+
   private _selectedDetailTab: 'event' | 'raw' | 'request' | 'response' | 'graph' | 'metadata' = 'event';
   
   get selectedDetailTab() {
