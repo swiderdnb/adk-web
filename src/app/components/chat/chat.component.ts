@@ -302,6 +302,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected readonly readonlySessionType = signal('');
   protected readonly readonlySessionName = signal('');
   protected readonly isSideBySide = signal(false);
+  protected readonly showBranches = signal(false);
   protected readonly expectedUiEvents = signal<UiEvent[]>([]);
   protected readonly viewMode = signal<'events' | 'traces'>((localStorage.getItem('chat-view-mode') as 'events' | 'traces') || 'events');
   protected readonly invocationIdFilterActive = signal<boolean>(false);

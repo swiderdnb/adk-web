@@ -61,35 +61,73 @@
       [ngComponentOutletInputs]="{text: agentReadme, thought: false}"></ng-container>
   </div>
   }
-  @for (uiEvent of uiEvents; track uiEvent; let i = $index) {
-  @let show = shouldShowEvent ? shouldShowEvent(uiEvent) : true;
-  <app-event-row
-    [style.display]="((viewMode === 'events' && show) || (viewMode === 'traces' && uiEvent.role === 'user' && show)) ? '' : 'none'"
-    [isSelectable]="viewMode !== 'traces'" [uiEvent]="uiEvent" [index]="i" [uiEvents]="uiEvents"
-    [isSelected]="isMessageEventSelected(i)" [appName]="appName" [userId]="userId" [sessionId]="sessionId"
-    [sessionName]="sessionName()" [evalCase]="evalCase" [isEvalEditMode]="isEvalEditMode"
-    [isEvalCaseEditing]="isEvalCaseEditing" [isEditFunctionArgsEnabled]="isEditFunctionArgsEnabled"
-    [userEditEvalCaseMessage]="userEditEvalCaseMessage" [agentGraphData]="agentGraphData"
-    [allWorkflowNodes]="getAllWorkflowNodes(i)" [isUserFeedbackEnabled]="isUserFeedbackEnabled() ?? false"
-    [isLoadingAgentResponse]="isLoadingAgentResponse() ?? false"
-    (rowClick)="handleRowClick($event.event, $event.uiEvent, $event.index)" (handleKeydown)="handleKeydown.emit($event)"
-    (cancelEditMessage)="cancelEditMessage.emit($event)" (saveEditMessage)="saveEditMessage.emit($event)"
-    (userEditEvalCaseMessageChange)="userEditEvalCaseMessageChange.emit($event)"
-    (openViewImageDialog)="openViewImageDialog.emit($event)" (openBase64InNewTab)="openBase64InNewTab.emit($event)"
-    (editEvalCaseMessage)="editEvalCaseMessage.emit($event)"
-    (deleteEvalCaseMessage)="deleteEvalCaseMessage.emit($event)" (editFunctionArgs)="editFunctionArgs.emit($event)"
-    (clickEvent)="clickEvent.emit($event)" (longRunningResponseComplete)="longRunningResponseComplete.emit($event)"
-    (agentStateClick)="handleAgentStateClick($event.event, $event.index)"></app-event-row>
+  @for (item of displayItems; track item; let i = $index) {
+    @if (item.type === 'event') {
+      @let uiEvent = item.event;
+      @let show = shouldShowEvent ? shouldShowEvent(uiEvent) : true;
+      <app-event-row
+        [style.display]="((viewMode === 'events' && show) || (viewMode === 'traces' && uiEvent.role === 'user' && show)) ? '' : 'none'"
+        [isSelectable]="viewMode !== 'traces'" [uiEvent]="uiEvent" [index]="item.index" [uiEvents]="uiEvents"
+        [isSelected]="isMessageEventSelected(item.index)" [appName]="appName" [userId]="userId" [sessionId]="sessionId"
+        [sessionName]="sessionName()" [evalCase]="evalCase" [isEvalEditMode]="isEvalEditMode"
+        [isEvalCaseEditing]="isEvalCaseEditing" [isEditFunctionArgsEnabled]="isEditFunctionArgsEnabled"
+        [userEditEvalCaseMessage]="userEditEvalCaseMessage" [agentGraphData]="agentGraphData"
+        [allWorkflowNodes]="getAllWorkflowNodes(item.index)" [isUserFeedbackEnabled]="isUserFeedbackEnabled() ?? false"
+        [isLoadingAgentResponse]="isLoadingAgentResponse() ?? false"
+        (rowClick)="handleRowClick($event.event, $event.uiEvent, $event.index)" (handleKeydown)="handleKeydown.emit($event)"
+        (cancelEditMessage)="cancelEditMessage.emit($event)" (saveEditMessage)="saveEditMessage.emit($event)"
+        (userEditEvalCaseMessageChange)="userEditEvalCaseMessageChange.emit($event)"
+        (openViewImageDialog)="openViewImageDialog.emit($event)" (openBase64InNewTab)="openBase64InNewTab.emit($event)"
+        (editEvalCaseMessage)="editEvalCaseMessage.emit($event)"
+        (deleteEvalCaseMessage)="deleteEvalCaseMessage.emit($event)" (editFunctionArgs)="editFunctionArgs.emit($event)"
+        (clickEvent)="clickEvent.emit($event)" (longRunningResponseComplete)="longRunningResponseComplete.emit($event)"
+        (agentStateClick)="handleAgentStateClick($event.event, $event.index)"></app-event-row>
 
-  @if (uiEvent.role === 'bot' && isFirstEventForInvocation(uiEvent, i)) {
-  <div class="trace-tree-container"
-    [style.display]="(viewMode === 'traces') ? '' : 'none'">
-    <app-trace-tree
-      [spans]="spansByInvocationId.get(uiEvent.event.id) || spansByInvocationId.get(uiEvent.event.invocationId!) || []"
-      [invocationId]="uiEvent.event.invocationId || uiEvent.event.id || ''" [uiEvents]="uiEvents"
-      [shouldShowEvent]="shouldShowEvent"></app-trace-tree>
-  </div>
-  }
+      @if (uiEvent.role === 'bot' && isFirstEventForInvocation(uiEvent, item.index)) {
+      <div class="trace-tree-container"
+        [style.display]="(viewMode === 'traces') ? '' : 'none'">
+        <app-trace-tree
+          [spans]="spansByInvocationId.get(uiEvent.event.id) || spansByInvocationId.get(uiEvent.event.invocationId!) || []"
+          [invocationId]="uiEvent.event.invocationId || uiEvent.event.id || ''" [uiEvents]="uiEvents"
+          [shouldShowEvent]="shouldShowEvent"></app-trace-tree>
+      </div>
+      }
+    } @else if (item.type === 'branches') {
+      <div class="branches-container">
+        <mat-tab-group animationDuration="0ms">
+          @for (branch of item.branches; track branch.branchId) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span class="tab-name" [matTooltip]="'Branch ' + branch.branchId">{{ branch.branchId }}</span>
+              </ng-template>
+              <div class="branch-events-content">
+                @for (bEvent of branch.events; track bEvent.event; let j = $index) {
+                  @let uiEvent = bEvent.event;
+                  @let show = shouldShowEvent ? shouldShowEvent(uiEvent) : true;
+                  <app-event-row
+                    [style.display]="((viewMode === 'events' && show) || (viewMode === 'traces' && uiEvent.role === 'user' && show)) ? '' : 'none'"
+                    [isSelectable]="viewMode !== 'traces'" [uiEvent]="uiEvent" [index]="bEvent.globalIndex" [uiEvents]="uiEvents"
+                    [isSelected]="isMessageEventSelected(bEvent.globalIndex)" [appName]="appName" [userId]="userId" [sessionId]="sessionId"
+                    [sessionName]="sessionName()" [evalCase]="evalCase" [isEvalEditMode]="isEvalEditMode"
+                    [isEvalCaseEditing]="isEvalCaseEditing" [isEditFunctionArgsEnabled]="isEditFunctionArgsEnabled"
+                    [userEditEvalCaseMessage]="userEditEvalCaseMessage" [agentGraphData]="agentGraphData"
+                    [allWorkflowNodes]="getAllWorkflowNodes(bEvent.globalIndex)" [isUserFeedbackEnabled]="isUserFeedbackEnabled() ?? false"
+                    [isLoadingAgentResponse]="isLoadingAgentResponse() ?? false"
+                    (rowClick)="handleRowClick($event.event, $event.uiEvent, $event.index)" (handleKeydown)="handleKeydown.emit($event)"
+                    (cancelEditMessage)="cancelEditMessage.emit($event)" (saveEditMessage)="saveEditMessage.emit($event)"
+                    (userEditEvalCaseMessageChange)="userEditEvalCaseMessageChange.emit($event)"
+                    (openViewImageDialog)="openViewImageDialog.emit($event)" (openBase64InNewTab)="openBase64InNewTab.emit($event)"
+                    (editEvalCaseMessage)="editEvalCaseMessage.emit($event)"
+                    (deleteEvalCaseMessage)="deleteEvalCaseMessage.emit($event)" (editFunctionArgs)="editFunctionArgs.emit($event)"
+                    (clickEvent)="clickEvent.emit($event)" (longRunningResponseComplete)="longRunningResponseComplete.emit($event)"
+                    (agentStateClick)="handleAgentStateClick($event.event, $event.index)"></app-event-row>
+                }
+              </div>
+            </mat-tab>
+          }
+        </mat-tab-group>
+      </div>
+    }
   }
   @if (isLoadingAgentResponse()) {
   <div class="agent-loading-indicator">

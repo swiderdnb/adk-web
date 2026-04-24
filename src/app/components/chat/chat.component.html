@@ -542,6 +542,15 @@
   </button>
   }
 
+  <button mat-button (click)="showBranches.set(!showBranches())" matTooltip="Group events from parallel nodes"
+    [style.color]="showBranches() ? 'var(--mat-sys-primary)' : 'var(--mat-sys-on-surface-variant)'"
+    style="height: 32px; line-height: 32px; padding: 0 12px; border-radius: 16px;">
+    <mat-icon
+      style="font-size: 20px; width: 20px; height: 20px; line-height: 20px; margin-right: 4px; vertical-align: middle;">{{
+      showBranches() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+    <span style="font-size: 13px; font-weight: 500; vertical-align: middle;">Branches</span>
+  </button>
+
   @if ((isTokenStreamingEnabledObs | async) && canEditSession()) {
   <button mat-button (click)="toggleSse()" matTooltip="Enable real-time token streaming from the server"
     [style.color]="useSse() ? 'var(--mat-sys-primary)' : 'var(--mat-sys-on-surface-variant)'"
@@ -562,6 +571,7 @@
               [(userInput)]="userInput"
               [hideIntermediateEvents]="hideIntermediateEvents()"
               [uiEvents]="filteredUiEvents()"
+              [showBranches]="showBranches()"
               (toggleHideIntermediateEvents)="toggleHideIntermediateEvents()"
               [traceData]="traceData"
               [isTokenStreamingEnabled]="(isTokenStreamingEnabledObs | async) ?? false"
@@ -603,6 +613,7 @@
               [agentReadme]="agentReadme"
               [hideIntermediateEvents]="hideIntermediateEvents()"
               [uiEvents]="filteredUiEvents()"
+              [showBranches]="showBranches()"
               [isChatMode]="false"
               [evalCase]="evalCase"
               [isEvalEditMode]="isEvalEditMode()"
@@ -688,6 +699,7 @@
                     [agentReadme]="agentReadme"
                     [hideIntermediateEvents]="hideIntermediateEvents()"
                     [uiEvents]="filteredExpectedUiEvents()"
+                    [showBranches]="showBranches()"
                     [isChatMode]="false"
                     [evalCase]="evalCase"
                     [isEvalEditMode]="false"
@@ -716,6 +728,7 @@
                     [agentReadme]="agentReadme"
                     [hideIntermediateEvents]="hideIntermediateEvents()"
                     [uiEvents]="filteredUiEvents()"
+                    [showBranches]="showBranches()"
                     (toggleHideIntermediateEvents)="toggleHideIntermediateEvents()"
                     [traceData]="traceData"
                     [isTokenStreamingEnabled]="(isTokenStreamingEnabledObs | async) ?? false"
@@ -767,6 +780,7 @@
                 [agentReadme]="agentReadme"
                 [hideIntermediateEvents]="hideIntermediateEvents()"
                 [uiEvents]="filteredUiEvents()"
+                [showBranches]="showBranches()"
                 [traceData]="traceData"
                 [isChatMode]="false"
                 [evalCase]="evalCase"

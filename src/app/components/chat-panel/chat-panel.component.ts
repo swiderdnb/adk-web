@@ -31,6 +31,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { EMPTY, merge, NEVER, of, Subject } from 'rxjs';
@@ -68,6 +69,28 @@ import { EventRowComponent } from '../event-row/event-row.component';
 import { CallControlsComponent } from '../call-controls/call-controls.component';
 import { TraceTreeComponent } from '../trace-tab/trace-tree/trace-tree.component';
 
+export interface BranchEvent {
+  event: UiEvent;
+  globalIndex: number;
+}
+
+export interface BranchGroup {
+  branchId: string;
+  events: BranchEvent[];
+}
+
+export interface GroupedBranches {
+  type: 'branches';
+  branches: BranchGroup[];
+  startIndex: number;
+}
+
+export type DisplayItem = {
+  type: 'event';
+  event: UiEvent;
+  index: number;
+} | GroupedBranches;
+
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-chat-panel',
@@ -90,6 +113,7 @@ import { TraceTreeComponent } from '../trace-tab/trace-tree/trace-tree.component
     NgxJsonViewerModule,
     MatTooltipModule,
     MatButtonToggleModule,
+    MatTabsModule,
     MatSelectModule,
     EventRowComponent,
     CallControlsComponent,
@@ -101,6 +125,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Input() agentReadme: string = '';
   sessionName = input<string>('');
   @Input() uiEvents: UiEvent[] = [];
+  @Input() showBranches: boolean = false;
   @Input() traceData: any[] = [];
   @Input() isChatMode: boolean = true;
   @Input() evalCase: EvalCase | null = null;
@@ -123,6 +148,7 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
   @Input() viewMode: 'events' | 'traces' = 'events';
   @Input() shouldShowEvent?: (uiEvent: UiEvent) => boolean;
   spansByInvocationId = new Map<string, any[]>();
+  displayItems: DisplayItem[] = [];
   eventsScrollTop = -1;
   tracesScrollTop = -1;
 
@@ -356,6 +382,72 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
     if (changes['traceData'] && this.traceData) {
       this.rebuildTrace();
     }
+
+    if (changes['uiEvents'] || changes['showBranches']) {
+      this.computeDisplayItems();
+    }
+  }
+
+  computeDisplayItems() {
+    if (!this.showBranches) {
+      this.displayItems = this.uiEvents.map((event, index) => ({
+        type: 'event' as const,
+        event,
+        index
+      }));
+      return;
+    }
+
+    const items: DisplayItem[] = [];
+    let currentGroup: {
+      type: 'branches';
+      branchesMap: Map<string, BranchEvent[]>;
+      startIndex: number;
+    } | null = null;
+
+    this.uiEvents.forEach((event, index) => {
+      const branchId = event.event?.branch;
+      if (branchId) {
+        if (!currentGroup) {
+          currentGroup = {
+            type: 'branches',
+            branchesMap: new Map<string, BranchEvent[]>(),
+            startIndex: index
+          };
+        }
+        const branchEvents = currentGroup.branchesMap.get(branchId) || [];
+        branchEvents.push({ event, globalIndex: index });
+        currentGroup.branchesMap.set(branchId, branchEvents);
+      } else {
+        if (currentGroup) {
+          items.push(this.finalizeGroup(currentGroup));
+          currentGroup = null;
+        }
+        items.push({
+          type: 'event' as const,
+          event,
+          index
+        });
+      }
+    });
+
+    if (currentGroup) {
+      items.push(this.finalizeGroup(currentGroup));
+    }
+
+    this.displayItems = items;
+  }
+
+  finalizeGroup(group: { type: 'branches'; branchesMap: Map<string, BranchEvent[]>; startIndex: number; }): DisplayItem {
+    const branches: BranchGroup[] = [];
+    group.branchesMap.forEach((events, branchId) => {
+      branches.push({ branchId, events });
+    });
+    return {
+      type: 'branches',
+      branches,
+      startIndex: group.startIndex
+    };
   }
 
   rebuildTrace() {
