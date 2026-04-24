@@ -1117,7 +1117,8 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.appendEventRow(chunkJson);
 
-        if (this.autoSelectLatestEvent && chunkJson.id) {
+        const isInfoTab = this.sidePanel().selectedIndex === 0;
+        if (this.autoSelectLatestEvent && chunkJson.id && isInfoTab) {
           this.selectEvent(chunkJson.id, undefined, false);
         }
 
@@ -3570,7 +3571,7 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedEventIndex = this.getIndexOfKeyInMap(key);
     this.selectedMessageIndex = messageIndex !== undefined ? messageIndex : this.uiEvents().findIndex(msg => msg.event.id === key);
 
-    if (this.viewMode() !== 'events') {
+    if (isManual && this.viewMode() !== 'events') {
       this.onViewModeChange('events');
     }
 
