@@ -400,10 +400,20 @@ button.send-message-btn {
       background: var(--mat-sys-surface-container-highest) !important;
       margin-right: 2px;
       overflow: hidden !important;
+
+      .mdc-tab__text-label {
+        color: var(--mat-sys-on-surface-variant) !important;
+        opacity: 0.6;
+      }
     }
 
     .mat-mdc-tab.mdc-tab--active {
       background: #1b4d24 !important;
+
+      .mdc-tab__text-label {
+        color: var(--mat-sys-on-surface) !important;
+        opacity: 1 !important;
+      }
     }
 
     .mat-mdc-tab-body-content {

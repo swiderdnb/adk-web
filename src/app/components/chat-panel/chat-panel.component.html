@@ -98,7 +98,7 @@
           @for (branch of item.branches; track branch.branchId) {
             <mat-tab>
               <ng-template mat-tab-label>
-                <span class="tab-name" [matTooltip]="'Branch ' + branch.branchId">{{ branch.branchId }}</span>
+                <span class="tab-name" [matTooltip]="'Branch ' + branch.branchId" matTooltipPosition="above">{{ branch.branchId }}</span>
               </ng-template>
               <div class="branch-events-content">
                 @for (bEvent of branch.events; track bEvent.event; let j = $index) {
