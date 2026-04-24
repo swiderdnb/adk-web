@@ -383,13 +383,13 @@ export class ChatPanelComponent implements OnChanges, AfterViewInit {
       this.rebuildTrace();
     }
 
-    if (changes['uiEvents'] || changes['showBranches']) {
+    if (changes['uiEvents'] || changes['showBranches'] || changes['viewMode']) {
       this.computeDisplayItems();
     }
   }
 
   computeDisplayItems() {
-    if (!this.showBranches) {
+    if (!this.showBranches || this.viewMode === 'traces') {
       this.displayItems = this.uiEvents.map((event, index) => ({
         type: 'event' as const,
         event,

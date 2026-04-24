@@ -542,6 +542,7 @@
   </button>
   }
 
+  @if (viewMode() !== 'traces') {
   <button mat-button (click)="showBranches.set(!showBranches())" matTooltip="Group events from parallel nodes"
     [style.color]="showBranches() ? 'var(--mat-sys-primary)' : 'var(--mat-sys-on-surface-variant)'"
     style="height: 32px; line-height: 32px; padding: 0 12px; border-radius: 16px;">
@@ -550,6 +551,7 @@
       showBranches() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
     <span style="font-size: 13px; font-weight: 500; vertical-align: middle;">Branches</span>
   </button>
+  }
 
   @if ((isTokenStreamingEnabledObs | async) && canEditSession()) {
   <button mat-button (click)="toggleSse()" matTooltip="Enable real-time token streaming from the server"
