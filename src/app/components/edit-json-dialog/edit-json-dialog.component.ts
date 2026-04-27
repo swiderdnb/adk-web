@@ -30,7 +30,7 @@ export interface EditJsonData {
 }
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.Default,
+    changeDetection: ChangeDetectionStrategy.Eager,
     selector: 'app-edit-json-dialog',
     templateUrl: './edit-json-dialog.component.html',
     styleUrls: ['./edit-json-dialog.component.scss'],

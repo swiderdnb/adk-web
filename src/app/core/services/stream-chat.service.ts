@@ -21,7 +21,7 @@ import {URLUtil} from '../../../utils/url-util';
 import {LiveRequest} from '../models/LiveRequest';
 
 import {AUDIO_RECORDING_SERVICE} from './interfaces/audio-recording';
-import {LiveFlags, STREAM_CHAT_SERVICE, StreamChatService as StreamChatServiceInterface} from './interfaces/stream-chat';
+import {STREAM_CHAT_SERVICE, StreamChatService as StreamChatServiceInterface} from './interfaces/stream-chat';
 import {VIDEO_SERVICE} from './interfaces/video';
 import {WEBSOCKET_SERVICE} from './interfaces/websocket';
 import {VideoService} from './video.service';
@@ -42,33 +42,16 @@ export class StreamChatService implements StreamChatServiceInterface {
 
   constructor() {}
 
-  private getWsUrl(appName: string, userId: string, sessionId: string, flags?: LiveFlags): string {
-    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    let url = `${protocol}://${URLUtil.getWSServerUrl()}/run_live?app_name=${appName}&user_id=${userId}&session_id=${sessionId}`;
-    if (flags) {
-      if (flags.proactiveAudio) {
-        url += `&proactive_audio=true`;
-      }
-      if (flags.enableAffectiveDialog) {
-        url += `&enable_affective_dialog=true`;
-      }
-      if (flags.enableSessionResumption) {
-        url += `&enable_session_resumption=true`;
-      }
-      if (flags.saveLiveBlob) {
-        url += `&save_live_blob=true`;
-      }
-    }
-    return url;
-  }
-
   async startAudioChat({
     appName,
     userId,
     sessionId,
-    flags,
-  }: {appName: string; userId: string; sessionId: string; flags?: LiveFlags;}) {
-    this.webSocketService.connect(this.getWsUrl(appName, userId, sessionId, flags));
+  }: {appName: string; userId: string; sessionId: string;}) {
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    this.webSocketService.connect(
+        `${protocol}://${URLUtil.getWSServerUrl()}/run_live?app_name=${
+            appName}&user_id=${userId}&session_id=${sessionId}`,
+    );
 
     await this.startAudioStreaming();
   }
@@ -81,7 +64,7 @@ export class StreamChatService implements StreamChatServiceInterface {
   private async startAudioStreaming() {
     try {
       await this.audioRecordingService.startRecording();
-      this.audioIntervalId = window.setInterval(() => this.sendBufferedAudio(), 250);
+      this.audioIntervalId = setInterval(() => this.sendBufferedAudio(), 250);
     } catch (error) {
       console.error('Error accessing microphone:', error);
     }
@@ -112,13 +95,15 @@ export class StreamChatService implements StreamChatServiceInterface {
     userId,
     sessionId,
     videoContainer,
-    flags,
   }: {
     appName: string; userId: string; sessionId: string;
-    videoContainer: ElementRef;
-    flags?: LiveFlags;
+    videoContainer: ElementRef
   }) {
-    this.webSocketService.connect(this.getWsUrl(appName, userId, sessionId, flags));
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    this.webSocketService.connect(
+        `${protocol}://${URLUtil.getWSServerUrl()}/run_live?app_name=${
+            appName}&user_id=${userId}&session_id=${sessionId}`,
+    );
 
     await this.startAudioStreaming();
     await this.startVideoStreaming(videoContainer);
@@ -130,10 +115,10 @@ export class StreamChatService implements StreamChatServiceInterface {
     this.webSocketService.closeConnection();
   }
 
-  async startVideoStreaming(videoContainer: ElementRef) {
+  private async startVideoStreaming(videoContainer: ElementRef) {
     try {
       await this.videoService.startRecording(videoContainer);
-      this.videoIntervalId = window.setInterval(
+      this.videoIntervalId = setInterval(
           async () => await this.sendCapturedFrame(),
           1000,
       );
@@ -155,7 +140,7 @@ export class StreamChatService implements StreamChatServiceInterface {
     this.webSocketService.sendMessage(request);
   }
 
-  stopVideoStreaming(videoContainer: ElementRef) {
+  private stopVideoStreaming(videoContainer: ElementRef) {
     clearInterval(this.videoIntervalId);
     this.videoIntervalId = undefined;
     this.videoService.stopRecording(videoContainer);
