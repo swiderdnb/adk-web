@@ -19,42 +19,80 @@ import {SAFE_VALUES_SERVICE} from '../../core/services/interfaces/safevalues';
 import {Component, inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {SafeHtml, SafeUrl} from '@angular/platform-browser';
+import { NgStyle } from '@angular/common';
 
 export interface ViewImageDialogData {
   imageData: string|null;
+  images?: string[];
+  currentIndex?: number;
+  urls?: string[];
+  coordinates?: ({x: number, y: number} | null)[];
 }
 
 @Component({
-    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.Default,
     selector: 'app-view-image-dialog',
     templateUrl: './view-image-dialog.component.html',
     styleUrls: ['./view-image-dialog.component.scss'],
+    imports: [NgStyle]
 })
 export class ViewImageDialogComponent implements OnInit {
   // Property to hold the sanitized image URL or SVG HTML
   displayContent: SafeUrl|SafeHtml|null = null;
   // Flag to determine if the content is SVG
   isSvgContent: boolean = false;
+  
+  images: string[] = [];
+  currentIndex: number = 0;
+  currentUrl: string | null = null;
+  urls: string[] = [];
+  coordinates: ({x: number, y: number} | null)[] = [];
 
   readonly dialogRef = inject(MatDialogRef<ViewImageDialogComponent>);
   readonly data = inject<ViewImageDialogData>(MAT_DIALOG_DATA);
   private readonly safeValuesService = inject(SAFE_VALUES_SERVICE);
 
-  /**
-   * Lifecycle hook to initialize the component.
-   * This is used to process the image data when the dialog opens.
-   */
   ngOnInit(): void {
-    this.processImageData();
+    this.images = this.data.images || [];
+    this.currentIndex = this.data.currentIndex || 0;
+    this.urls = this.data.urls || [];
+    this.coordinates = this.data.coordinates || [];
+    this.updateImage();
+  }
+
+  /**
+   * Updates the displayed image based on currentIndex.
+   */
+  updateImage(): void {
+    let imageData = this.data.imageData;
+    let url = '';
+    if (this.images.length > 0) {
+      imageData = this.images[this.currentIndex];
+      url = this.urls[this.currentIndex] || '';
+    }
+    this.currentUrl = url;
+    this.processImageData(imageData);
+  }
+
+  getHighlightStyle(): {[key: string]: string} {
+    const coord = this.coordinates[this.currentIndex];
+    if (!coord) return {};
+    return {
+      left: `${(coord.x / 1000) * 100}%`,
+      top: `${(coord.y / 1000) * 100}%`,
+    };
+  }
+
+  shouldShowHighlight(): boolean {
+    return !!this.coordinates[this.currentIndex];
   }
 
   /**
    * Processes the input imageData to determine if it's base64 or SVG
    * and sanitizes it for display.
    */
-  private processImageData(): void {
-    const imageData = this.data.imageData;
-
+  private processImageData(imageData: string | null): void {
     if (!imageData) {
       this.displayContent = null;
       this.isSvgContent = false;
@@ -73,6 +111,20 @@ export class ViewImageDialogComponent implements OnInit {
       this.isSvgContent = false;
       this.displayContent =
           this.safeValuesService.bypassSecurityTrustUrl(prefix + imageData);
+    }
+  }
+
+  nextImage(): void {
+    if (this.currentIndex < this.images.length - 1) {
+      this.currentIndex++;
+      this.updateImage();
+    }
+  }
+
+  prevImage(): void {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+      this.updateImage();
     }
   }
 

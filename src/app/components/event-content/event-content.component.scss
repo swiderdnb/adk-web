@@ -1,0 +1,48 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+app-content-bubble + app-content-bubble {
+  margin-top: 5px;
+}
+
+.event-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+}
+
+:host-context(.user) .event-chips-container {
+  justify-content: flex-end;
+}
+
+.eval-case-edit-button {
+  cursor: pointer;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.eval-pass {
+  display: flex;
+  color: #2e7d32;
+}
+
+.eval-fail {
+  display: flex;
+  color: var(--mat-sys-error);
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.event-action-button {
+  margin: 5px;
+}
+
+.function-calls-previews {
+  width: 100%;
+}
