@@ -605,17 +605,14 @@ describe('ChatComponent', () => {
           });
 
           it('should populate messages from session events', () => {
-            expect(component.uiEvents().length).toBe(3);
+            expect(component.uiEvents().length).toBe(2);
             expect(component.uiEvents()[0]).toEqual(jasmine.objectContaining({
               role: 'user',
               text: 'user message'
             }));
             expect(component.uiEvents()[1]).toEqual(jasmine.objectContaining({
               role: 'bot',
-              text: 'bot response'
-            }));
-            expect(component.uiEvents()[2]).toEqual(jasmine.objectContaining({
-              role: 'bot',
+              text: 'bot response',
               inlineData: jasmine.objectContaining({
                 data: 'data:application/pdf;base64,base64data==',
                 mimeType: 'application/pdf',
