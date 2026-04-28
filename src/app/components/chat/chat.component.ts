@@ -2272,7 +2272,6 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
   protected exportSession() {
     this.sessionService.getSession(this.userId, this.appName, this.sessionId)
         .subscribe((res) => {
-          console.log(res);
           this.downloadService.downloadObjectAsJson(
               res, `session-${this.sessionId}.json`);
         });
