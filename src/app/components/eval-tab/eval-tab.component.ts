@@ -364,9 +364,9 @@ export class EvalTabComponent implements OnInit, OnChanges {
           invocationResult.expectedInvocation.intermediateData.toolUses);
     } else if (event.failedMetric === 'response_match_score') {
       event.actualFinalResponse =
-          invocationResult.actualInvocation.finalResponse.parts[0].text;
+          invocationResult.actualInvocation.finalResponse?.parts?.[0]?.text;
       event.expectedFinalResponse =
-          invocationResult.expectedInvocation.finalResponse.parts[0]?.text;
+          invocationResult.expectedInvocation.finalResponse?.parts?.[0]?.text;
     }
   }
 

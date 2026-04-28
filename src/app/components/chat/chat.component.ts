@@ -1235,6 +1235,24 @@ export class ChatComponent implements OnInit, AfterViewInit, OnDestroy {
             )
         .subscribe({
           next: (res) => {
+            if (res.text) {
+              this.messages.update(messages => {
+                return messages.map(m => {
+                  if (m === message) {
+                    return {
+                      role: 'bot',
+                      text: res.text,
+                    };
+                  }
+                  return m;
+                });
+              });
+              this.artifacts = this.artifacts.map(a =>
+                  a.id === artifactId && a.versionId === versionId ?
+                      {id: artifactId, versionId, data: res.text, mimeType: 'text/plain', mediaType: 'text'} :
+                      a);
+              return;
+            }
             const {mimeType, data} = res.inlineData ?? {};
             if (!mimeType || !data) {
               this.handleArtifactFetchFailure(message, artifactId, versionId);
